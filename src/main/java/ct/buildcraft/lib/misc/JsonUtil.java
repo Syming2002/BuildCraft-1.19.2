@@ -15,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.StreamSupport;
@@ -45,7 +46,11 @@ import com.google.gson.internal.Streams;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
 
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.ByteArrayTag;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
@@ -61,9 +66,12 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.LiteralContents;
 import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Climate.ParameterPoint;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.util.JsonUtils;
 import net.minecraftforge.fluids.FluidStack;
@@ -612,5 +620,25 @@ public class JsonUtil {
             }
         }
         return object;
+    }
+    //BUG
+    public static final Codec<Pair<ParameterPoint, ResourceKey<Biome>>> BIOME_CODEC = Codec.pair(ParameterPoint.CODEC, ResourceKey.codec(Registry.BIOME_REGISTRY));
+    public static final Codec<String> PARA_TO_STRING_CODEC = ParameterPoint.CODEC.xmap(a -> a.toString(), null);
+    public static final Codec<Map<String, ResourceKey<Biome>>> BIOME_MAP_CODEC = Codec.unboundedMap(Codec.STRING, ResourceKey.codec(Registry.BIOME_REGISTRY));
+
+    public static ParameterPoint stringToParameterPoint(String s) {
+    	Pattern tem = Pattern.compile("temperature\\=\\[(.*?)\\]");
+    	return null;
+//    	return ParameterPoint.
+    }
+    
+    public static JsonElement codeBiomePair(Pair<ParameterPoint, ResourceKey<Biome>> pair) {
+    	return BIOME_CODEC.encodeStart(JsonOps.INSTANCE, pair).getOrThrow(false, (s) -> BCLog.logger.debug("BuildCraft:JsonUtil:Can not codec "+ pair.toString() +"\n"
+    			+ "with error :" + s + "\n this should not happen."));
+    }
+    
+    public static Pair<ParameterPoint, ResourceKey<Biome>> decodeBiomePair(String debugInfo ,JsonElement json) {
+    	return BIOME_CODEC.parse(JsonOps.INSTANCE, json).getOrThrow(false, (s) -> BCLog.logger.debug("BuildCraft:JsonUtil:Can not decodec "+ debugInfo +"\n"
+    			+ "with error :" + s + "\n this should not happen."));
     }
 }
