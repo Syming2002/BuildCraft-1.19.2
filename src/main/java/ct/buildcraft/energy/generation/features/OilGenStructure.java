@@ -1,4 +1,4 @@
-package ct.buildcraft.energy.generation;
+package ct.buildcraft.energy.generation.features;
 
 import java.util.function.Predicate;
 
@@ -11,11 +11,17 @@ import ct.buildcraft.energy.blockEntity.TileSpringOil;
 import ct.buildcraft.lib.BCLib;
 import ct.buildcraft.lib.misc.BlockUtil;
 import ct.buildcraft.lib.misc.VecUtil;
+import ct.buildcraft.lib.misc.data.Box;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.material.Fluids;
 
 public abstract class OilGenStructure {
     public final Box box;
@@ -25,49 +31,53 @@ public abstract class OilGenStructure {
         this.box = containingBox;
         this.replaceType = replaceType;
     }
-
-    public final void generate(Level world, Box within) {
+    
+    public final void generate(WorldGenLevel world, Box within) {
         Box intersect = box.getIntersect(within);
         if (intersect != null) {
             generateWithin(world, intersect);
         }
+        else {
+        	BCLog.logger.debug("OilGenStructure:fail to generate by box "+ box +" for "+within);
+        }
     }
 
     /** Generates this structure in the world, but only between the given coordinates. */
-    protected abstract void generateWithin(Level world, Box intersect);
+    protected abstract void generateWithin(WorldGenLevel world, Box intersect);
 
     /** @return The number of oil blocks that this structure will set. Note that this is called *after*
      *         {@link #generateWithin(Level, Box)}, by the Spring type, so this can store the number set. */
     protected abstract int countOilBlocks();
 
-    public void setOilIfCanReplace(Level world, BlockPos pos) {
+    public void setOilIfCanReplace(WorldGenLevel world, BlockPos pos) {
         if (canReplaceForOil(world, pos)) {
             setOil(world, pos);
         }
     }
 
-    public boolean canReplaceForOil(Level world, BlockPos pos) {
+    public boolean canReplaceForOil(WorldGenLevel world, BlockPos pos) {
         return replaceType.canReplace(world, pos);
     }
 
-    public static void setOil(Level world, BlockPos pos) {
-        world.setBlockState(pos, BCEnergyFluids.crudeOil[0].getBlock().getDefaultState(), 2);
+    public static void setOil(WorldGenLevel world, BlockPos pos) {
+    	BCLog.logger.debug("OilGenStruecutre:generate oil for "+pos);
+        world.setBlock(pos, BCEnergyFluids.crudeOil[0].defaultFluidState().createLegacyBlock(), 2);
     }
 
     public enum ReplaceType {
         ALWAYS {
             @Override
-            public boolean canReplace(Level world, BlockPos pos) {
+            public boolean canReplace(WorldGenLevel world, BlockPos pos) {
                 return true;
             }
         },
         IS_FOR_LAKE {
             @Override
-            public boolean canReplace(Level world, BlockPos pos) {
+            public boolean canReplace(WorldGenLevel world, BlockPos pos) {
                 return ALWAYS.canReplace(world, pos);
             }
         };
-        public abstract boolean canReplace(Level world, BlockPos pos);
+        public abstract boolean canReplace(WorldGenLevel world, BlockPos pos);
     }
 
     public static class GenByPredicate extends OilGenStructure {
@@ -79,8 +89,8 @@ public abstract class OilGenStructure {
         }
 
         @Override
-        protected void generateWithin(Level world, Box intersect) {
-            for (BlockPos pos : BlockPos.getAllInBox(intersect.min(), intersect.max())) {
+        protected void generateWithin(WorldGenLevel world, Box intersect) {
+            for (BlockPos pos : BlockPos.betweenClosed(intersect.min(), intersect.max())) {
                 if (predicate.test(pos)) {
                     setOilIfCanReplace(world, pos);
                 }
@@ -90,7 +100,7 @@ public abstract class OilGenStructure {
         @Override
         protected int countOilBlocks() {
             int count = 0;
-            for (BlockPos pos : BlockPos.getAllInBox(box.min(), box.max())) {
+            for (BlockPos pos : BlockPos.betweenClosed(box.min(), box.max())) {
                 if (predicate.test(pos)) {
                     count++;
                 }
@@ -110,16 +120,16 @@ public abstract class OilGenStructure {
         }
 
         public static FlatPattern create(BlockPos start, ReplaceType replaceType, boolean[][] pattern, int depth) {
-            BlockPos min = start.add(0, 1 - depth, 0);
-            BlockPos max = start.add(pattern.length - 1, 0, pattern.length == 0 ? 0 : pattern[0].length - 1);
+            BlockPos min = start.offset(0, 1 - depth, 0);
+            BlockPos max = start.offset(pattern.length - 1, 0, pattern.length == 0 ? 0 : pattern[0].length - 1);
             Box box = new Box(min, max);
             return new FlatPattern(box, replaceType, pattern, depth);
         }
 
         @Override
-        protected void generateWithin(Level world, Box intersect) {
+        protected void generateWithin(WorldGenLevel world, Box intersect) {
             BlockPos start = box.min();
-            for (BlockPos pos : BlockPos.getAllInBox(intersect.min(), intersect.max())) {
+            for (BlockPos pos : BlockPos.betweenClosed(intersect.min(), intersect.max())) {
                 int x = pos.getX() - start.getX();
                 int z = pos.getZ() - start.getZ();
                 if (pattern[x][z]) {
@@ -155,13 +165,13 @@ public abstract class OilGenStructure {
         public static PatternTerrainHeight create(BlockPos start, ReplaceType replaceType, boolean[][] pattern,
             int depth) {
             BlockPos min = VecUtil.replaceValue(start, Axis.Y, 1);
-            BlockPos max = min.add(pattern.length - 1, 255, pattern.length == 0 ? 0 : pattern[0].length - 1);
+            BlockPos max = min.offset(pattern.length - 1, 255, pattern.length == 0 ? 0 : pattern[0].length - 1);
             Box box = new Box(min, max);
             return new PatternTerrainHeight(box, replaceType, pattern, depth);
         }
 
         @Override
-        protected void generateWithin(Level world, Box intersect) {
+        protected void generateWithin(WorldGenLevel world, Box intersect) {
             for (int x = intersect.min().getX(); x <= intersect.max().getX(); x++) {
                 int px = x - box.min().getX();
 
@@ -169,13 +179,13 @@ public abstract class OilGenStructure {
                     int pz = z - box.min().getZ();
 
                     if (pattern[px][pz]) {
-                        BlockPos upper = world.getHeight(new BlockPos(x, 0, z)).down();
+                        BlockPos upper = world.getHeightmapPos(Heightmap.Types.WORLD_SURFACE/*Maybe*/, new BlockPos(x, 0, z)).below();
                         if (canReplaceForOil(world, upper)) {
                             for (int y = 0; y < 5; y++) {
-                                world.setBlockToAir(upper.up(y));
+                                world.setBlock(upper.above(y), Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
                             }
                             for (int y = 0; y < depth; y++) {
-                                setOilIfCanReplace(world, upper.down(y));
+                                setOilIfCanReplace(world, upper.below(y));
                             }
                         }
                     }
@@ -220,32 +230,32 @@ public abstract class OilGenStructure {
         }
 
         @Override
-        protected void generateWithin(Level world, Box intersect) {
+        protected void generateWithin(WorldGenLevel world, Box intersect) {
             count = 0;
-            int segment = world.getChunkFromBlockCoords(start).getTopFilledSegment();
+            int segment = world.getChunk(start).getHighestSectionPosition();
             BlockPos worldTop = new BlockPos(start.getX(), segment + 16, start.getZ());
             for (int y = segment; y >= start.getY(); y--) {
-                worldTop = worldTop.down();
+                worldTop = worldTop.below();
                 BlockState state = world.getBlockState(worldTop);
-                if (state.getBlock().isAir(state, world, worldTop)) {
+                if (state.isAir()) {
                     continue;
                 }
-                if (BlockUtil.getFluidWithFlowing(state.getBlock()) != null) {
+                if (BlockUtil.getFluidWithoutFlowing(state) != Fluids.EMPTY) {//TO DEBUG!
                     break;
                 }
-                if (state.getMaterial().blocksMovement()) {
+                if (state.getMaterial().blocksMotion()) {
                     break;
                 }
             }
-            OilGenStructure tubeY = OilGenerator.createTube(start, worldTop.getY() - start.getY(), radius, Axis.Y);
+            OilGenStructure tubeY = OilStructureGen.createTube(start, worldTop.getY() - start.getY(), radius, Axis.Y);
             tubeY.generate(world, tubeY.box);
             count += tubeY.countOilBlocks();
             BlockPos base = worldTop;
             for (int r = radius; r >= 0; r--) {
                 // BCLog.logger.info(" - " + base + " = " + r);
-                OilGenStructure struct = OilGenerator.createTube(base, height, r, Axis.Y);
+                OilGenStructure struct = OilStructureGen.createTube(base, height, r, Axis.Y);
                 struct.generate(world, struct.box);
-                base = base.add(0, height, 0);
+                base = base.offset(0, height, 0);
                 count += struct.countOilBlocks();
             }
         }
@@ -268,7 +278,7 @@ public abstract class OilGenStructure {
         }
 
         @Override
-        protected void generateWithin(Level world, Box intersect) {
+        protected void generateWithin(WorldGenLevel world, Box intersect) {
             // NO-OP (this one is called separately)
         }
 
@@ -277,22 +287,23 @@ public abstract class OilGenStructure {
             return 0;
         }
 
-        public void generate(Level world, int count) {
-            BlockState state = BCCoreBlocks.spring.getDefaultState();
-            state = state.withProperty(BlockSpring.SPRING_TYPE, EnumSpring.OIL);
-            world.setBlockState(pos, state);
+        public void generate(WorldGenLevel world, int count) {
+            BlockState state = BCCoreBlocks.SPRING.get().defaultBlockState();
+            state = state.setValue(BlockSpring.SPRING_TYPE, EnumSpring.OIL);
+            BCLog.logger.debug("OilGenStruecutre:1 generate spring for "+pos);
+            world.setBlock(pos, state, 2);
             BlockEntity tile = world.getBlockEntity(pos);
             TileSpringOil spring;
             if (tile instanceof TileSpringOil) {
                 spring = (TileSpringOil) tile;
+                spring.totalSources = count;
             } else {
                 BCLog.logger.warn("[energy.gen.oil] Setting the blockstate didn't also set the tile at " + pos);
-                spring = new TileSpringOil();
-                spring.setLevel(world);
-                spring.setPos(pos);
-                world.setBlockEntity(pos, spring);
+                spring = new TileSpringOil(pos, state);
+/*                spring.setLevel(world);
+                world.setBlockEntity(spring);*/
             }
-            spring.totalSources = count;
+//          spring.totalSources = count;
             if (BCLib.DEV) {
                 BCLog.logger.info("[energy.gen.oil] Generated TileSpringOil as " + System.identityHashCode(tile));
             }

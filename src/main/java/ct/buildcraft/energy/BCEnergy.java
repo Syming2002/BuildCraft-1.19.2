@@ -14,6 +14,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 
 import ct.buildcraft.api.core.BCLog;
+import ct.buildcraft.core.BCCoreConfig;
 import ct.buildcraft.energy.generation.BCOverWorldRegion;
 import ct.buildcraft.energy.generation.BCSurfaceRuleData;
 import ct.buildcraft.energy.generation.BiomeOilDesert;
@@ -31,7 +32,9 @@ import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig.Type;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
@@ -67,6 +70,8 @@ public class BCEnergy {
         BCEnergyBlocks.init(modEventBus);
         BCEnergyGuis.init();
         BCEnergyBiomes.init(modEventBus);
+        BCEnergyConfig.preInit();
+        ModLoadingContext.get().registerConfig(Type.COMMON, BCEnergyConfig.config);
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(BCEnergyClientProxy.class);
         // Register the Deferred Register to the mod event bus so blocks get registered
@@ -82,8 +87,10 @@ public class BCEnergy {
     {
     	BCEnergyFluids.init();
     	BCEnergyRecipes.init();
+    	BCEnergyConfig.reloadConfig(MODID);
     	Regions.register(new BCOverWorldRegion(40));
     	SurfaceRuleManager.addSurfaceRules(SurfaceRuleManager.RuleCategory.OVERWORLD, MODID, BCSurfaceRuleData.oilDesertRule());
+    	event.enqueueWork(BCEnergyBiomes::registryFeature);
     	LOGGER.info("HELLO FROM COMMON SETUP");
         LOGGER.info("DIRT BLOCK >> {}", ForgeRegistries.BLOCKS.getKey(Blocks.DIRT));
         
@@ -101,32 +108,6 @@ public class BCEnergy {
         LOGGER.info("HELLO from server starting");
     }
     
-    private void test() throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
-        List<Pair<Climate.ParameterPoint, ResourceKey<Biome>>> list = new ArrayList<Pair<Climate.ParameterPoint, ResourceKey<Biome>>>();
-        List<Pair<Climate.ParameterPoint, ResourceKey<Biome>>> target = new ArrayList<Pair<Climate.ParameterPoint, ResourceKey<Biome>>>();
-
-		Constructor<?> constructor = OverworldBiomeBuilder.class.getDeclaredConstructors()[0];
-		constructor.setAccessible(true);
-		OverworldBiomeBuilder builder = (OverworldBiomeBuilder) constructor.newInstance();
-		Consumer<Pair<Climate.ParameterPoint, ResourceKey<Biome>>> con = list::add;
-		
-		for(Method method : OverworldBiomeBuilder.class.getDeclaredMethods()) {
-			method.setAccessible(true);
-			BCLog.logger.debug("energy_test:methodName:"+method.getName());
-			if(method.getName().equals("addBiomes")) {
-				method.invoke(builder, con);
-			} 
-		}
-		BCLog.logger.debug("energy_test:methodName:successed");
-		for(var pair : list) {
-			if(pair.getSecond().equals(Biomes.DESERT)&&pair.getFirst().weirdness().max()>0) {
-				target.add(pair);
-				BCLog.logger.debug("energy_test:methodName:get desert biome for "+pair.getFirst());
-			}
-		}
-		BCLog.logger.debug("energy_test:methodName:breakpoint");
-		
-    }
 
 
 

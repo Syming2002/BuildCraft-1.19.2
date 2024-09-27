@@ -193,7 +193,7 @@ public class BCCoreConfig {
     }
 
     protected static void reloadConfig(String modid) {
-    	if(modid != BCCore.MODID)return ;
+    	if(!modid.equals(BCCore.MODID))return ;
         minePlayerProtected = propMinePlayerProtected.get();
         BCLibConfig.useColouredLabels = propUseColouredLabels.get();
         BCLibConfig.useHighContrastLabelColours = propUseHighContrastColouredLabels.get();

@@ -1,43 +1,47 @@
-package ct.buildcraft.energy.generation;
+package ct.buildcraft.energy.generation.features;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 
-import ct.buildcraft.api.core.BCDebugging;
 import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.core.BCCoreBlocks;
 import ct.buildcraft.energy.BCEnergyConfig;
-import ct.buildcraft.energy.generation.features.OilGenStructure;
 import ct.buildcraft.energy.generation.features.OilGenStructure.GenByPredicate;
 import ct.buildcraft.energy.generation.features.OilGenStructure.ReplaceType;
 import ct.buildcraft.lib.misc.RandUtil;
 import ct.buildcraft.lib.misc.VecUtil;
 import ct.buildcraft.lib.misc.data.Box;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Direction.Axis;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public class OilGenerator {
-    private OilGenerator() {}
-
+public class OilStructureGen {
     /** Random number, used to differentiate generators */
     private static final long MAGIC_GEN_NUMBER = 0xD0_46_B4_E4_0C_7D_07_CFL;
 
-    /** The distance that oil generation will be checked to see if their structures overlap with the currently
-     * generating chunk. This should be large enough that all oil generation can fit inside this radius. If this number
-     * is too big then oil generation will be slightly slower */
-    private static final int MAX_CHUNK_RADIUS = 5;
-
-    public static final boolean DEBUG_OILGEN_BASIC = BCDebugging.shouldDebugLog("energy.oilgen");
-    public static final boolean DEBUG_OILGEN_ALL = BCDebugging.shouldDebugComplex("energy.oilgen");
+    public static final boolean DEBUG_OILGEN_BASIC = true;//BCDebugging.shouldDebugLog("energy.oilgen");
+    public static final boolean DEBUG_OILGEN_ALL = true;//BCDebugging.shouldDebugComplex("energy.oilgen");
+    
+    private static final LoadingCache<Integer, List<OilGenStructure>> structureCache
+    	= CacheBuilder.newBuilder().expireAfterAccess(20, TimeUnit.SECONDS).build(CacheLoader.from(OilStructureGen::genCache));
+    
+    private static WorldGenLevel level;
 
     private enum GenType {
         LARGE,
@@ -45,94 +49,43 @@ public class OilGenerator {
         LAKE,
         NONE
     }
-
-    public static void onPopulatePre(PopulateChunkEvent.Pre event) {
-        WorldGenLevel world = pfc.level();
-        BlockPos orginPos = pfc.origin();
-        ChunkPos chunkPos = world.getChunk(orginPos).getPos();
-        int chunkX = chunkPos.x;
-        int chunkZ = chunkPos.z;
-
-/*        if (world.getLevelType() == LevelType.FLAT) {
-            if (DEBUG_OILGEN_BASIC) {
-                BCLog.logger.info(
-                    "[energy.oilgen] Not generating oil in " + world + " chunk " + chunkX + ", " + chunkZ
-                        + " because it's LevelType is FLAT."
-                );
-            }
-            return;
-        }*/
-/*        boolean isExcludedDimension = BCEnergyConfig.excludedDimensions.contains(world.dimensionTypeId().location());
-        if (isExcludedDimension == BCEnergyConfig.excludedDimensionsIsBlackList) {
-            if (DEBUG_OILGEN_BASIC) {
-                BCLog.logger.info(
-                    "[energy.oilgen] Not generating oil in " + world + " chunk " + chunkX + ", " + chunkZ
-                        + " because it's dimension is disabled."
-                );
-            }
-            return;
-        }
-*/
-//        world.profiler.startSection("bc_oil");
-        int count = 0;
-        int x = chunkX * 16 + 8;
-        int z = chunkZ * 16 + 8;
-        BlockPos min = new BlockPos(x, 0, z);
-        Box box = new Box(min, min.offset(15, world.getHeight(), 15));
-
-        for (int cdx = -MAX_CHUNK_RADIUS; cdx <= MAX_CHUNK_RADIUS; cdx++) {
-            for (int cdz = -MAX_CHUNK_RADIUS; cdz <= MAX_CHUNK_RADIUS; cdz++) {
-                int cx = chunkX + cdx;
-                int cz = chunkZ + cdz;
-//                world.getProfiler().startSection("scan");
-                List<OilGenStructure> structures = getStructures(world, cx, cz, cdx == 0 && cdz == 0);
-                OilGenStructure.Spring spring = null;
-//                world.getProfiler().endStartSection("gen");
-                for (OilGenStructure struct : structures) {
-                    struct.generate(world, box);
-                    if (struct instanceof OilGenStructure.Spring) {
-                        spring = (OilGenStructure.Spring) struct;
-                    }
-                }
-                if (spring != null && box.contains(spring.pos)) {
-                    
-                    for (OilGenStructure struct : structures) {
-                        count += struct.countOilBlocks();
-                    }
-                    spring.generate(world, count);
-                }
-//                world.getProfiler().pop();;
-            }
-        }
-//        world.getProfiler().pop();
-		return count > 0;
+    //TODO change to Lambda
+    private static List<OilGenStructure> genCache(int key){
+    	return getStructures(level, key&0x0000FFFF, key&0xFFFF0000, false);
     }
-
+    
     public static List<OilGenStructure> getStructures(WorldGenLevel world, int cx, int cz) {
-        return getStructures(world, cx, cz, false);
+    	if(level != world)
+    		level = world;
+    	return structureCache.getUnchecked(cz<<16|cx);
     }
 
-    private static List<OilGenStructure> getStructures(WorldGenLevel world, int cx, int cz, boolean log) {
+    /*this will not use the cache, only use for testing*/
+    protected static List<OilGenStructure> getStructures(WorldGenLevel world, int cx, int cz, boolean log) {
         RandomSource rand = RandUtil.createRandomForChunk(world, cx, cz, MAGIC_GEN_NUMBER);
 
         // shift to world coordinates
         int x = cx * 16 + 8 + rand.nextInt(16);
         int z = cz * 16 + 8 + rand.nextInt(16);
 
-        Biome biome = world.getBiome(new BlockPos(x, 0, z)).get();
+        Holder<Biome> biome = world.getBiome(new BlockPos(x, 0, z));
+        if(!"buildcraftenergy:oil_desert".equals(biome.unwrapKey().get().location().toString())) {
+//        	BCLog.logger.debug("OilGenFeature:fail");
+        	return ImmutableList.of();
+        }
 
         // Do not generate oil in excluded biomes
-        boolean isExcludedBiome = BCEnergyConfig.excludedBiomes.contains(ForgeRegistries.BIOMES.getKey(biome));
-        if (isExcludedBiome == BCEnergyConfig.excludedBiomesIsBlackList) {
-            if (DEBUG_OILGEN_BASIC & log) {
+        boolean isExcludedBiome = (biome.unwrapKey().get().location().compareTo(new ResourceLocation("buildcraftenergy:oil_desert"))) == 0;//BCEnergyConfig.excludedBiomes.contains(biome.unwrapKey().get().location());
+        if (!isExcludedBiome/* == BCEnergyConfig.excludedBiomesIsBlackList*/) {
+            if (DEBUG_OILGEN_BASIC & log){//log) {
                 BCLog.logger.info(
                     "[energy.oilgen] Not generating oil in " + toStr(world) + " chunk " + cx + ", " + cz
-                        + " because the biome we found (" + ForgeRegistries.BIOMES.getKey(biome) + ") is disabled!"
+                        + " because the biome we found (" + biome.unwrapKey().get().location().toString() + ") is disabled!"
                 );
             }
             return ImmutableList.of();
         }
-
+/*
         if (isEndBiome(biome) && (Math.abs(x) < 1200 || Math.abs(z) < 1200)) {
             if (DEBUG_OILGEN_BASIC & log) {
                 BCLog.logger.info(
@@ -141,13 +94,13 @@ public class OilGenerator {
                 );
             }
             return ImmutableList.of();
-        }
+        }*/
 
-        boolean oilBiome = BCEnergyConfig.surfaceDepositBiomes.contains(ForgeRegistries.BIOMES.getKey(biome));
+        boolean oilBiome = BCEnergyConfig.surfaceDepositBiomes.contains(ForgeRegistries.BIOMES.getKey(biome.get()));
 
         double bonus = oilBiome ? 3.0 : 1.0;
         bonus *= BCEnergyConfig.oilWellGenerationRate;
-        if (BCEnergyConfig.excessiveBiomes.contains(ForgeRegistries.BIOMES.getKey(biome))) {
+        if (true) {
             bonus *= 30.0;
         }
         final GenType type;
@@ -327,8 +280,12 @@ public class OilGenerator {
         return pattern[x][z];
     }
     
-    private static boolean isEndBiome(Biome biome) {
-    	return ForgeRegistries.BIOMES.getKey(biome).getPath().contains("end");//maybe some problem
+    private static boolean isEndBiome(Holder<Biome> biome) {
+    	ResourceKey<?> key = biome.unwrapKey().get();
+    	return key == Biomes.THE_END||
+    			key == Biomes.END_BARRENS||
+    			key == Biomes.END_HIGHLANDS||
+    			key == Biomes.END_MIDLANDS||
+    			key == Biomes.SMALL_END_ISLANDS;
     }
-
 }

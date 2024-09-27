@@ -19,10 +19,14 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
 
 import ct.buildcraft.api.core.BCLog;
+import ct.buildcraft.energy.generation.features.OilGenFeature;
 import ct.buildcraft.lib.misc.JsonUtil;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
 import net.minecraft.data.worldgen.biome.OverworldBiomes;
+import net.minecraft.data.worldgen.features.FeatureUtils;
+import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.Biome;
@@ -30,21 +34,38 @@ import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.biome.OverworldBiomeBuilder;
+import net.minecraft.world.level.levelgen.GenerationStep.Decoration;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+import net.minecraft.world.level.levelgen.placement.BiomeFilter;
+import net.minecraft.world.level.levelgen.placement.CountPlacement;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.biome.Biome.Precipitation;
 import net.minecraft.world.level.biome.Climate.ParameterPoint;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 
 public class BCEnergyBiomes {
 	public static final DeferredRegister<Biome> BIOME_REGISTER = DeferredRegister.create(ForgeRegistries.BIOMES, BCEnergy.MODID);
+	public static final DeferredRegister<Feature<?>> FEATURE_REGISTER = DeferredRegister.create(ForgeRegistries.FEATURES, BCEnergy.MODID);
 	
-    public static final Biome OIL_DESERT ;
     public static final ResourceKey<Biome> OIL_DESERT_KEY = ResourceKey.create(Registry.BIOME_REGISTRY, new ResourceLocation(BCEnergy.MODID,"oil_desert"));
+    
+    public static final Biome OIL_DESERT_BIOME ; 
+    
+    public static final OilGenFeature OIL_FEATURE = new OilGenFeature(NoneFeatureConfiguration.CODEC);
+    
+    public static Holder<ConfiguredFeature<NoneFeatureConfiguration, ?>> OIL_FEN_CON = FeatureUtils.register("buildcraftenergy:desert_oil", OIL_FEATURE);
+    
+    public static Holder<PlacedFeature> OIL_PLACED_FEATURE = PlacementUtils.register("buildcraftenergy:desert_oil", OIL_FEN_CON, BiomeFilter.biome(), CountPlacement.of(1), PlacementUtils.RANGE_BOTTOM_TO_MAX_TERRAIN_HEIGHT);
     
     public static List<Pair<ParameterPoint, ResourceKey<Biome>>> OIL_BIOME_REPLACEMENT;
     
-    static {
+    static{
+//    	PlacementUtils.register(null, null, BiomeFilter.biome());
     	Biome desert = OverworldBiomes.desert();
     	BiomeGenerationSettings.Builder feature$builder = new BiomeGenerationSettings.Builder();
         BiomeGenerationSettings.Builder biomegenerationsettings$builder = new BiomeGenerationSettings.Builder();
@@ -63,14 +84,19 @@ public class BCEnergyBiomes {
         BiomeDefaultFeatures.addDefaultMushrooms(biomegenerationsettings$builder);
         BiomeDefaultFeatures.addDesertExtraVegetation(biomegenerationsettings$builder);
         BiomeDefaultFeatures.addDesertExtraDecoration(biomegenerationsettings$builder);
-        OIL_DESERT = new Biome.BiomeBuilder().precipitation(Precipitation.NONE).temperature(2.0f).downfall(0.0f).generationSettings(biomegenerationsettings$builder.build())
+        biomegenerationsettings$builder.addFeature(Decoration.SURFACE_STRUCTURES, OIL_PLACED_FEATURE);
+        OIL_DESERT_BIOME = new Biome.BiomeBuilder().precipitation(Precipitation.NONE).temperature(2.0f).downfall(0.0f).generationSettings(biomegenerationsettings$builder.build())
         		.mobSpawnSettings(desert.getMobSettings()).precipitation(desert.getPrecipitation()).specialEffects(desert.getModifiedSpecialEffects())
         		.build();
     	
     }
     
+    
+    
     public static void init(IEventBus modEventBus) {
-    	BIOME_REGISTER.register("oil_desert", () -> OIL_DESERT);
+    	BIOME_REGISTER.register("oil_desert", () -> OIL_DESERT_BIOME);
+    	FEATURE_REGISTER.register("desert_oil", () -> OIL_FEATURE);
+    	FEATURE_REGISTER.register(modEventBus);
     	BIOME_REGISTER.register(modEventBus);
 //    	getReplaceMentFromOverworldBiomeBuilder();
 //    	saveBiomeReplaceMent();
@@ -78,6 +104,12 @@ public class BCEnergyBiomes {
     		getReplaceMentFromOverworldBiomeBuilder();
     		saveBiomeReplaceMent();
     	}
+    }
+    
+    public static void registryFeature() {
+//    	 OIL_FEN_CON = FeatureUtils.register("buildcraftenergy:desert_oil", OIL_FEATURE);
+//    	 OIL_PLACED_FEATURE = PlacementUtils.register("buildcraftenergy:desert_oil", OIL_FEN_CON, BiomeFilter.biome());
+    	    
     }
     
     private static void getReplaceMentFromOverworldBiomeBuilder() {

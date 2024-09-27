@@ -48,7 +48,7 @@ public class BCEnergyConfig {
     public static double mediumOilGenProb;
     public static double largeOilGenProb;
 
-    public static IntArrayList excludedDimensions = new IntArrayList();
+//    public static IntArrayList excludedDimensions = new IntArrayList();
     /** If false then {@link #excludedDimensions} should be treated as a whitelist rather than a blacklist. */
     public static boolean excludedDimensionsIsBlackList;
     public static final Set<ResourceLocation> excessiveBiomes = new HashSet<>();
@@ -62,7 +62,7 @@ public class BCEnergyConfig {
     private static BooleanValue propEnableOilDesertBiome;
 
     private static BooleanValue propEnableOilGeneration;
-    private static ConfigValue<Double> propOilWellGenerationRate;
+    private static DoubleValue propOilWellGenerationRate;
     private static BooleanValue propEnableOilSpouts;
     private static BooleanValue propEnableOilBurn;
     private static BooleanValue propOilIsSticky;
@@ -76,11 +76,11 @@ public class BCEnergyConfig {
     private static DoubleValue propMediumOilGenProb;
     private static DoubleValue propLargeOilGenProb;
 
-    private static ConfigValue<String[]> propExcessiveBiomes;
+/*    private static ConfigValue<String[]> propExcessiveBiomes;
     private static ConfigValue<String[]> propSurfaceDepositBiomes;
-    private static ConfigValue<String[]> propExcludedBiomes;
+    private static ConfigValue<String[]> propExcludedBiomes;*/
     private static BooleanValue propExcludedBiomesIsBlacklist;
-    private static ConfigValue<int[]> propExcludedDimensions;
+//    private static ConfigValue<int[]> propExcludedDimensions;
     private static BooleanValue propExcludedDimensionsIsBlacklist;
 //    private static int propChristmasEventType;
 
@@ -113,26 +113,26 @@ public class BCEnergyConfig {
         propOilWellGenerationRate = con_builder.comment("The rate of occurrence of oil wells.")
         		.defineInRange("generationRate", 1.0, 0, 100);
         
-        propExcessiveBiomes = con_builder.comment("Biome registry names (e.g. 'minecraft:ocean','minecraft:plains')"
+/*        propExcessiveBiomes = con_builder.comment("Biome registry names (e.g. 'minecraft:ocean','minecraft:plains')"
                 + " of biomes that should have GREATLY increased oil generation rates.")
-        		.define("excessiveBiomes", _excessive);//temp
+        		.define("excessiveBiomes", _excessive);//temp*/
 
-        String[] _surface = {};
+/*        String[] _surface = {};
         propSurfaceDepositBiomes = con_builder.comment("Biome registry names (e.g. 'minecraft:ocean','minecraft:hills')"
                 + " of biomes that should have slightly increased oil generation rates.")
         		.define("surfaceDepositBiomes", _surface);
 
-        String[] _excluded = { "minecraft:hell", "minecraft:sky", };
+        String[] _excluded = { "minecraft:hell", "minecraft:sky", };//TODO
         propExcludedBiomes = con_builder.comment("Biome registry names (e.g. 'minecraft:hell','minecraft:jungle') of biomes that should never generate oil.")
-        		.define("excludedBiomes", _excluded);//temp
+        		.define("excludedBiomes", _excluded);//temp*/
 
         propExcludedBiomesIsBlacklist = con_builder.comment("If true then the excluded biomes list will be treated as a blacklist, otherwise it will be treated as a whitelist.")
         		.define("excludedBiomesIsBlacklist", true);
         
-        int[] _dims = { -1, 1 };
+/*        int[] _dims = { -1, 1 };
         propExcludedDimensions = con_builder.comment("Dimension ID's (e.g. '-1' for the nether,'1' for the end) of dimensions that should never generate oil.")
         		.define("excludedDimensions", _dims);//temp
-
+*/
         propExcludedDimensionsIsBlacklist = con_builder.comment("If true then the excluded dimenstions list will be treated as a blacklist, otherwise it will be treated as a whitelist.")
         		.define("excludedDimensionsIsBlacklist", true);
         
@@ -231,7 +231,7 @@ public class BCEnergyConfig {
         BCCoreConfig.addReloadListener(BCEnergyConfig::reloadConfig);*/
         config = con_builder.build();
 
-        MinecraftForge.EVENT_BUS.register(BCCoreConfig.class);
+        MinecraftForge.EVENT_BUS.register(BCEnergyConfig.class);
     }
     @SubscribeEvent
     public static void onReloadConfig(final ModConfigEvent.Reloading restarted) {
@@ -240,18 +240,18 @@ public class BCEnergyConfig {
     
     @SubscribeEvent
     public static void onLoadConfig(final ModConfigEvent.Loading load) {
-    	validateBiomeNames();
+//    	validateBiomeNames();
     	reloadConfig(load.getConfig().getModId());
     }
     
-    public static void reloadConfig(String modid) {
-        if (modid == BCEnergy.MODID) {
+    protected static void reloadConfig(String modid) {
+        if (modid.equals(BCEnergy.MODID)) {
 
-            addBiomeNames(propExcludedBiomes, excludedBiomes);
+/*            addBiomeNames(propExcludedBiomes, excludedBiomes);
             addBiomeNames(propExcessiveBiomes, excessiveBiomes);
-            addBiomeNames(propSurfaceDepositBiomes, surfaceDepositBiomes);
-            excludedDimensions.clear();
-            excludedDimensions = new IntArrayList(propExcludedDimensions.get());
+            addBiomeNames(propSurfaceDepositBiomes, surfaceDepositBiomes);*/
+/*            excludedDimensions.clear();
+            excludedDimensions = new IntArrayList(propExcludedDimensions.get());*/
             excludedBiomesIsBlackList = propExcludedBiomesIsBlacklist.get();
             excludedDimensionsIsBlackList = propExcludedDimensionsIsBlacklist.get();
 
