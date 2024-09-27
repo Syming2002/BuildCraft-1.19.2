@@ -85,8 +85,8 @@ public class OilStructureGen {
             }
             return ImmutableList.of();
         }
-/*
-        if (isEndBiome(biome) && (Math.abs(x) < 1200 || Math.abs(z) < 1200)) {
+
+        if (isEndBiome(biome) /*&& (Math.abs(x) < 1200 || Math.abs(z) < 1200)*/) {
             if (DEBUG_OILGEN_BASIC & log) {
                 BCLog.logger.info(
                     "[energy.oilgen] Not generating oil in " + toStr(world) + " chunk " + cx + ", " + cz
@@ -94,7 +94,7 @@ public class OilStructureGen {
                 );
             }
             return ImmutableList.of();
-        }*/
+        }
 
         boolean oilBiome = BCEnergyConfig.surfaceDepositBiomes.contains(ForgeRegistries.BIOMES.getKey(biome.get()));
 

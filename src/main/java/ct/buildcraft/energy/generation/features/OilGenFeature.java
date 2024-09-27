@@ -6,6 +6,7 @@ import com.mojang.serialization.Codec;
 import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.lib.misc.data.Box;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
@@ -91,9 +92,5 @@ public class OilGenFeature extends Feature<NoneFeatureConfiguration>{
     }
 
 
-    
-    private static boolean isEndBiome(Biome biome) {
-    	return ForgeRegistries.BIOMES.getKey(biome).getPath().contains("end");//maybe some problem
-    }
 
 }
