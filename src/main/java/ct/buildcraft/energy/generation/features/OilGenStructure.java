@@ -21,11 +21,13 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 
 public abstract class OilGenStructure {
     public final Box box;
     public final ReplaceType replaceType;
+    protected final static FluidState crudeOil = BCEnergyFluids.crudeOil[0].defaultFluidState();
 
     public OilGenStructure(Box containingBox, ReplaceType replaceType) {
         this.box = containingBox;
@@ -61,7 +63,8 @@ public abstract class OilGenStructure {
 
     public static void setOil(WorldGenLevel world, BlockPos pos) {
     	BCLog.logger.debug("OilGenStruecutre:generate oil for "+pos);
-        world.setBlock(pos, BCEnergyFluids.crudeOil[0].defaultFluidState().createLegacyBlock(), 2);
+        world.setBlock(pos, crudeOil.createLegacyBlock(), 2);
+        world.scheduleTick(pos, crudeOil.getType(), 0);
     }
 
     public enum ReplaceType {

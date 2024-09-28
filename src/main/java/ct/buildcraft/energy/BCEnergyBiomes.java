@@ -33,6 +33,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.Climate;
+import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.biome.OverworldBiomeBuilder;
 import net.minecraft.world.level.levelgen.GenerationStep.Decoration;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
@@ -46,15 +47,16 @@ import net.minecraft.world.level.biome.Climate.ParameterPoint;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 
 public class BCEnergyBiomes {
 	public static final DeferredRegister<Biome> BIOME_REGISTER = DeferredRegister.create(ForgeRegistries.BIOMES, BCEnergy.MODID);
 	public static final DeferredRegister<Feature<?>> FEATURE_REGISTER = DeferredRegister.create(ForgeRegistries.FEATURES, BCEnergy.MODID);
 	
     public static final ResourceKey<Biome> OIL_DESERT_KEY = ResourceKey.create(Registry.BIOME_REGISTRY, new ResourceLocation(BCEnergy.MODID,"oil_desert"));
+    public static final ResourceKey<Biome> OIL_DEEP_OCEAN_KEY = ResourceKey.create(Registry.BIOME_REGISTRY, new ResourceLocation(BCEnergy.MODID,"oil_deep_ocean"));
     
     public static final Biome OIL_DESERT_BIOME ; 
+    public static final Biome OIL_DEEP_OCEAN_BIOME;
     
     public static final OilGenFeature OIL_FEATURE = new OilGenFeature(NoneFeatureConfiguration.CODEC);
     
@@ -67,34 +69,54 @@ public class BCEnergyBiomes {
     static{
 //    	PlacementUtils.register(null, null, BiomeFilter.biome());
     	Biome desert = OverworldBiomes.desert();
-    	BiomeGenerationSettings.Builder feature$builder = new BiomeGenerationSettings.Builder();
-        BiomeGenerationSettings.Builder biomegenerationsettings$builder = new BiomeGenerationSettings.Builder();
-        BiomeDefaultFeatures.addFossilDecoration(biomegenerationsettings$builder);
-        BiomeDefaultFeatures.addDefaultCarversAndLakes(biomegenerationsettings$builder);
-        BiomeDefaultFeatures.addDefaultCrystalFormations(biomegenerationsettings$builder);
-        BiomeDefaultFeatures.addDefaultMonsterRoom(biomegenerationsettings$builder);
-        BiomeDefaultFeatures.addDefaultUndergroundVariety(biomegenerationsettings$builder);
-        BiomeDefaultFeatures.addDefaultSprings(biomegenerationsettings$builder);
-        BiomeDefaultFeatures.addSurfaceFreezing(biomegenerationsettings$builder);
-        BiomeDefaultFeatures.addDefaultOres(biomegenerationsettings$builder);
-        BiomeDefaultFeatures.addDefaultSoftDisks(biomegenerationsettings$builder);
-        BiomeDefaultFeatures.addDefaultFlowers(biomegenerationsettings$builder);
-        BiomeDefaultFeatures.addDefaultGrass(biomegenerationsettings$builder);
-        BiomeDefaultFeatures.addDesertVegetation(biomegenerationsettings$builder);
-        BiomeDefaultFeatures.addDefaultMushrooms(biomegenerationsettings$builder);
-        BiomeDefaultFeatures.addDesertExtraVegetation(biomegenerationsettings$builder);
-        BiomeDefaultFeatures.addDesertExtraDecoration(biomegenerationsettings$builder);
-        biomegenerationsettings$builder.addFeature(Decoration.SURFACE_STRUCTURES, OIL_PLACED_FEATURE);
-        OIL_DESERT_BIOME = new Biome.BiomeBuilder().precipitation(Precipitation.NONE).temperature(2.0f).downfall(0.0f).generationSettings(biomegenerationsettings$builder.build())
-        		.mobSpawnSettings(desert.getMobSettings()).precipitation(desert.getPrecipitation()).specialEffects(desert.getModifiedSpecialEffects())
+        BiomeGenerationSettings.Builder desert_builder = new BiomeGenerationSettings.Builder();
+        BiomeDefaultFeatures.addFossilDecoration(desert_builder);
+        BiomeDefaultFeatures.addDefaultCarversAndLakes(desert_builder);
+        BiomeDefaultFeatures.addDefaultCrystalFormations(desert_builder);
+        BiomeDefaultFeatures.addDefaultMonsterRoom(desert_builder);
+        BiomeDefaultFeatures.addDefaultUndergroundVariety(desert_builder);
+        BiomeDefaultFeatures.addDefaultSprings(desert_builder);
+        BiomeDefaultFeatures.addSurfaceFreezing(desert_builder);
+        BiomeDefaultFeatures.addDefaultOres(desert_builder);
+        BiomeDefaultFeatures.addDefaultSoftDisks(desert_builder);
+        BiomeDefaultFeatures.addDefaultFlowers(desert_builder);
+        BiomeDefaultFeatures.addDefaultGrass(desert_builder);
+        BiomeDefaultFeatures.addDesertVegetation(desert_builder);
+        BiomeDefaultFeatures.addDefaultMushrooms(desert_builder);
+        BiomeDefaultFeatures.addDesertExtraVegetation(desert_builder);
+        BiomeDefaultFeatures.addDesertExtraDecoration(desert_builder);
+        desert_builder.addFeature(Decoration.SURFACE_STRUCTURES, OIL_PLACED_FEATURE);
+        OIL_DESERT_BIOME = new Biome.BiomeBuilder().precipitation(Precipitation.NONE).temperature(2.0f).downfall(0.0f).generationSettings(desert_builder.build())
+        		.mobSpawnSettings(new MobSpawnSettings.Builder().build())
+        		.specialEffects(desert.getModifiedSpecialEffects())
         		.build();
-    	
+        
+    	Biome deep_ocean = OverworldBiomes.ocean(true);
+        MobSpawnSettings.Builder mobspawnsettings$builder = new MobSpawnSettings.Builder();
+        BiomeDefaultFeatures.mooshroomSpawns(mobspawnsettings$builder);
+        BiomeGenerationSettings.Builder deep_ocean_builder = new BiomeGenerationSettings.Builder();
+        BiomeDefaultFeatures.addDefaultCarversAndLakes(deep_ocean_builder);
+        BiomeDefaultFeatures.addDefaultCrystalFormations(deep_ocean_builder);
+        BiomeDefaultFeatures.addDefaultMonsterRoom(deep_ocean_builder);
+        BiomeDefaultFeatures.addDefaultUndergroundVariety(deep_ocean_builder);
+        BiomeDefaultFeatures.addDefaultSprings(deep_ocean_builder);
+        BiomeDefaultFeatures.addSurfaceFreezing(deep_ocean_builder);
+        BiomeDefaultFeatures.addDefaultOres(deep_ocean_builder);
+        BiomeDefaultFeatures.addDefaultSoftDisks(deep_ocean_builder);
+        BiomeDefaultFeatures.addMushroomFieldVegetation(deep_ocean_builder);
+        BiomeDefaultFeatures.addDefaultExtraVegetation(deep_ocean_builder);
+        deep_ocean_builder.addFeature(Decoration.SURFACE_STRUCTURES, OIL_PLACED_FEATURE);
+        OIL_DEEP_OCEAN_BIOME = new Biome.BiomeBuilder().precipitation(Precipitation.RAIN).temperature(0.5f).downfall(0.5f).generationSettings(deep_ocean_builder.build())
+        		.mobSpawnSettings(mobspawnsettings$builder.build())
+        		.specialEffects(deep_ocean.getModifiedSpecialEffects())
+        		.build();
     }
     
     
     
     public static void init(IEventBus modEventBus) {
     	BIOME_REGISTER.register("oil_desert", () -> OIL_DESERT_BIOME);
+    	BIOME_REGISTER.register("oil_deep_ocean", () -> OIL_DEEP_OCEAN_BIOME);
     	FEATURE_REGISTER.register("desert_oil", () -> OIL_FEATURE);
     	FEATURE_REGISTER.register(modEventBus);
     	BIOME_REGISTER.register(modEventBus);

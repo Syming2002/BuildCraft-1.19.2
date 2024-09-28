@@ -15,7 +15,10 @@ import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.core.BCCoreConfig;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
@@ -51,9 +54,9 @@ public class BCEnergyConfig {
 //    public static IntArrayList excludedDimensions = new IntArrayList();
     /** If false then {@link #excludedDimensions} should be treated as a whitelist rather than a blacklist. */
     public static boolean excludedDimensionsIsBlackList;
-    public static final Set<ResourceLocation> excessiveBiomes = new HashSet<>();
-    public static final Set<ResourceLocation> surfaceDepositBiomes = new HashSet<>();
-    public static final Set<ResourceLocation> excludedBiomes = new HashSet<>();
+    public static final Set<ResourceKey<Biome>> excessiveBiomes = new HashSet<>();
+    public static final Set<ResourceKey<Biome>> surfaceDepositBiomes = new HashSet<>();
+    public static final Set<ResourceKey<Biome>> excludedBiomes = new HashSet<>();
     /** If false then {@link #excludedBiomes} should be treated as a whitelist rather than a blacklist. */
     public static boolean excludedBiomesIsBlackList;
     public static SpecialEventType christmasEventStatus = SpecialEventType.DAY_ONLY;
@@ -252,6 +255,14 @@ public class BCEnergyConfig {
             addBiomeNames(propSurfaceDepositBiomes, surfaceDepositBiomes);*/
 /*            excludedDimensions.clear();
             excludedDimensions = new IntArrayList(propExcludedDimensions.get());*/
+        	excessiveBiomes.add(BCEnergyBiomes.OIL_DESERT_KEY);
+        	
+        	excludedBiomes.add(Biomes.NETHER_WASTES);
+        	excludedBiomes.add(Biomes.SOUL_SAND_VALLEY);
+        	excludedBiomes.add(Biomes.CRIMSON_FOREST);
+        	excludedBiomes.add(Biomes.WARPED_FOREST);
+        	excludedBiomes.add(Biomes.BASALT_DELTAS);//Nether
+        	
             excludedBiomesIsBlackList = propExcludedBiomesIsBlacklist.get();
             excludedDimensionsIsBlackList = propExcludedDimensionsIsBlacklist.get();
 
@@ -287,7 +298,7 @@ public class BCEnergyConfig {
     /** Called in post-init, after all biomes should have been registered. In 1.12 this should be called after the
      * registry event for biomes has been fired. */
     public static void validateBiomeNames() {
-        Set<ResourceLocation> invalids = new HashSet<>();
+        Set<ResourceKey<Biome>> invalids = new HashSet<>();
         addInvalidBiomeNames(excessiveBiomes, invalids);
         addInvalidBiomeNames(excludedBiomes, invalids);
         addInvalidBiomeNames(surfaceDepositBiomes, invalids);
@@ -296,13 +307,13 @@ public class BCEnergyConfig {
             return;
         }
 
-        List<ResourceLocation> invalidList = new ArrayList<>();
+        List<ResourceKey<Biome>> invalidList = new ArrayList<>();
         invalidList.addAll(invalids);
-        Collections.sort(invalidList, Comparator.comparing(ResourceLocation::toString));
+        Collections.sort(invalidList, Comparator.comparing(ResourceKey<Biome>::toString));
 
-        List<ResourceLocation> allValid = new ArrayList<>();
-        allValid.addAll(ForgeRegistries.BIOMES.getKeys());
-        Collections.sort(allValid, Comparator.comparing(ResourceLocation::toString));
+        List<ResourceKey<Biome>> allValid = new ArrayList<>();
+//        allValid.addAll(ForgeRegistries.BIOMES.getKeys());//temp
+        Collections.sort(allValid, Comparator.comparing(ResourceKey<Biome>::toString));
 
         BCLog.logger.warn("****************************************************");
         BCLog.logger.warn("*");
@@ -318,15 +329,15 @@ public class BCEnergyConfig {
         BCLog.logger.warn("****************************************************");
     }
 
-    private static void printList(Level level, List<ResourceLocation> list) {
-        for (ResourceLocation location : list) {
+    private static void printList(Level level, List<ResourceKey<Biome>> list) {
+        for (ResourceKey<Biome> location : list) {
             BCLog.logger.info("*    - " + location);
         }
     }
 
-    private static void addInvalidBiomeNames(Set<ResourceLocation> toTest, Set<ResourceLocation> invalidDest) {
-        for (ResourceLocation test : toTest) {
-            if (!ForgeRegistries.BIOMES.containsKey(test)) {
+    private static void addInvalidBiomeNames(Set<ResourceKey<Biome>> toTest, Set<ResourceKey<Biome>> invalidDest) {
+        for (ResourceKey<Biome> test : toTest) {
+            if (!ForgeRegistries.BIOMES.containsKey(test.location())) {//temp
                 invalidDest.add(test);
             }
         }

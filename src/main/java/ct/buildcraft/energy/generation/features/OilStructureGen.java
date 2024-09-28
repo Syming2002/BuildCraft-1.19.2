@@ -19,17 +19,14 @@ import ct.buildcraft.energy.generation.features.OilGenStructure.ReplaceType;
 import ct.buildcraft.lib.misc.RandUtil;
 import ct.buildcraft.lib.misc.VecUtil;
 import ct.buildcraft.lib.misc.data.Box;
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class OilStructureGen {
     /** Random number, used to differentiate generators */
@@ -55,8 +52,7 @@ public class OilStructureGen {
     }
     
     public static List<OilGenStructure> getStructures(WorldGenLevel world, int cx, int cz) {
-    	if(level != world)
-    		level = world;
+    	if(level != world) level = world;
     	return structureCache.getUnchecked(cz<<16|cx);
     }
 
@@ -69,24 +65,25 @@ public class OilStructureGen {
         int z = cz * 16 + 8 + rand.nextInt(16);
 
         Holder<Biome> biome = world.getBiome(new BlockPos(x, 0, z));
-        if(!"buildcraftenergy:oil_desert".equals(biome.unwrapKey().get().location().toString())) {
+        ResourceKey<Biome> key = biome.unwrapKey().get();
+        if(!"buildcraftenergy:oil_desert".equals(key.location().toString())) {
 //        	BCLog.logger.debug("OilGenFeature:fail");
         	return ImmutableList.of();
         }
 
         // Do not generate oil in excluded biomes
-        boolean isExcludedBiome = (biome.unwrapKey().get().location().compareTo(new ResourceLocation("buildcraftenergy:oil_desert"))) == 0;//BCEnergyConfig.excludedBiomes.contains(biome.unwrapKey().get().location());
+        boolean isExcludedBiome = BCEnergyConfig.excludedBiomes.contains(key);
         if (!isExcludedBiome/* == BCEnergyConfig.excludedBiomesIsBlackList*/) {
             if (DEBUG_OILGEN_BASIC & log){//log) {
                 BCLog.logger.info(
                     "[energy.oilgen] Not generating oil in " + toStr(world) + " chunk " + cx + ", " + cz
-                        + " because the biome we found (" + biome.unwrapKey().get().location().toString() + ") is disabled!"
+                        + " because the biome we found (" + key.location().toString() + ") is disabled!"
                 );
             }
             return ImmutableList.of();
         }
 
-        if (isEndBiome(biome) /*&& (Math.abs(x) < 1200 || Math.abs(z) < 1200)*/) {
+        if (isEndBiome(key) /*&& (Math.abs(x) < 1200 || Math.abs(z) < 1200)*/) {
             if (DEBUG_OILGEN_BASIC & log) {
                 BCLog.logger.info(
                     "[energy.oilgen] Not generating oil in " + toStr(world) + " chunk " + cx + ", " + cz
@@ -96,11 +93,11 @@ public class OilStructureGen {
             return ImmutableList.of();
         }
 
-        boolean oilBiome = BCEnergyConfig.surfaceDepositBiomes.contains(ForgeRegistries.BIOMES.getKey(biome.get()));
+        boolean oilBiome = BCEnergyConfig.surfaceDepositBiomes.contains(key);
 
         double bonus = oilBiome ? 3.0 : 1.0;
         bonus *= BCEnergyConfig.oilWellGenerationRate;
-        if (true) {
+        if (BCEnergyConfig.excessiveBiomes.contains(key)) {
             bonus *= 30.0;
         }
         final GenType type;
@@ -280,8 +277,7 @@ public class OilStructureGen {
         return pattern[x][z];
     }
     
-    private static boolean isEndBiome(Holder<Biome> biome) {
-    	ResourceKey<?> key = biome.unwrapKey().get();
+    private static boolean isEndBiome(ResourceKey<Biome> key) {
     	return key == Biomes.THE_END||
     			key == Biomes.END_BARRENS||
     			key == Biomes.END_HIGHLANDS||
