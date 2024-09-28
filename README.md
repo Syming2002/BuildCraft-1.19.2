@@ -1,4 +1,4 @@
-Minecraft BuildCraft 
+Minecraft BuildCraft 1.19.2
 ===========================
 
 基于BC8.x for 1.12.2的代码移植，目标是尽可能还原BC在1.12.2的功能，并与其它科技mod兼容
