@@ -5,6 +5,8 @@ Minecraft BuildCraft 1.19.2
 
 目前需要TerraBlender作为生物群系地前置(感谢mc百科 1 的提醒)。后期可能可以通过mixin实现相应功能并去掉这个依赖（只是可能，目前没打算这么干）
 
+这个项目目前会有很多文件编译不过，但是这些文件都没有被引用。项目是可运行的
+
 计划将于国庆节（24/5/1)期间发布第一个测试版本，包括除Builders,Silicon,Robotics部分的大部分功能
 
 计划在12月前发布除Robotics的Release版本
