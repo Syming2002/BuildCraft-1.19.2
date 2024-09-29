@@ -228,7 +228,6 @@ public class BCEnergyBiomes {
     	if(index == -1) 
     		return Climate.Parameter.point(Long.valueOf(targe)/10000f);
     	var k = Climate.Parameter.span(Long.valueOf(targe.substring(0, index))/10000F, Long.valueOf(targe.substring(index+1))/10000F);
-    	BCLog.logger.debug("921:"+k.toString());
     	return k;
     }
     

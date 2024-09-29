@@ -6,7 +6,11 @@ import java.util.function.Consumer;
 
 import org.jetbrains.annotations.Nullable;
 
+import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.lib.fluid.BCFluid;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.shaders.FogShape;
 
 import net.minecraft.world.level.block.Blocks;
@@ -19,10 +23,12 @@ import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegisterEvent;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.FogRenderer.FogMode;
@@ -33,29 +39,35 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
 public class BCEnergyFluids {
+	public static final int COOL_TEM = 300;
+	public static final int HOT_TEM = 400;
+	public static final int SEARING_TEM = 500;
+	public static final int[] TEMS = {COOL_TEM, HOT_TEM, SEARING_TEM};
+	public static final String[] TEM_NAMES = {"_cool", "_hot", "_searing"};
+	
     public static BCFluid[] crudeOil = new BCFluid[3];
     /** All 3 fuels (no residue) */
     public static BCFluid[] oilDistilled = new BCFluid[3];
     /** The 3 heaviest components (fuelLight, fuelDense and oilResidue) */
     public static BCFluid[] oilHeavy = new BCFluid[3];
     /** The 2 lightest fuels (no dense fuel) */
-//    public static BCFluid[] fuelMixedLight = new BCFluid[3];
+    public static BCFluid[] fuelMixedLight = new BCFluid[3];
     /** The 2 heaviest fuels (no gaseous fuel) */
-//    public static BCFluid[] fuelMixedHeavy = new BCFluid[3];
+    public static BCFluid[] fuelMixedHeavy = new BCFluid[3];
     /** The 2 heaviest products (fuelDense and oilResidue) */
     public static BCFluid[] oilDense = new BCFluid[3];
 
     // End products in order from least to most dense
-//    public static BCFluid[] fuelGaseous = new BCFluid[3];
-//    public static BCFluid[] fuelLight = new BCFluid[3];
-//    public static BCFluid[] fuelDense = new BCFluid[3];
+    public static BCFluid[] fuelGaseous = new BCFluid[3];
+    public static BCFluid[] fuelLight = new BCFluid[3];
+    public static BCFluid[] fuelDense = new BCFluid[3];
     public static BCFluid[] oilResidue = new BCFluid[3];
 
-    public static BCFluid tar;
+//    public static BCFluid tar;
 
     public static final List<BCFluid> allFluids = new ArrayList<>();
 
-	private static int i =0;
+	private static int ID =0;
     private static int[][] data = { //@formatter:off
             // Tabular form of all the fluid values
             // density, viscosity, boil, spread,  tex_light,   tex_dark, sticky, flammable
@@ -72,6 +84,8 @@ public class BCEnergyFluids {
         };//@formatter:on
     private static final String[] NAME = {"oil","oil_residue","oil_heavy","oil_dense","oil_distilled",
     									  "fuel_dense","fuel_mixed_heavy","fuel_light","fuel_mixed_light","fuel_gaseous"};
+    
+    
     public static final ResourceLocation OilCrudeCoolStillTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/crude_oil/oil_crude_cool_still");
     public static final ResourceLocation OilCrudeCoolFlowTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/crude_oil/oil_crude_cool_flow");
     public static final ResourceLocation OilCrudeHotStillTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/crude_oil/oil_crude_hot_still");
@@ -108,157 +122,124 @@ public class BCEnergyFluids {
     public static final ResourceLocation OilDistilledHotFlowTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/distilled_oil/oil_distilled_hot_flow");
     public static final ResourceLocation OilDistilledSearingStillTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/distilled_oil/oil_distilled_searing_still");
     public static final ResourceLocation OilDistilledSearingFlowTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/distilled_oil/oil_distilled_searing_flow");
+    
+    public static final ResourceLocation FuelDenseCoolStillTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/dense_fuel/fuel_dense_cool_still");
+    public static final ResourceLocation FuelDenseCoolFlowTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/dense_fuel/fuel_dense_cool_flow");
+    public static final ResourceLocation FuelDenseHotStillTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/dense_fuel/fuel_dense_hot_still");
+    public static final ResourceLocation FuelDenseHotFlowTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/dense_fuel/fuel_dense_hot_flow");
+    public static final ResourceLocation FuelDenseSearingStillTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/dense_fuel/fuel_dense_searing_still");
+    public static final ResourceLocation FuelDenseSearingFlowTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/dense_fuel/fuel_dense_searing_flow");
+    
+    public static final ResourceLocation FuelMixedHeavyCoolStillTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/mixed_heavy_fuel/fuel_mixed_heavy_cool_still");
+    public static final ResourceLocation FuelMixedHeavyCoolFlowTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/mixed_heavy_fuel/fuel_mixed_heavy_cool_flow");
+    public static final ResourceLocation FuelMixedHeavyHotStillTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/mixed_heavy_fuel/fuel_mixed_heavy_hot_still");
+    public static final ResourceLocation FuelMixedHeavyHotFlowTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/mixed_heavy_fuel/fuel_mixed_heavy_hot_flow");
+    public static final ResourceLocation FuelMixedHeavySearingStillTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/mixed_heavy_fuel/fuel_mixed_heavy_searing_still");
+    public static final ResourceLocation FuelMixedHeavySearingFlowTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/mixed_heavy_fuel/fuel_mixed_heavy_searing_flow");
+    
+    public static final ResourceLocation FuelLightCoolStillTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/light_fuel/fuel_light_cool_still");
+    public static final ResourceLocation FuelLightCoolFlowTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/light_fuel/fuel_light_cool_flow");
+    public static final ResourceLocation FuelLightHotStillTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/light_fuel/fuel_light_hot_still");
+    public static final ResourceLocation FuelLightHotFlowTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/light_fuel/fuel_light_hot_flow");
+    public static final ResourceLocation FuelLightSearingStillTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/light_fuel/fuel_light_searing_still");
+    public static final ResourceLocation FuelLightSearingFlowTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/light_fuel/fuel_light_searing_flow");
+    
+    public static final ResourceLocation FuelMixedLightCoolStillTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/mixed_light_fuel/fuel_mixed_light_cool_still");
+    public static final ResourceLocation FuelMixedLightCoolFlowTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/mixed_light_fuel/fuel_mixed_light_cool_flow");
+    public static final ResourceLocation FuelMixedLightHotStillTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/mixed_light_fuel/fuel_mixed_light_hot_still");
+    public static final ResourceLocation FuelMixedLightHotFlowTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/mixed_light_fuel/fuel_mixed_light_hot_flow");
+    public static final ResourceLocation FuelMixedLightSearingStillTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/mixed_light_fuel/fuel_mixed_light_searing_still");
+    public static final ResourceLocation FuelMixedLightSearingFlowTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/mixed_light_fuel/fuel_mixed_light_searing_flow");
+    
+    public static final ResourceLocation FuelGasCoolStillTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/gas_fuel/fuel_gas_cool_still");
+    public static final ResourceLocation FuelGasCoolFlowTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/gas_fuel/fuel_gas_cool_flow");
+    public static final ResourceLocation FuelGasHotStillTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/gas_fuel/fuel_gas_hot_still");
+    public static final ResourceLocation FuelGasHotFlowTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/gas_fuel/fuel_gas_hot_flow");
+    public static final ResourceLocation FuelGasSearingStillTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/gas_fuel/fuel_gas_searing_still");
+    public static final ResourceLocation FuelGasSearingFlowTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/gas_fuel/fuel_gas_searing_flow");
+    
     public static final Material FLAMMABLELIQUID = new Material(MaterialColor.COLOR_BLACK,true,false,true,false,true,true,PushReaction.DESTROY);
+    
+    public static final ResourceLocation[][] OIL_TEXTURE = {
+    		new ResourceLocation[]{OilCrudeCoolStillTexture, OilCrudeCoolFlowTexture, OilCrudeHotStillTexture, OilCrudeHotFlowTexture, OilCrudeSearingStillTexture,OilCrudeSearingFlowTexture},
+    		new ResourceLocation[]{OilResidueCoolStillTexture, OilResidueCoolFlowTexture, OilResidueHotStillTexture, OilResidueHotFlowTexture, OilResidueSearingStillTexture,OilResidueSearingFlowTexture},
+    		new ResourceLocation[]{OilHeavyCoolStillTexture, OilHeavyCoolFlowTexture, OilHeavyHotStillTexture, OilHeavyHotFlowTexture, OilHeavySearingStillTexture,OilHeavySearingFlowTexture},
+    		new ResourceLocation[]{OilDenseCoolStillTexture, OilDenseCoolFlowTexture, OilDenseHotStillTexture, OilDenseHotFlowTexture, OilDenseSearingStillTexture,OilDenseSearingFlowTexture},
+    		new ResourceLocation[]{OilDistilledCoolStillTexture, OilDistilledCoolFlowTexture, OilDistilledHotStillTexture, OilDistilledHotFlowTexture, OilDistilledSearingStillTexture,OilDistilledSearingFlowTexture},
+    		new ResourceLocation[]{FuelDenseCoolStillTexture, FuelDenseCoolFlowTexture, FuelDenseHotStillTexture, FuelDenseHotFlowTexture, FuelDenseSearingStillTexture,FuelDenseSearingFlowTexture},
+    		new ResourceLocation[]{FuelMixedHeavyCoolStillTexture, FuelMixedHeavyCoolFlowTexture, FuelMixedHeavyHotStillTexture, FuelMixedHeavyHotFlowTexture, FuelMixedHeavySearingStillTexture,FuelMixedHeavySearingFlowTexture},
+    		new ResourceLocation[]{FuelLightCoolStillTexture, FuelLightCoolFlowTexture, FuelLightHotStillTexture, FuelLightHotFlowTexture, FuelLightSearingStillTexture,FuelLightSearingFlowTexture},
+    		new ResourceLocation[]{FuelMixedLightCoolStillTexture, FuelMixedLightCoolFlowTexture, FuelMixedLightHotStillTexture, FuelMixedLightHotFlowTexture, FuelMixedLightSearingStillTexture,FuelMixedLightSearingFlowTexture},
+    		new ResourceLocation[]{FuelGasCoolStillTexture, FuelGasCoolFlowTexture, FuelGasHotStillTexture, FuelGasHotFlowTexture, FuelGasSearingStillTexture,FuelGasSearingFlowTexture}
+    };
+    public static final List<RegistryObject<FluidType>> OIL_TYPE = new ArrayList<>();
+    public static final List<RegistryObject<BCFluid>> OIL_SOURCE = new ArrayList<>();
+    public static final List<RegistryObject<BucketItem>> OIL_BUCKET = new ArrayList<>();
+    public static final List<RegistryObject<LiquidBlock>> OIL_BLOCK = new ArrayList<>();
+    
     public static final DeferredRegister<Fluid> FLUIDS = DeferredRegister.create(ForgeRegistries.FLUIDS, BCEnergy.MODID);
     public static final DeferredRegister<FluidType> FLUID_TYPES = DeferredRegister.create(ForgeRegistries.Keys.FLUID_TYPES, BCEnergy.MODID);
-//    public static final DeferredRegister<ForgeFlowingFluid.Flowing> FLOWING= DeferredRegister.create(ForgeFlowingFluid.Flowing, null)
-/*    
-    public static final RegistryObject<FluidType> $$$$_COOL = FLUID_TYPES.register(NAME[i]+"_cool", () -> new aFluidType(FluidType.Properties.create().canDrown(true).canSwim(false).density(data[i][0]).viscosity(data[i][1]), %%%%%, %%%, i) );
-    public static final RegistryObject<FlowingFluid> $$$$_COOL_SOURCE = FLUIDS.register(NAME[i]+"_cool_source", () -> new BCFluid.Source(BCEnergyFluids.$$$$_COOL_PROPERTY));
-    public static final RegistryObject<FlowingFluid> $$$$_COOL_FLOWING = FLUIDS.register(NAME[i]+"_cool_flowing", () -> new BCFluid.Flowing(BCEnergyFluids.$$$$_COOL_PROPERTY));
-    public static final RegistryObject<BucketItem> $$$$_COOL_BUCKET = BCEnergy.ITEMS.register(NAME[i]+"_cool_bucket", () -> new BucketItem(BCEnergyFluids.$$$$_COOL_SOURCE,new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC).craftRemainder(Items.BUCKET)));
-    public static final RegistryObject<LiquidBlock> $$$$_COOL_BLOCK = BCEnergy.BLOCKS.register(NAME[i]+"_cool", () -> new LiquidBlock($$$$_COOL_SOURCE, BlockBehaviour.Properties.of(FLAMMABLELIQUID).noCollission().strength(100.0F).noLootTable()));
-    public static final ForgeFlowingFluid.Properties $$$$_COOL_PROPERTY = new ForgeFlowingFluid.Properties(BCEnergyFluids.$$$$_COOL,BCEnergyFluids.$$$$_COOL_SOURCE,BCEnergyFluids.$$$$_COOL_FLOWING).block(BCEnergyFluids.$$$$_COOL_BLOCK).bucket(BCEnergyFluids.$$$$_COOL_BUCKET).slopeFindDistance(6);
-*/
-    
-    
-    
-    
-    
-    
-    
-    //curde oil
-    public static final RegistryObject<FluidType> OIL_COOL = FLUID_TYPES.register(NAME[i]+"_cool", () -> new aFluidType(FluidType.Properties.create().canDrown(true).canSwim(false).density(data[i][0]).viscosity(data[i][1]), OilCrudeCoolStillTexture, OilCrudeCoolFlowTexture, i) );
-    public static final RegistryObject<BCFluid> OIL_COOL_SOURCE = FLUIDS.register(NAME[i]+"_cool_source", () -> new BCFluid.Source(BCEnergyFluids.OIL_COOL_PROPERTY));
-    public static final RegistryObject<BCFluid> OIL_COOL_FLOWING = FLUIDS.register(NAME[i]+"_cool_flowing", () -> new BCFluid.Flowing(BCEnergyFluids.OIL_COOL_PROPERTY));
-    public static final RegistryObject<BucketItem> OIL_COOL_BUCKET = BCEnergy.ITEMS.register("oil/"+NAME[i]+"_cool_bucket", () -> new BucketItem(BCEnergyFluids.OIL_COOL_SOURCE,new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC).craftRemainder(Items.BUCKET)));
-    public static final RegistryObject<LiquidBlock> OIL_COOL_BLOCK = BCEnergyBlocks.BLOCKS.register("oil/"+NAME[i]+"_cool", () -> new LiquidBlock(OIL_COOL_SOURCE, BlockBehaviour.Properties.of(FLAMMABLELIQUID).noCollission().strength(100.0F).noLootTable()));
-    public static final ForgeFlowingFluid.Properties OIL_COOL_PROPERTY = new ForgeFlowingFluid.Properties(BCEnergyFluids.OIL_COOL,BCEnergyFluids.OIL_COOL_SOURCE,BCEnergyFluids.OIL_COOL_FLOWING).block(BCEnergyFluids.OIL_COOL_BLOCK).bucket(BCEnergyFluids.OIL_COOL_BUCKET).slopeFindDistance(6).tickRate(10);
-    
-    public static final RegistryObject<FluidType> OIL_HOT = FLUID_TYPES.register(NAME[i]+"_hot", () -> new aFluidType(FluidType.Properties.create().canDrown(true).canSwim(false).density(data[i][0]).viscosity(data[i][1]).temperature(400), OilCrudeHotStillTexture, OilCrudeHotFlowTexture, i) );
-    public static final RegistryObject<BCFluid> OIL_HOT_SOURCE = FLUIDS.register(NAME[i]+"_hot_source", () -> new BCFluid.Source(BCEnergyFluids.OIL_HOT_PROPERTY));
-    public static final RegistryObject<BCFluid> OIL_HOT_FLOWING = FLUIDS.register(NAME[i]+"_hot_flowing", () -> new BCFluid.Flowing(BCEnergyFluids.OIL_HOT_PROPERTY));
-    public static final RegistryObject<BucketItem> OIL_HOT_BUCKET = BCEnergy.ITEMS.register("oil/"+NAME[i]+"_hot_bucket", () -> new BucketItem(BCEnergyFluids.OIL_HOT_SOURCE,new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC).craftRemainder(Items.BUCKET)));
-    public static final RegistryObject<LiquidBlock> OIL_HOT_BLOCK = BCEnergyBlocks.BLOCKS.register("oil/"+NAME[i]+"_hot", () -> new LiquidBlock(OIL_HOT_SOURCE, BlockBehaviour.Properties.of(FLAMMABLELIQUID).noCollission().strength(100.0F).noLootTable()));
-    public static final ForgeFlowingFluid.Properties OIL_HOT_PROPERTY = new ForgeFlowingFluid.Properties(BCEnergyFluids.OIL_HOT,BCEnergyFluids.OIL_HOT_SOURCE,BCEnergyFluids.OIL_HOT_FLOWING).block(BCEnergyFluids.OIL_HOT_BLOCK).bucket(BCEnergyFluids.OIL_HOT_BUCKET).slopeFindDistance(6);
-    
-    public static final RegistryObject<FluidType> OIL_SEARING = FLUID_TYPES.register(NAME[i]+"_searing", () -> new aFluidType(FluidType.Properties.create().canDrown(true).canSwim(false).density(data[i][0]).viscosity(data[i][1]).temperature(500), OilCrudeSearingStillTexture, OilCrudeSearingFlowTexture, i) );
-    public static final RegistryObject<BCFluid> OIL_SEARING_SOURCE = FLUIDS.register(NAME[i]+"_searing_source", () -> new BCFluid.Source(BCEnergyFluids.OIL_SEARING_PROPERTY));
-    public static final RegistryObject<BCFluid> OIL_SEARING_FLOWING = FLUIDS.register(NAME[i]+"_searing_flowing", () -> new BCFluid.Flowing(BCEnergyFluids.OIL_SEARING_PROPERTY));
-    public static final RegistryObject<BucketItem> OIL_SEARING_BUCKET = BCEnergy.ITEMS.register("oil/"+NAME[i]+"_searing_bucket", () -> new BucketItem(BCEnergyFluids.OIL_SEARING_SOURCE,new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC).craftRemainder(Items.BUCKET)));
-    public static final RegistryObject<LiquidBlock> OIL_SEARING_BLOCK = BCEnergyBlocks.BLOCKS.register("oil/"+NAME[i]+"_searing", () -> new LiquidBlock(OIL_SEARING_SOURCE, BlockBehaviour.Properties.of(FLAMMABLELIQUID).noCollission().strength(100.0F).noLootTable()));
-    public static final ForgeFlowingFluid.Properties OIL_SEARING_PROPERTY = new ForgeFlowingFluid.Properties(BCEnergyFluids.OIL_SEARING,BCEnergyFluids.OIL_SEARING_SOURCE,BCEnergyFluids.OIL_SEARING_FLOWING).block(BCEnergyFluids.OIL_SEARING_BLOCK).bucket(BCEnergyFluids.OIL_SEARING_BUCKET).slopeFindDistance(6);
-    
-    //residue oid
-    public static final RegistryObject<FluidType> OIL_RESIDUE_COOL = FLUID_TYPES.register(NAME[++i]+"_cool", () -> new aFluidType(FluidType.Properties.create().canDrown(false).canSwim(false).density(data[i][0]).viscosity(data[i][1]),OilResidueCoolStillTexture , OilResidueCoolFlowTexture, i));
-    public static final RegistryObject<BCFluid> OIL_RESIDUE_COOL_SOURCE = FLUIDS.register(NAME[i]+"_cool_source", () -> new BCFluid.Source(BCEnergyFluids.OIL_RESIDUE_COOL_PROPERTY));
-    public static final RegistryObject<BCFluid> OIL_RESIDUE_COOL_FLOWING = FLUIDS.register(NAME[i]+"_cool_flowing", () -> new BCFluid.Flowing(BCEnergyFluids.OIL_RESIDUE_COOL_PROPERTY));
-    public static final RegistryObject<BucketItem> OIL_RESIDUE_COOL_BUCKET = BCEnergy.ITEMS.register("oil_residue/"+NAME[i]+"_cool_bucket", () -> new BucketItem(BCEnergyFluids.OIL_RESIDUE_COOL_SOURCE,new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC).craftRemainder(Items.BUCKET)));
-    public static final RegistryObject<LiquidBlock> OIL_RESIDUE_COOL_BLOCK = BCEnergyBlocks.BLOCKS.register("oil_residue/"+NAME[i]+"_cool", () -> new LiquidBlock(BCEnergyFluids.OIL_RESIDUE_COOL_SOURCE, BlockBehaviour.Properties.copy(Blocks.WATER)));
-    public static final ForgeFlowingFluid.Properties OIL_RESIDUE_COOL_PROPERTY = new ForgeFlowingFluid.Properties(BCEnergyFluids.OIL_RESIDUE_COOL,BCEnergyFluids.OIL_RESIDUE_COOL_SOURCE,BCEnergyFluids.OIL_RESIDUE_COOL_FLOWING).block(BCEnergyFluids.OIL_RESIDUE_COOL_BLOCK).slopeFindDistance(4).levelDecreasePerBlock(2).tickRate(20);
-    
-    public static final RegistryObject<FluidType> OIL_RESIDUE_HOT = FLUID_TYPES.register(NAME[i]+"_hot", () -> new aFluidType(FluidType.Properties.create().canDrown(false).canSwim(false).density(data[i][0]).viscosity(data[i][1]).temperature(400),OilResidueHotStillTexture , OilResidueHotFlowTexture, i));
-    public static final RegistryObject<BCFluid> OIL_RESIDUE_HOT_SOURCE = FLUIDS.register(NAME[i]+"_hot_source", () -> new BCFluid.Source(BCEnergyFluids.OIL_RESIDUE_HOT_PROPERTY));
-    public static final RegistryObject<BCFluid> OIL_RESIDUE_HOT_FLOWING = FLUIDS.register(NAME[i]+"_hot_flowing", () -> new BCFluid.Flowing(BCEnergyFluids.OIL_RESIDUE_HOT_PROPERTY));
-    public static final RegistryObject<BucketItem> OIL_RESIDUE_HOT_BUCKET = BCEnergy.ITEMS.register("oil_residue/"+NAME[i]+"_hot_bucket", () -> new BucketItem(BCEnergyFluids.OIL_RESIDUE_HOT_SOURCE,new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC).craftRemainder(Items.BUCKET)));
-    public static final RegistryObject<LiquidBlock> OIL_RESIDUE_HOT_BLOCK = BCEnergyBlocks.BLOCKS.register("oil_residue/"+NAME[i]+"_hot", () -> new LiquidBlock(BCEnergyFluids.OIL_RESIDUE_HOT_SOURCE, BlockBehaviour.Properties.copy(Blocks.WATER)));
-    public static final ForgeFlowingFluid.Properties OIL_RESIDUE_HOT_PROPERTY = new ForgeFlowingFluid.Properties(BCEnergyFluids.OIL_RESIDUE_HOT,BCEnergyFluids.OIL_RESIDUE_HOT_SOURCE,BCEnergyFluids.OIL_RESIDUE_HOT_FLOWING).block(BCEnergyFluids.OIL_RESIDUE_HOT_BLOCK).slopeFindDistance(4).levelDecreasePerBlock(2).tickRate(15);
-    
-    public static final RegistryObject<FluidType> OIL_RESIDUE_SEARING = FLUID_TYPES.register(NAME[i]+"_searing", () -> new aFluidType(FluidType.Properties.create().canDrown(false).canSwim(false).density(data[i][0]).viscosity(data[i][1]).temperature(400),OilResidueSearingStillTexture , OilResidueSearingFlowTexture, i));
-    public static final RegistryObject<BCFluid> OIL_RESIDUE_SEARING_SOURCE = FLUIDS.register(NAME[i]+"_searing_source", () -> new BCFluid.Source(BCEnergyFluids.OIL_RESIDUE_SEARING_PROPERTY));
-    public static final RegistryObject<BCFluid> OIL_RESIDUE_SEARING_FLOWING = FLUIDS.register(NAME[i]+"_searing_flowing", () -> new BCFluid.Flowing(BCEnergyFluids.OIL_RESIDUE_SEARING_PROPERTY));
-    public static final RegistryObject<BucketItem> OIL_RESIDUE_SEARING_BUCKET = BCEnergy.ITEMS.register("oil_residue/"+NAME[i]+"_searing_bucket", () -> new BucketItem(BCEnergyFluids.OIL_RESIDUE_SEARING_SOURCE,new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC).craftRemainder(Items.BUCKET)));
-    public static final RegistryObject<LiquidBlock> OIL_RESIDUE_SEARING_BLOCK = BCEnergyBlocks.BLOCKS.register("oil_residue/"+NAME[i]+"_searing", () -> new LiquidBlock(BCEnergyFluids.OIL_RESIDUE_SEARING_SOURCE, BlockBehaviour.Properties.copy(Blocks.WATER)));
-    public static final ForgeFlowingFluid.Properties OIL_RESIDUE_SEARING_PROPERTY = new ForgeFlowingFluid.Properties(BCEnergyFluids.OIL_RESIDUE_SEARING,BCEnergyFluids.OIL_RESIDUE_SEARING_SOURCE,BCEnergyFluids.OIL_RESIDUE_SEARING_FLOWING).block(BCEnergyFluids.OIL_RESIDUE_SEARING_BLOCK).slopeFindDistance(4).levelDecreasePerBlock(2).tickRate(10);
-    
-    //heavy oil
-    public static final RegistryObject<FluidType> OIL_HEAVY_COOL = FLUID_TYPES.register(NAME[++i]+"_cool", () -> new aFluidType(FluidType.Properties.create().canDrown(false).canSwim(false).density(data[i][0]).viscosity(data[i][1]),OilHeavyCoolStillTexture , OilHeavyCoolFlowTexture, i));
-    public static final RegistryObject<BCFluid> OIL_HEAVY_COOL_SOURCE = FLUIDS.register(NAME[i]+"_cool_source", () -> new BCFluid.Source(BCEnergyFluids.OIL_HEAVY_COOL_PROPERTY));
-    public static final RegistryObject<BCFluid> OIL_HEAVY_COOL_FLOWING = FLUIDS.register(NAME[i]+"_cool_flowing", () -> new BCFluid.Flowing(BCEnergyFluids.OIL_HEAVY_COOL_PROPERTY));
-    public static final RegistryObject<BucketItem> OIL_HEAVY_COOL_BUCKET = BCEnergy.ITEMS.register("oil_heavy/"+NAME[i]+"_cool_bucket", () -> new BucketItem(BCEnergyFluids.OIL_HEAVY_COOL_SOURCE,new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC).craftRemainder(Items.BUCKET)));
-    public static final RegistryObject<LiquidBlock> OIL_HEAVY_COOL_BLOCK = BCEnergyBlocks.BLOCKS.register("oil_heavy/"+NAME[i]+"_cool", () -> new LiquidBlock(BCEnergyFluids.OIL_HEAVY_COOL_SOURCE, BlockBehaviour.Properties.copy(Blocks.WATER)));
-    public static final ForgeFlowingFluid.Properties OIL_HEAVY_COOL_PROPERTY = new ForgeFlowingFluid.Properties(BCEnergyFluids.OIL_HEAVY_COOL,BCEnergyFluids.OIL_HEAVY_COOL_SOURCE,BCEnergyFluids.OIL_HEAVY_COOL_FLOWING).block(BCEnergyFluids.OIL_HEAVY_COOL_BLOCK).slopeFindDistance(6).levelDecreasePerBlock(1).tickRate(20);
-    
-    public static final RegistryObject<FluidType> OIL_HEAVY_HOT = FLUID_TYPES.register(NAME[i]+"_hot", () -> new aFluidType(FluidType.Properties.create().canDrown(false).canSwim(false).density(data[i][0]).viscosity(data[i][1]).temperature(400),OilHeavyHotStillTexture , OilHeavyHotFlowTexture, i));
-    public static final RegistryObject<BCFluid> OIL_HEAVY_HOT_SOURCE = FLUIDS.register(NAME[i]+"_hot_source", () -> new BCFluid.Source(BCEnergyFluids.OIL_HEAVY_HOT_PROPERTY));
-    public static final RegistryObject<BCFluid> OIL_HEAVY_HOT_FLOWING = FLUIDS.register(NAME[i]+"_hot_flowing", () -> new BCFluid.Flowing(BCEnergyFluids.OIL_HEAVY_HOT_PROPERTY));
-    public static final RegistryObject<BucketItem> OIL_HEAVY_HOT_BUCKET = BCEnergy.ITEMS.register("oil_heavy/"+NAME[i]+"_hot_bucket", () -> new BucketItem(BCEnergyFluids.OIL_HEAVY_HOT_SOURCE,new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC).craftRemainder(Items.BUCKET)));
-    public static final RegistryObject<LiquidBlock> OIL_HEAVY_HOT_BLOCK = BCEnergyBlocks.BLOCKS.register("oil_heavy/"+NAME[i]+"_hot", () -> new LiquidBlock(BCEnergyFluids.OIL_HEAVY_HOT_SOURCE, BlockBehaviour.Properties.copy(Blocks.WATER)));
-    public static final ForgeFlowingFluid.Properties OIL_HEAVY_HOT_PROPERTY = new ForgeFlowingFluid.Properties(BCEnergyFluids.OIL_HEAVY_HOT,BCEnergyFluids.OIL_HEAVY_HOT_SOURCE,BCEnergyFluids.OIL_HEAVY_HOT_FLOWING).block(BCEnergyFluids.OIL_HEAVY_HOT_BLOCK).slopeFindDistance(6).levelDecreasePerBlock(1).tickRate(15);
-    
-    public static final RegistryObject<FluidType> OIL_HEAVY_SEARING = FLUID_TYPES.register(NAME[i]+"_searing", () -> new aFluidType(FluidType.Properties.create().canDrown(false).canSwim(false).density(data[i][0]).viscosity(data[i][1]).temperature(400),OilHeavySearingStillTexture , OilHeavySearingFlowTexture, i));
-    public static final RegistryObject<BCFluid> OIL_HEAVY_SEARING_SOURCE = FLUIDS.register(NAME[i]+"_searing_source", () -> new BCFluid.Source(BCEnergyFluids.OIL_HEAVY_SEARING_PROPERTY));
-    public static final RegistryObject<BCFluid> OIL_HEAVY_SEARING_FLOWING = FLUIDS.register(NAME[i]+"_searing_flowing", () -> new BCFluid.Flowing(BCEnergyFluids.OIL_HEAVY_SEARING_PROPERTY));
-    public static final RegistryObject<BucketItem> OIL_HEAVY_SEARING_BUCKET = BCEnergy.ITEMS.register("oil_heavy/"+NAME[i]+"_searing_bucket", () -> new BucketItem(BCEnergyFluids.OIL_HEAVY_SEARING_SOURCE,new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC).craftRemainder(Items.BUCKET)));
-    public static final RegistryObject<LiquidBlock> OIL_HEAVY_SEARING_BLOCK = BCEnergyBlocks.BLOCKS.register("oil_heavy/"+NAME[i]+"_searing", () -> new LiquidBlock(BCEnergyFluids.OIL_HEAVY_SEARING_SOURCE, BlockBehaviour.Properties.copy(Blocks.WATER)));
-    public static final ForgeFlowingFluid.Properties OIL_HEAVY_SEARING_PROPERTY = new ForgeFlowingFluid.Properties(BCEnergyFluids.OIL_HEAVY_SEARING,BCEnergyFluids.OIL_HEAVY_SEARING_SOURCE,BCEnergyFluids.OIL_HEAVY_SEARING_FLOWING).block(BCEnergyFluids.OIL_HEAVY_SEARING_BLOCK).slopeFindDistance(6).levelDecreasePerBlock(1).tickRate(10);
-    
-    //dense oil
-    public static final RegistryObject<FluidType> OIL_DENSE_COOL = FLUID_TYPES.register(NAME[++i]+"_cool", () -> new aFluidType(FluidType.Properties.create().canDrown(false).canSwim(false).density(data[i][0]).viscosity(data[i][1]),OilDenseCoolStillTexture , OilDenseCoolFlowTexture, i));
-    public static final RegistryObject<BCFluid> OIL_DENSE_COOL_SOURCE = FLUIDS.register(NAME[i]+"_cool_source", () -> new BCFluid.Source(BCEnergyFluids.OIL_DENSE_COOL_PROPERTY));
-    public static final RegistryObject<BCFluid> OIL_DENSE_COOL_FLOWING = FLUIDS.register(NAME[i]+"_cool_flowing", () -> new BCFluid.Flowing(BCEnergyFluids.OIL_DENSE_COOL_PROPERTY));
-    public static final RegistryObject<BucketItem> OIL_DENSE_COOL_BUCKET = BCEnergy.ITEMS.register("oil_dense/"+NAME[i]+"_cool_bucket", () -> new BucketItem(BCEnergyFluids.OIL_DENSE_COOL_SOURCE,new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC).craftRemainder(Items.BUCKET)));
-    public static final RegistryObject<LiquidBlock> OIL_DENSE_COOL_BLOCK = BCEnergyBlocks.BLOCKS.register("oil_dense/"+NAME[i]+"_cool", () -> new LiquidBlock(BCEnergyFluids.OIL_DENSE_COOL_SOURCE, BlockBehaviour.Properties.copy(Blocks.WATER)));
-    public static final ForgeFlowingFluid.Properties OIL_DENSE_COOL_PROPERTY = new ForgeFlowingFluid.Properties(BCEnergyFluids.OIL_DENSE_COOL,BCEnergyFluids.OIL_DENSE_COOL_SOURCE,BCEnergyFluids.OIL_DENSE_COOL_FLOWING).block(BCEnergyFluids.OIL_DENSE_COOL_BLOCK).slopeFindDistance(5).levelDecreasePerBlock(2).tickRate(20);
-    
-    public static final RegistryObject<FluidType> OIL_DENSE_HOT = FLUID_TYPES.register(NAME[i]+"_hot", () -> new aFluidType(FluidType.Properties.create().canDrown(false).canSwim(false).density(data[i][0]).viscosity(data[i][1]).temperature(400),OilDenseHotStillTexture , OilDenseHotFlowTexture, i));
-    public static final RegistryObject<BCFluid> OIL_DENSE_HOT_SOURCE = FLUIDS.register(NAME[i]+"_hot_source", () -> new BCFluid.Source(BCEnergyFluids.OIL_DENSE_HOT_PROPERTY));
-    public static final RegistryObject<BCFluid> OIL_DENSE_HOT_FLOWING = FLUIDS.register(NAME[i]+"_hot_flowing", () -> new BCFluid.Flowing(BCEnergyFluids.OIL_DENSE_HOT_PROPERTY));
-    public static final RegistryObject<BucketItem> OIL_DENSE_HOT_BUCKET = BCEnergy.ITEMS.register("oil_dense/"+NAME[i]+"_hot_bucket", () -> new BucketItem(BCEnergyFluids.OIL_DENSE_HOT_SOURCE,new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC).craftRemainder(Items.BUCKET)));
-    public static final RegistryObject<LiquidBlock> OIL_DENSE_HOT_BLOCK = BCEnergyBlocks.BLOCKS.register("oil_dense/"+NAME[i]+"_hot", () -> new LiquidBlock(BCEnergyFluids.OIL_DENSE_HOT_SOURCE, BlockBehaviour.Properties.copy(Blocks.WATER)));
-    public static final ForgeFlowingFluid.Properties OIL_DENSE_HOT_PROPERTY = new ForgeFlowingFluid.Properties(BCEnergyFluids.OIL_DENSE_HOT,BCEnergyFluids.OIL_DENSE_HOT_SOURCE,BCEnergyFluids.OIL_DENSE_HOT_FLOWING).block(BCEnergyFluids.OIL_DENSE_HOT_BLOCK).slopeFindDistance(5).levelDecreasePerBlock(2).tickRate(15);
-    
-    public static final RegistryObject<FluidType> OIL_DENSE_SEARING = FLUID_TYPES.register(NAME[i]+"_searing", () -> new aFluidType(FluidType.Properties.create().canDrown(false).canSwim(false).density(data[i][0]).viscosity(data[i][1]).temperature(400),OilDenseSearingStillTexture , OilDenseSearingFlowTexture, i));
-    public static final RegistryObject<BCFluid> OIL_DENSE_SEARING_SOURCE = FLUIDS.register(NAME[i]+"_searing_source", () -> new BCFluid.Source(BCEnergyFluids.OIL_DENSE_SEARING_PROPERTY));
-    public static final RegistryObject<BCFluid> OIL_DENSE_SEARING_FLOWING = FLUIDS.register(NAME[i]+"_searing_flowing", () -> new BCFluid.Flowing(BCEnergyFluids.OIL_DENSE_SEARING_PROPERTY));
-    public static final RegistryObject<BucketItem> OIL_DENSE_SEARING_BUCKET = BCEnergy.ITEMS.register("oil_dense/"+NAME[i]+"_searing_bucket", () -> new BucketItem(BCEnergyFluids.OIL_DENSE_SEARING_SOURCE,new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC).craftRemainder(Items.BUCKET)));
-    public static final RegistryObject<LiquidBlock> OIL_DENSE_SEARING_BLOCK = BCEnergyBlocks.BLOCKS.register("oil_dense/"+NAME[i]+"_searing", () -> new LiquidBlock(BCEnergyFluids.OIL_DENSE_SEARING_SOURCE, BlockBehaviour.Properties.copy(Blocks.WATER)));
-    public static final ForgeFlowingFluid.Properties OIL_DENSE_SEARING_PROPERTY = new ForgeFlowingFluid.Properties(BCEnergyFluids.OIL_DENSE_SEARING,BCEnergyFluids.OIL_DENSE_SEARING_SOURCE,BCEnergyFluids.OIL_DENSE_SEARING_FLOWING).block(BCEnergyFluids.OIL_DENSE_SEARING_BLOCK).slopeFindDistance(5).levelDecreasePerBlock(2).tickRate(10);
-    
-    //distill oil
-    public static final RegistryObject<FluidType> OIL_DISTILLED_COOL = FLUID_TYPES.register(NAME[++i]+"_cool", () -> new aFluidType(FluidType.Properties.create().canDrown(false).canSwim(false).density(data[i][0]).viscosity(data[i][1]),OilDistilledCoolStillTexture , OilDistilledCoolFlowTexture, i));
-    public static final RegistryObject<BCFluid> OIL_DISTILLED_COOL_SOURCE = FLUIDS.register(NAME[i]+"_cool_source", () -> new BCFluid.Source(BCEnergyFluids.OIL_DISTILLED_COOL_PROPERTY));
-    public static final RegistryObject<BCFluid> OIL_DISTILLED_COOL_FLOWING = FLUIDS.register(NAME[i]+"_cool_flowing", () -> new BCFluid.Flowing(BCEnergyFluids.OIL_DISTILLED_COOL_PROPERTY));
-    public static final RegistryObject<BucketItem> OIL_DISTILLED_COOL_BUCKET = BCEnergy.ITEMS.register("oil_distilled/"+NAME[i]+"_cool_bucket", () -> new BucketItem(BCEnergyFluids.OIL_DISTILLED_COOL_SOURCE,new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC).craftRemainder(Items.BUCKET)));
-    public static final RegistryObject<LiquidBlock> OIL_DISTILLED_COOL_BLOCK = BCEnergyBlocks.BLOCKS.register("oil_distilled/"+NAME[i]+"_cool", () -> new LiquidBlock(BCEnergyFluids.OIL_DISTILLED_COOL_SOURCE, BlockBehaviour.Properties.copy(Blocks.WATER)));
-    public static final ForgeFlowingFluid.Properties OIL_DISTILLED_COOL_PROPERTY = new ForgeFlowingFluid.Properties(BCEnergyFluids.OIL_DISTILLED_COOL,BCEnergyFluids.OIL_DISTILLED_COOL_SOURCE,BCEnergyFluids.OIL_DISTILLED_COOL_FLOWING).block(BCEnergyFluids.OIL_DISTILLED_COOL_BLOCK).slopeFindDistance(5).levelDecreasePerBlock(1).tickRate(10);
-    
-    public static final RegistryObject<FluidType> OIL_DISTILLED_HOT = FLUID_TYPES.register(NAME[i]+"_hot", () -> new aFluidType(FluidType.Properties.create().canDrown(false).canSwim(false).density(data[i][0]).viscosity(data[i][1]).temperature(400),OilDistilledHotStillTexture , OilDistilledHotFlowTexture, i));
-    public static final RegistryObject<BCFluid> OIL_DISTILLED_HOT_SOURCE = FLUIDS.register(NAME[i]+"_hot_source", () -> new BCFluid.Source(BCEnergyFluids.OIL_DISTILLED_HOT_PROPERTY));
-    public static final RegistryObject<BCFluid> OIL_DISTILLED_HOT_FLOWING = FLUIDS.register(NAME[i]+"_hot_flowing", () -> new BCFluid.Flowing(BCEnergyFluids.OIL_DISTILLED_HOT_PROPERTY));
-    public static final RegistryObject<BucketItem> OIL_DISTILLED_HOT_BUCKET = BCEnergy.ITEMS.register("oil_distilled/"+NAME[i]+"_hot_bucket", () -> new BucketItem(BCEnergyFluids.OIL_DISTILLED_HOT_SOURCE,new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC).craftRemainder(Items.BUCKET)));
-    public static final RegistryObject<LiquidBlock> OIL_DISTILLED_HOT_BLOCK = BCEnergyBlocks.BLOCKS.register("oil_distilled/"+NAME[i]+"_hot", () -> new LiquidBlock(BCEnergyFluids.OIL_DISTILLED_HOT_SOURCE, BlockBehaviour.Properties.copy(Blocks.WATER)));
-    public static final ForgeFlowingFluid.Properties OIL_DISTILLED_HOT_PROPERTY = new ForgeFlowingFluid.Properties(BCEnergyFluids.OIL_DISTILLED_HOT,BCEnergyFluids.OIL_DISTILLED_HOT_SOURCE,BCEnergyFluids.OIL_DISTILLED_HOT_FLOWING).block(BCEnergyFluids.OIL_DISTILLED_HOT_BLOCK).slopeFindDistance(5).levelDecreasePerBlock(1).tickRate(7);
-    
-    public static final RegistryObject<FluidType> OIL_DISTILLED_SEARING = FLUID_TYPES.register(NAME[i]+"_searing", () -> new aFluidType(FluidType.Properties.create().canDrown(false).canSwim(false).density(data[i][0]).viscosity(data[i][1]).temperature(400),OilDistilledSearingStillTexture , OilDistilledSearingFlowTexture, i));
-    public static final RegistryObject<BCFluid> OIL_DISTILLED_SEARING_SOURCE = FLUIDS.register(NAME[i]+"_searing_source", () -> new BCFluid.Source(BCEnergyFluids.OIL_DISTILLED_SEARING_PROPERTY));
-    public static final RegistryObject<BCFluid> OIL_DISTILLED_SEARING_FLOWING = FLUIDS.register(NAME[i]+"_searing_flowing", () -> new BCFluid.Flowing(BCEnergyFluids.OIL_DISTILLED_SEARING_PROPERTY));
-    public static final RegistryObject<BucketItem> OIL_DISTILLED_SEARING_BUCKET = BCEnergy.ITEMS.register("oil_distilled/"+NAME[i]+"_searing_bucket", () -> new BucketItem(BCEnergyFluids.OIL_DISTILLED_SEARING_SOURCE,new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC).craftRemainder(Items.BUCKET)));
-    public static final RegistryObject<LiquidBlock> OIL_DISTILLED_SEARING_BLOCK = BCEnergyBlocks.BLOCKS.register("oil_distilled/"+NAME[i]+"_searing", () -> new LiquidBlock(BCEnergyFluids.OIL_DISTILLED_SEARING_SOURCE, BlockBehaviour.Properties.copy(Blocks.WATER)));
-    public static final ForgeFlowingFluid.Properties OIL_DISTILLED_SEARING_PROPERTY = new ForgeFlowingFluid.Properties(BCEnergyFluids.OIL_DISTILLED_SEARING,BCEnergyFluids.OIL_DISTILLED_SEARING_SOURCE,BCEnergyFluids.OIL_DISTILLED_SEARING_FLOWING).block(BCEnergyFluids.OIL_DISTILLED_SEARING_BLOCK).slopeFindDistance(5).levelDecreasePerBlock(1).tickRate(5);
-   
-    
+
     public static void registry(IEventBus bus) {
+    	registryFluid();
 		FLUID_TYPES.register(bus);
 		FLUIDS.register(bus);
     }
     
     public static void init() {
-    	crudeOil[0] = OIL_COOL_SOURCE.get();
-    	crudeOil[1] = OIL_HOT_SOURCE.get();
-    	crudeOil[2] = OIL_SEARING_SOURCE.get();
-    	oilDistilled[0] = OIL_DENSE_COOL_SOURCE.get();
-    	oilDistilled[1] = OIL_DENSE_HOT_SOURCE.get();
-    	oilDistilled[2] = OIL_DENSE_SEARING_SOURCE.get();
-    	oilHeavy[0] = OIL_HEAVY_COOL_SOURCE.get();
-    	oilHeavy[1] = OIL_HEAVY_HOT_SOURCE.get();
-    	oilHeavy[2] = OIL_HEAVY_SEARING_SOURCE.get();
-    	oilDense[0] = OIL_DENSE_COOL_SOURCE.get();
-    	oilDense[1] = OIL_DENSE_HOT_SOURCE.get();
-    	oilDense[2] = OIL_DENSE_SEARING_SOURCE.get();
-    	oilResidue[0] = OIL_RESIDUE_COOL_SOURCE.get();
-    	oilResidue[1] = OIL_RESIDUE_HOT_SOURCE.get();
-    	oilResidue[2] = OIL_RESIDUE_SEARING_SOURCE.get();
+    	int id = 0;
+    	crudeOil[0] = OIL_SOURCE.get(id++).get();
+    	crudeOil[1] = OIL_SOURCE.get(id++).get();
+    	crudeOil[2] = OIL_SOURCE.get(id++).get();
+    	oilDistilled[0] = OIL_SOURCE.get(id++).get();
+    	oilDistilled[1] = OIL_SOURCE.get(id++).get();
+    	oilDistilled[2] = OIL_SOURCE.get(id++).get();
+    	oilHeavy[0] = OIL_SOURCE.get(id++).get();
+    	oilHeavy[1] = OIL_SOURCE.get(id++).get();
+    	oilHeavy[2] = OIL_SOURCE.get(id++).get();
+    	oilDense[0] = OIL_SOURCE.get(id++).get();
+    	oilDense[1] = OIL_SOURCE.get(id++).get();
+    	oilDense[2] = OIL_SOURCE.get(id++).get();
+    	oilResidue[0] = OIL_SOURCE.get(id++).get();
+    	oilResidue[1] = OIL_SOURCE.get(id++).get();
+    	oilResidue[2] = OIL_SOURCE.get(id++).get();
+    	fuelDense[0] = OIL_SOURCE.get(id++).get();
+    	fuelDense[1] = OIL_SOURCE.get(id++).get();
+    	fuelDense[2] = OIL_SOURCE.get(id++).get();
+    	fuelMixedHeavy[0] = OIL_SOURCE.get(id++).get();
+    	fuelMixedHeavy[1] = OIL_SOURCE.get(id++).get();
+    	fuelMixedHeavy[2] = OIL_SOURCE.get(id++).get();
+    	fuelLight[0] = OIL_SOURCE.get(id++).get();
+    	fuelLight[1] = OIL_SOURCE.get(id++).get();
+    	fuelLight[2] = OIL_SOURCE.get(id++).get();
+    	fuelMixedLight[0] = OIL_SOURCE.get(id++).get();
+    	fuelMixedLight[1] = OIL_SOURCE.get(id++).get();
+    	fuelMixedLight[2] = OIL_SOURCE.get(id++).get();
+    	fuelGaseous[0] = OIL_SOURCE.get(id++).get();
+    	fuelGaseous[1] = OIL_SOURCE.get(id++).get();
+    	fuelGaseous[2] = OIL_SOURCE.get(id++).get();
+    }
+    
+    public static void registryFluid() {
+    	for(int id=0;id<NAME.length;id++) 
+    		for(int tem = 0;tem <3;tem++) {
+    			creatFluid(id,tem);
+    	}
+    }
+    
+    private static void creatFluid(int id, int tem) {
+        RegistryObject<FluidType> TYPE = FLUID_TYPES.register(NAME[id]+TEM_NAMES[tem], () -> new aFluidType(FluidType.Properties.create().canDrown(true).canSwim(false).density(data[id][0]).viscosity(data[id][1]).temperature(TEMS[tem]), OIL_TEXTURE[id][2*tem], OIL_TEXTURE[id][2*tem+1], id) );
+        RegistryObject<BCFluid> SOURCE = RegistryObject.create(new ResourceLocation(BCEnergy.MODID,NAME[id]+TEM_NAMES[tem]+"_source"), ForgeRegistries.Keys.FLUIDS, BCEnergy.MODID);
+        RegistryObject<BCFluid> FLOWING = RegistryObject.create(new ResourceLocation(BCEnergy.MODID,NAME[id]+TEM_NAMES[tem]+"_flowing"), ForgeRegistries.Keys.FLUIDS, BCEnergy.MODID);
+        RegistryObject<BucketItem> BUCKET = BCEnergy.ITEMS.register(NAME[id]+"/"+NAME[id]+TEM_NAMES[tem]+"_bucket", () -> new BucketItem(SOURCE,new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC).craftRemainder(Items.BUCKET)));
+        RegistryObject<LiquidBlock> FUEL_GAS_COOL_BLOCK = BCEnergyBlocks.BLOCKS.register(NAME[id]+"/"+NAME[id]+TEM_NAMES[tem], () -> new LiquidBlock(SOURCE, BlockBehaviour.Properties.of(FLAMMABLELIQUID).noCollission().strength(100.0F).noLootTable()));
+        ForgeFlowingFluid.Properties properties = new ForgeFlowingFluid.Properties(TYPE, SOURCE, FLOWING).bucket(BUCKET).block(FUEL_GAS_COOL_BLOCK);//.slopeFindDistance(0);
+        FLUIDS.register(NAME[id]+TEM_NAMES[tem]+"_source", () -> new BCFluid.Source(properties).setHeat(tem));
+        FLUIDS.register(NAME[id]+TEM_NAMES[tem]+"_flowing", () -> new BCFluid.Flowing(properties).setHeat(tem));
+        OIL_TYPE.add(TYPE);
+        OIL_SOURCE.add(SOURCE);
+        OIL_BUCKET.add(BUCKET);
+        OIL_BLOCK.add(FUEL_GAS_COOL_BLOCK);
     }
     
     static class aFluidType extends FluidType{
@@ -285,16 +266,13 @@ public class BCEnergyFluids {
 
 				@Override
 				public int getTintColor() {
-					// TODO Auto-generated method stub
 //					return BCEnergyFluids.data[i][4];
 					return 0xFFffffFF;
 				}
 				
-
 				@Override
 				public ResourceLocation getFlowingTexture() {
 					return flowTexture;
-
 				}
 				
 				@Override
@@ -308,9 +286,8 @@ public class BCEnergyFluids {
 					IClientFluidTypeExtensions.super.modifyFogRender(camera, mode, renderDistance, partialTick, nearDistance, farDistance,
 							shape);
 				}
-				
-    			
     		});
         }
+    	
     }
 }

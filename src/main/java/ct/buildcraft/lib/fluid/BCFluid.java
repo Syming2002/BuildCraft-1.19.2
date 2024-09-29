@@ -19,7 +19,7 @@ public abstract class BCFluid extends ForgeFlowingFluid {
     private boolean isFlammable = false;
     private int lightOpacity = 0;
     private MaterialColor mapColour = MaterialColor.COLOR_BLACK;
-    private int heat;
+    private int heatLevel;//int heat
     private boolean heatable;
     private String blockName;
     
@@ -105,12 +105,12 @@ public abstract class BCFluid extends ForgeFlowingFluid {
     }
 
     public BCFluid setHeat(int heat) {
-        this.heat = heat;
+        this.heatLevel = heat;
         return this;
     }
 
     public int getHeatValue() {
-        return heat;
+        return heatLevel;
     }
 
     public BCFluid setHeatable(boolean value) {

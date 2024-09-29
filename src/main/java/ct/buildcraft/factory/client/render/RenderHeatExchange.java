@@ -45,9 +45,6 @@ public class RenderHeatExchange implements BlockEntityRenderer<TileHeatExchange>
         var max = new Vec3(0.5,0.5,0.5);
         boolean[] sideRender = { true, true, true, true, true, true };
         
-        BCLog.logger.debug("v");
-
-
         
         
         

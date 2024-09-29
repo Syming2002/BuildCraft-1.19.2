@@ -55,7 +55,8 @@ public class BlockDistiller extends BlockBCTile_Neptune implements EntityBlock, 
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> bs) {
 		super.createBlockStateDefinition(bs);
 	}
-//	@Override
+	
+	//	@Override
 //    public VoxelShape getVisualShape(BlockState p_48735_, BlockGetter p_48736_, BlockPos p_48737_, CollisionContext p_48738_) {
 //        return Shapes.empty();
 //     }

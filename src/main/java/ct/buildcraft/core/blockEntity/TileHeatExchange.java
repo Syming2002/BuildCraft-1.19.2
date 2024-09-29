@@ -91,7 +91,7 @@ public class TileHeatExchange extends TileBC_Neptune implements IDebuggable {
     }
 
     protected ExchangeSection section;
-    private boolean checkNeighbours;
+    private boolean checkNeighbours = true;
 
     
     @Override
@@ -107,8 +107,14 @@ public class TileHeatExchange extends TileBC_Neptune implements IDebuggable {
         }
         checkNeighbours = true;
 	}
-
+    
     @Override
+	public void onLoad() {
+//    	checkNeighbours = true;
+		super.onLoad();
+	}
+
+	@Override
 	public void saveAdditional(CompoundTag nbt) {
 		super.saveAdditional(nbt);
         if (section != null) {
@@ -119,9 +125,12 @@ public class TileHeatExchange extends TileBC_Neptune implements IDebuggable {
     public void update() {
         if (checkNeighbours) {
             checkNeighbours = false;
+//            if(!level.isClientSide)
+//            BCLog.logger.debug("TileHeatExchange:close flag at "+worldPosition);
             Deque<TileHeatExchange> exchangers = findAdjacentExchangers();
             if (level.isClientSide) {
                 // Find the start + end sections and link them up
+//            	BCLog.logger.debug("TileHeatExchange:client tick for "+worldPosition);
                 if (exchangers.size() > 2) {
                     TileHeatExchange start = exchangers.getFirst();
                     TileHeatExchange end = exchangers.getLast();
@@ -176,23 +185,24 @@ public class TileHeatExchange extends TileBC_Neptune implements IDebuggable {
                     exchangers.getLast().setSection(sectionEnd);
                     for (TileHeatExchange exchange : exchangers) {
                         exchange.sendNetworkUpdate(NET_ID_CHANGE_SECTION);
+                        //update BlockState
+                        BlockState state = exchange.getBlockState();
+                        EnumExchangePart part ;
+                        if (exchange.isStart()) {
+                            part = EnumExchangePart.START;
+                        } else if (exchange.isEnd()) {
+                            part = EnumExchangePart.END;
+                        } else {
+                            part = EnumExchangePart.MIDDLE;
+                        }
+                        if(part != state.getValue(BlockHeatExchange.PROP_PART)) {
+                        	level.setBlock(exchange.worldPosition, state.setValue(BlockHeatExchange.PROP_PART, part), Block.UPDATE_ALL);
+                        }
                     }
                 }
+                
             }
-            BlockState state = getBlockState();
-            EnumExchangePart part ;
-            if (isStart()) {
-                part = EnumExchangePart.START;
-            } else if (isEnd()) {
-                part = EnumExchangePart.END;
-                BCLog.logger.debug("a");
-            } else {
-                part = EnumExchangePart.MIDDLE;
-            }
-            if(part != state.getValue(BlockHeatExchange.PROP_PART)) {
-            	;
-            	level.setBlock(worldPosition, state.setValue(BlockHeatExchange.PROP_PART, part), Block.UPDATE_ALL);
-            }
+
         }
         if (section != null) {
             section.tick();
@@ -203,12 +213,25 @@ public class TileHeatExchange extends TileBC_Neptune implements IDebuggable {
         if (section == null) {
             return;
         }
-        BCLog.logger.info("[] removing section...");
+//        BCLog.logger.info("[] removing section...");
         NonNullList<ItemStack> list = NonNullList.create();
         section.tankManager.addDrops(list);
         InventoryUtil.dropAll(getLevel(), getBlockPos(), list);
         section = null;
         sendNetworkUpdate(NET_ID_CHANGE_SECTION);
+        //update BlockState
+        BlockState state = getBlockState();
+        EnumExchangePart part ;
+        if (isStart()) {
+            part = EnumExchangePart.START;
+        } else if (isEnd()) {
+            part = EnumExchangePart.END;
+        } else {
+            part = EnumExchangePart.MIDDLE;
+        }
+        if(part != state.getValue(BlockHeatExchange.PROP_PART)) {
+        	level.setBlock(worldPosition, state.setValue(BlockHeatExchange.PROP_PART, part), Block.UPDATE_ALL);
+        }
     }
 
     private Deque<TileHeatExchange> findAdjacentExchangers() {
@@ -284,6 +307,7 @@ public class TileHeatExchange extends TileBC_Neptune implements IDebuggable {
 
     @Override
     public void writePayload(int id, FriendlyByteBuf buffer, LogicalSide side) {
+//    	BCLog.logger.debug("TileHeatExchange:send message at "+worldPosition+" "+checkNeighbours);
         if (side == LogicalSide.SERVER) {
             if (id == NET_RENDER_DATA) {
                 writePayload(NET_ID_CHANGE_SECTION, buffer, side);
@@ -636,7 +660,6 @@ public class TileHeatExchange extends TileBC_Neptune implements IDebuggable {
         @Override
         void tick() {
             super.tick();
-
             updateProgress();
             if (getTile().level.isClientSide) {
                 spawnParticles();

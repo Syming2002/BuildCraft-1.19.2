@@ -18,6 +18,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
@@ -98,6 +100,24 @@ public abstract class BlockBCTile_Neptune extends BlockBCBase_Neptune implements
             tileBC.onNeighbourBlockChanged(block, fromPos);
         }
 	}
+
+	@Override
+	public BlockEntity newBlockEntity(BlockPos p_153215_, BlockState p_153216_) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state,
+			BlockEntityType<T> bet) {
+		return (a,b,c,blockEntity) -> {
+			if(blockEntity instanceof TileBC_Neptune tile) {
+				tile.update();
+			}
+		};
+	}
+	
+	
     
     
 }

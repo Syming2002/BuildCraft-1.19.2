@@ -1,6 +1,7 @@
 package ct.buildcraft.factory.client.render;
 
 import ct.buildcraft.factory.BCFactory;
+import ct.buildcraft.factory.block.BlockDistiller;
 import ct.buildcraft.factory.blockEntity.TileDistiller;
 import ct.buildcraft.lib.client.render.fluid.FluidRenderer;
 import ct.buildcraft.lib.client.render.fluid.FluidSpriteType;
@@ -41,7 +42,24 @@ public class RenderDistiller implements BlockEntityRenderer<TileDistiller> {
 		FluidStackInterp tankFluid = tile.smoothedTankLiquidOut.getFluidForRender(partialTicks);
 		matrix.pushPose();
 		VertexConsumer bb = buffer.getBuffer(RenderType.cutout());
-		
+		matrix.translate(0.5, 0.5, 0.5);
+//		matrix.mulPose(tile.getBlockState().getValue(BlockDistiller.PROP_FACING).getRotation());
+        switch(tile.getBlockState().getValue(BlockDistiller.PROP_FACING)) {
+		case EAST:
+			matrix.mulPose(Vector3f.YP.rotationDegrees(180));
+			break;
+		case NORTH:
+			matrix.mulPose(Vector3f.YN.rotationDegrees(90));
+			break;
+		case SOUTH:
+			matrix.mulPose(Vector3f.YP.rotationDegrees(90));
+			break;
+		case WEST:
+			break;
+		default:
+			break;
+        }
+		matrix.translate(-0.5, -0.5, -0.5);
 		int blocklight0 = light & 0x0000F0;
 		int skylight0 = light & 0xF00000;
 		if (tankIn != null) {

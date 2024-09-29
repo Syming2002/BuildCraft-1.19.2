@@ -1,5 +1,7 @@
 package ct.buildcraft.factory;
 
+import ct.buildcraft.factory.blockEntity.TileDistiller;
+import ct.buildcraft.factory.blockEntity.TileTank;
 import ct.buildcraft.factory.client.render.RenderDistiller;
 import ct.buildcraft.factory.client.render.RenderHeatExchange;
 import ct.buildcraft.factory.client.render.RenderMiningWell;
@@ -55,6 +57,7 @@ public class BCFactory
         BCFactoryItems.preInit(modEventBus);
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
+        vaildID();
  //       MinecraftForge.EVENT_BUS.register(EntityBlockPump::new);
     }
 
@@ -71,6 +74,14 @@ public class BCFactory
     {
         // Do something when the server starts
         LOGGER.info("HELLO from server starting");
+    }
+    
+    @SuppressWarnings("unused")
+	private void vaildID() {
+    	int i0 = TileTank.NET_FLUID_DELTA;
+    	int i1 = TileDistiller.NET_TANK_GAS_OUT;
+    	int i2 = TileDistiller.NET_TANK_IN;
+    	int i3 = TileDistiller.NET_TANK_LIQUID_OUT;
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent

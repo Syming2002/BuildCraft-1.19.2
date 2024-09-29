@@ -1,8 +1,11 @@
 package ct.buildcraft.core.item;
 
 import ct.buildcraft.api.blocks.CustomRotationHelper;
+import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.api.tools.IToolWrench;
 import ct.buildcraft.core.BCCore;
+import ct.buildcraft.core.blockEntity.TileHeatExchange;
+import ct.buildcraft.factory.block.BlockHeatExchange;
 import ct.buildcraft.lib.misc.SoundUtil;
 
 import net.minecraft.core.BlockPos;
@@ -31,6 +34,7 @@ public class ItemWrench extends Item implements IToolWrench{
         // if (world.isRemote) {
         // return EnumActionResult.PASS;
         // }
+
 		Level world = coc.getLevel();
 		BlockPos pos = coc.getClickedPos();
 		Direction side = coc.getClickedFace();
@@ -38,11 +42,18 @@ public class ItemWrench extends Item implements IToolWrench{
 		InteractionHand hand = coc.getHand();
 		Vec3 c = coc.getClickLocation();
         BlockState state = world.getBlockState(pos);
+		//DEBUG
+		if(world.getBlockEntity(pos) instanceof TileHeatExchange tile) {
+			BCLog.logger.debug("ItemWrench:"+tile.getTankInRenderInfo(0));
+			return InteractionResult.CONSUME;
+		}
         InteractionResult result = CustomRotationHelper.INSTANCE.attemptRotateBlock(world, pos, state, side);
+
         if (result == InteractionResult.SUCCESS) {
             wrenchUsed(player, hand, player.getItemInHand(hand), BlockHitResult.miss(c, side, pos));
         }
         SoundUtil.playSlideSound(world, pos, state, result);
+
         return result;
 	}
 

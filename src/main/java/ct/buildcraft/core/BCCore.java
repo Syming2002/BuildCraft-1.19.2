@@ -79,7 +79,7 @@ public class BCCore {
     private void commonSetup(final FMLCommonSetupEvent event)
     {
 //      EnumSpring.OIL.liquidBlock = BCEnergyFluids.crudeOil[0].getBlock().getDefaultState();
-    	EnumSpring.OIL.liquidBlock = BCEnergyFluids.OIL_COOL_BLOCK.get().defaultBlockState();
+    	EnumSpring.OIL.liquidBlock = BCEnergyFluids.OIL_BLOCK.get(0).get().defaultBlockState();
     	EnumSpring.OIL.tileConstructor = TileSpringOil::new;
     	BCCoreConfig.reloadConfig(MODID);
         BUILDCRAFT_TAB.setItem(BCCoreItems.WRENCH.get());
@@ -123,7 +123,7 @@ public class BCCore {
         @SubscribeEvent
         public static void registrtTexture(Pre e){
         	
-        	LOGGER.info(e.getAtlas().location().getPath());
+        	//LOGGER.info(e.getAtlas().location().getPath());
         	if("textures/atlas/blocks.png".equals(e.getAtlas().location().getPath())) {
         		e.addSprite(TRUNK_LIGHT);
         		e.addSprite(CHAMBER);

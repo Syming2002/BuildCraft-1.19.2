@@ -81,17 +81,14 @@ public class BlockHeatExchange extends BlockBCTile_Neptune implements ICustomPip
 	public BlockState getStateForPlacement(BlockPlaceContext bpc) {
 		Level world = bpc.getLevel();
 		BlockPos pos = bpc.getClickedPos();
-        BlockEntity tile = world.getBlockEntity(pos);
         BlockState state = super.getStateForPlacement(bpc);
         Direction thisFacing = state.getValue(PROP_FACING);
-        state = state.setValue(PROP_CONNECTED_Y, false);
 
         boolean connectLeft = doesNeighbourConnect(world, pos, thisFacing, thisFacing.getClockWise());
         state = state.setValue(PROP_CONNECTED_LEFT, connectLeft);
 
         boolean connectRight = doesNeighbourConnect(world, pos, thisFacing, thisFacing.getCounterClockWise());
         state = state.setValue(PROP_CONNECTED_RIGHT, connectRight);
-        state = state.setValue(PROP_CONNECTED_Y, false);
         return state;
 	}
 	
@@ -100,6 +97,7 @@ public class BlockHeatExchange extends BlockBCTile_Neptune implements ICustomPip
     @Override
 	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos,
 			boolean p_60514_) {
+    	
         Direction thisFacing = state.getValue(PROP_FACING);
 
         boolean connectLeft = doesNeighbourConnect(level, pos, thisFacing, thisFacing.getClockWise());
@@ -107,7 +105,7 @@ public class BlockHeatExchange extends BlockBCTile_Neptune implements ICustomPip
 
         boolean connectRight = doesNeighbourConnect(level, pos, thisFacing, thisFacing.getCounterClockWise());
         state = state.setValue(PROP_CONNECTED_RIGHT, connectRight);
-        state = state.setValue(PROP_CONNECTED_Y, false);
+        //state = state.setValue(PROP_CONNECTED_Y, false);
         level.setBlock(pos, state, 2);
 		super.neighborChanged(state, level, pos, block, fromPos, p_60514_);
 	}

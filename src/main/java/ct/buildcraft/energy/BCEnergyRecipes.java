@@ -15,7 +15,6 @@ import ct.buildcraft.api.mj.MjAPI;
 import ct.buildcraft.api.recipes.BuildcraftRecipeRegistry;
 import ct.buildcraft.api.recipes.IRefineryRecipeManager.IDistillationRecipe;
 import ct.buildcraft.core.BCCoreItems;
-import ct.buildcraft.core.item.ItemPaintbrush_BC8;
 import ct.buildcraft.lib.fluid.BCFluid;
 import ct.buildcraft.lib.misc.MathUtil;
 
@@ -24,9 +23,7 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
@@ -61,12 +58,12 @@ public class BCEnergyRecipes {
         final int _light_dense_residue = 3;
         final int _gas_light_dense = 8;
 
-/*        addFuel(BCEnergyFluids.fuelGaseous, _gas, 8, 4);
+        addFuel(BCEnergyFluids.fuelGaseous, _gas, 8, 4);
         addFuel(BCEnergyFluids.fuelLight, _light, 6, 6);
         addFuel(BCEnergyFluids.fuelDense, _dense, 4, 12);
 
         addFuel(BCEnergyFluids.fuelMixedLight, _gas_light, 3, 5);
-        addFuel(BCEnergyFluids.fuelMixedHeavy, _light_dense, 5, 8);*/
+        addFuel(BCEnergyFluids.fuelMixedHeavy, _light_dense, 5, 8);
         addDirtyFuel(BCEnergyFluids.oilDense, _dense_residue, 4, 4);
 
         addFuel(BCEnergyFluids.oilDistilled, _gas_light_dense, 1, 5);
@@ -77,47 +74,47 @@ public class BCEnergyRecipes {
         if (BCModules.FACTORY.isLoaded()) {
             FluidStack[] gas_light_dense_residue = createFluidStack(BCEnergyFluids.crudeOil, _oil);
             FluidStack[] gas_light_dense = createFluidStack(BCEnergyFluids.oilDistilled, _gas_light_dense);
-//            FluidStack[] gas_light = createFluidStack(BCEnergyFluids.fuelMixedLight, _gas_light);
-//            FluidStack[] gas = createFluidStack(BCEnergyFluids.fuelGaseous, _gas);
+            FluidStack[] gas_light = createFluidStack(BCEnergyFluids.fuelMixedLight, _gas_light);
+            FluidStack[] gas = createFluidStack(BCEnergyFluids.fuelGaseous, _gas);
             FluidStack[] light_dense_residue = createFluidStack(BCEnergyFluids.oilHeavy, _light_dense_residue);
-//            FluidStack[] light_dense = createFluidStack(BCEnergyFluids.fuelMixedHeavy, _light_dense);
-//            FluidStack[] light = createFluidStack(BCEnergyFluids.fuelLight, _light);
+            FluidStack[] light_dense = createFluidStack(BCEnergyFluids.fuelMixedHeavy, _light_dense);
+            FluidStack[] light = createFluidStack(BCEnergyFluids.fuelLight, _light);
             FluidStack[] dense_residue = createFluidStack(BCEnergyFluids.oilDense, _dense_residue);
-//            FluidStack[] dense = createFluidStack(BCEnergyFluids.fuelDense, _dense);
+            FluidStack[] dense = createFluidStack(BCEnergyFluids.fuelDense, _dense);
             FluidStack[] residue = createFluidStack(BCEnergyFluids.oilResidue, _residue);
 
-//            addDistillation(gas_light_dense_residue, gas, light_dense_residue, 0, 32 * MjAPI.MJ);
-//            addDistillation(gas_light_dense_residue, gas_light, dense_residue, 1, 16 * MjAPI.MJ);
+            addDistillation(gas_light_dense_residue, gas, light_dense_residue, 0, 32 * MjAPI.MJ);
+            addDistillation(gas_light_dense_residue, gas_light, dense_residue, 1, 16 * MjAPI.MJ);
             addDistillation(gas_light_dense_residue, gas_light_dense, residue, 2, 12 * MjAPI.MJ);
 
-//            addDistillation(gas_light_dense, gas, light_dense, 0, 24 * MjAPI.MJ);
-//            addDistillation(gas_light_dense, gas_light, dense, 1, 16 * MjAPI.MJ);
+            addDistillation(gas_light_dense, gas, light_dense, 0, 24 * MjAPI.MJ);
+            addDistillation(gas_light_dense, gas_light, dense, 1, 16 * MjAPI.MJ);
 
-//            addDistillation(gas_light, gas, light, 0, 24 * MjAPI.MJ);
+            addDistillation(gas_light, gas, light, 0, 24 * MjAPI.MJ);
 
-//            addDistillation(light_dense_residue, light, dense_residue, 1, 16 * MjAPI.MJ);
-//            addDistillation(light_dense_residue, light_dense, residue, 2, 12 * MjAPI.MJ);
+            addDistillation(light_dense_residue, light, dense_residue, 1, 16 * MjAPI.MJ);
+            addDistillation(light_dense_residue, light_dense, residue, 2, 12 * MjAPI.MJ);
 
-//            addDistillation(light_dense, light, dense, 1, 16 * MjAPI.MJ);
+            addDistillation(light_dense, light, dense, 1, 16 * MjAPI.MJ);
 
-//            addDistillation(dense_residue, dense, residue, 2, 12 * MjAPI.MJ);
+            addDistillation(dense_residue, dense, residue, 2, 12 * MjAPI.MJ);
 
-//            addHeatExchange(BCEnergyFluids.crudeOil);
-//            addHeatExchange(BCEnergyFluids.oilDistilled);
-//            addHeatExchange(BCEnergyFluids.oilHeavy);
-//            addHeatExchange(BCEnergyFluids.oilDense);
-/*            addHeatExchange(BCEnergyFluids.fuelMixedLight);
+            addHeatExchange(BCEnergyFluids.crudeOil);
+            addHeatExchange(BCEnergyFluids.oilDistilled);
+            addHeatExchange(BCEnergyFluids.oilHeavy);
+            addHeatExchange(BCEnergyFluids.oilDense);
+            addHeatExchange(BCEnergyFluids.fuelMixedLight);
             addHeatExchange(BCEnergyFluids.fuelMixedHeavy);
             addHeatExchange(BCEnergyFluids.fuelGaseous);
             addHeatExchange(BCEnergyFluids.fuelLight);
             addHeatExchange(BCEnergyFluids.fuelDense);
-            addHeatExchange(BCEnergyFluids.oilResidue);*/
+            addHeatExchange(BCEnergyFluids.oilResidue);
 
             FluidStack water = new FluidStack(Fluids.WATER, 10);
-//            BuildcraftRecipeRegistry.refineryRecipes.addHeatableRecipe(water, null, 0, 1);
+            BuildcraftRecipeRegistry.refineryRecipes.addHeatableRecipe(water, null, 0, 1);
 
             FluidStack lava = new FluidStack(Fluids.LAVA, 5);
-//            BuildcraftRecipeRegistry.refineryRecipes.addCoolableRecipe(lava, null, 4, 2);
+            BuildcraftRecipeRegistry.refineryRecipes.addCoolableRecipe(lava, null, 4, 2);
         }
     }
 
