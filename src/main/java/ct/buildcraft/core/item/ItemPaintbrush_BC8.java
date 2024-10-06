@@ -4,10 +4,11 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 package ct.buildcraft.core.item;
 
+import java.util.EnumMap;
+
 import ct.buildcraft.api.blocks.CustomPaintHelper;
-import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.core.BCCoreItems;
-import ct.buildcraft.lib.misc.ColourUtil;
+import ct.buildcraft.lib.item.ItemByEnum;
 import ct.buildcraft.lib.misc.SoundUtil;
 import ct.buildcraft.lib.misc.StackUtil;
 
@@ -18,19 +19,20 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-public class ItemPaintbrush_BC8 extends Item {
+public class ItemPaintbrush_BC8 extends ItemByEnum<DyeColor> {
     
     protected final DyeColor color;
 
-    public ItemPaintbrush_BC8(DyeColor color, Properties pro) {
-		super(pro);
+    public ItemPaintbrush_BC8(DyeColor color, Properties pro, EnumMap<DyeColor, ItemPaintbrush_BC8> map) {
+		super(pro, color, null);
+		if(color != null)
+			map.put(color, this);
 		this.color = color;
 	}
     
@@ -59,15 +61,6 @@ public class ItemPaintbrush_BC8 extends Item {
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.FAIL;
-	}
-
-    @Override
-	public String getDescriptionId(ItemStack stack) {
-        String colourComponent = "";
-        if (color != null) {
-            colourComponent = ColourUtil.getTextFullTooltipSpecial(color) + " ";
-        }
-        return colourComponent + super.getDescriptionId(stack);
 	}
 
     @Override

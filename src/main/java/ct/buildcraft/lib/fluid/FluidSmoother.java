@@ -72,7 +72,7 @@ public class FluidSmoother implements IDebuggable {
     public FluidStack getFluidForRender() {
         if (data instanceof _Client client) {
             if (client.link == null) {
-                return null;
+                return FluidStack.EMPTY;
             }
             FluidStack fluid = client.link.get();
             if (fluid.isEmpty()) {
@@ -80,7 +80,7 @@ public class FluidSmoother implements IDebuggable {
             }
             return new FluidStack(fluid, client.amount);
         }
-        return null;
+        return FluidStack.EMPTY;
     }
 
     public FluidStackInterp getFluidForRender(double partialTicks) {

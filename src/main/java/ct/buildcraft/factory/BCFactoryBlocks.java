@@ -1,6 +1,6 @@
 package ct.buildcraft.factory;
 
-import ct.buildcraft.core.blockEntity.TileHeatExchange;
+import ct.buildcraft.factory.block.BlockAutoWorkbenchItems;
 import ct.buildcraft.factory.block.BlockChute;
 import ct.buildcraft.factory.block.BlockDistiller;
 import ct.buildcraft.factory.block.BlockFloodGate;
@@ -9,12 +9,14 @@ import ct.buildcraft.factory.block.BlockMiningWell;
 import ct.buildcraft.factory.block.BlockPump;
 import ct.buildcraft.factory.block.BlockTank;
 import ct.buildcraft.factory.block.BlockTube;
-import ct.buildcraft.factory.blockEntity.EntityBlockFloodGate;
+import ct.buildcraft.factory.block.BlockWaterGel;
+import ct.buildcraft.factory.blockEntity.TileAutoWorkbenchItems;
 import ct.buildcraft.factory.blockEntity.TileDistiller;
+import ct.buildcraft.factory.blockEntity.TileFloodGate;
+import ct.buildcraft.factory.blockEntity.TileHeatExchange;
 import ct.buildcraft.factory.blockEntity.TileMiningWell;
 import ct.buildcraft.factory.blockEntity.TilePump;
 import ct.buildcraft.factory.blockEntity.TileTank;
-
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -34,6 +36,9 @@ public class BCFactoryBlocks {
     public static final RegistryObject<Block> MINING_WELL_BLOCK = BLOCKS.register("mining_well",BlockMiningWell::new);
     public static final RegistryObject<Block> DISTILLER_BLOCK = BLOCKS.register("distiller", BlockDistiller::new);
     public static final RegistryObject<Block> HEATEXCHANGE_BLOCK = BLOCKS.register("heat_exchange", BlockHeatExchange::new);
+    public static final RegistryObject<Block> WATER_GEL = BLOCKS.register("water_gel", BlockWaterGel::new);
+    public static final RegistryObject<Block> AUTO_BENCH_BLOCK = BLOCKS.register("autoworkbench_item", BlockAutoWorkbenchItems::new);
+
     
     public static final RegistryObject<BlockEntityType<TileTank>> ENTITYBLOCKTANK = BLOCK_ENTITYS.register("entity_tank", 
     		() -> BlockEntityType.Builder.of(TileTank::new,TANK_BLOCK.get()).build(null));
@@ -41,14 +46,17 @@ public class BCFactoryBlocks {
     		() -> BlockEntityType.Builder.of(TilePump::new,PUMP_BLOCK.get()).build(null));
 //    public static final RegistryObject<BlockEntityType<EntityBlockTube>> ENTITYBLOCKTUBE = BLOCK_ENTITYS.register("entity_tube",
 //    		() -> BlockEntityType.Builder.of(EntityBlockTube::new,TUBE_BLOCK.get()).build(null));
-    public static final RegistryObject<BlockEntityType<EntityBlockFloodGate>> ENTITYBLOCKFLOODGATE = BLOCK_ENTITYS.register("entity_flood_gate",
-    		() -> BlockEntityType.Builder.of(EntityBlockFloodGate::new,FLOOD_GATE_BLOCK.get()).build(null));
+    public static final RegistryObject<BlockEntityType<TileFloodGate>> ENTITYBLOCKFLOODGATE = BLOCK_ENTITYS.register("entity_flood_gate",
+    		() -> BlockEntityType.Builder.of(TileFloodGate::new,FLOOD_GATE_BLOCK.get()).build(null));
     public static final RegistryObject<BlockEntityType<TileMiningWell>> ENTITYBLOCKMININGWELL = BLOCK_ENTITYS.register("entity_mining_well",
     		() -> BlockEntityType.Builder.of(TileMiningWell::new,MINING_WELL_BLOCK.get()).build(null));
     public static final RegistryObject<BlockEntityType<TileDistiller>> ENTITYBLOCKDISTILLER = BLOCK_ENTITYS.register("entity_distiller", 
     		() -> BlockEntityType.Builder.of(TileDistiller::new, DISTILLER_BLOCK.get()).build(null));
     public static final RegistryObject<BlockEntityType<TileHeatExchange>> ENTITYBLOCKHEATEXCHANGE = BLOCK_ENTITYS.register("entity_heat_exchange", 
     		() -> BlockEntityType.Builder.of(TileHeatExchange::new, HEATEXCHANGE_BLOCK.get()).build(null));
+    public static final RegistryObject<BlockEntityType<TileAutoWorkbenchItems>> ENTITYBLOCKAUTOBENCH = BLOCK_ENTITYS.register("entity_autoworkbench_item", 
+    		() -> BlockEntityType.Builder.of(TileAutoWorkbenchItems::new, AUTO_BENCH_BLOCK.get()).build(null));
+    
     
     
 	

@@ -8,6 +8,7 @@ package ct.buildcraft.lib.misc;
 
 import javax.annotation.Nonnull;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 
 public class ItemStackKey {
@@ -41,7 +42,10 @@ public class ItemStackKey {
         if (baseStack.getItem() != other.baseStack.getItem()) {
             return false;
         }
-        if (!baseStack.getTag().equals(other.baseStack.getTag())) {
+        CompoundTag tag1 = baseStack.getTag();
+        CompoundTag tag2 = other.baseStack.getTag();
+        boolean flag = tag1 == null;
+        if ((flag&&tag2!=null)||(!flag&&tag1.equals(tag2))) {
             return false;
         }
         return baseStack.serializeNBT().equals(other.baseStack.serializeNBT());

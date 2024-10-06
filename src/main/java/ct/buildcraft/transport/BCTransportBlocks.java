@@ -6,6 +6,7 @@
 
 package ct.buildcraft.transport;
 
+import ct.buildcraft.core.BCCore;
 import ct.buildcraft.transport.block.BlockFilteredBuffer;
 import ct.buildcraft.transport.block.BlockPipeHolder;
 import ct.buildcraft.transport.tile.TileFilteredBuffer;
@@ -32,7 +33,7 @@ public class BCTransportBlocks {
     		() -> BlockEntityType.Builder.of(TileFilteredBuffer::new, filterBuffer.get()).build(null));
     public static final RegistryObject<BlockEntityType<TilePipeHolder>> PIPE_HOLDER_BE = BET.register("entity_pipe_holder",
     		() -> BlockEntityType.Builder.of(TilePipeHolder::new, pipeHolder.get()).build(null));
-    public static final RegistryObject<BlockItem> FILTERED_BUFFER_ITEM = ITEMS.register("filtered_buffer", () -> new BlockItem(filterBuffer.get(), new Item.Properties().tab(BCTransport.tabPipes)));
+    public static final RegistryObject<BlockItem> FILTERED_BUFFER_ITEM = ITEMS.register("filtered_buffer", () -> new BlockItem(filterBuffer.get(), new Item.Properties().tab(BCCore.BUILDCRAFT_TAB)));
 
     public static void registry(IEventBus b) {
     	BLOCKS.register(b);

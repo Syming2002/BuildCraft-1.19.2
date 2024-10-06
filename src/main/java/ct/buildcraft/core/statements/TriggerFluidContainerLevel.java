@@ -24,7 +24,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidTankProperties;
+import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 
 public class TriggerFluidContainerLevel extends BCStatement implements ITriggerExternal {
     public final TriggerType type;
@@ -67,22 +67,19 @@ public class TriggerFluidContainerLevel extends BCStatement implements ITriggerE
             }
         }
 
-        IFluidTankProperties[] tankPropertiesArray = handler.getTankProperties();
-        if (tankPropertiesArray == null || tankPropertiesArray.length == 0) {
+        int tanks = handler.getTanks();
+        if (tanks == 0) {
             return false;
         }
 
-        for (IFluidTankProperties tankProperties : tankPropertiesArray) {
-            if (tankProperties == null) {
-                continue;
-            }
-            FluidStack fluid = tankProperties.getContents();
-            if (fluid == null) {
-                return searchedFluid == null || handler.fill(searchedFluid, false) > 0;
+        for (int i = 0; i < tanks ; i++) {
+            FluidStack fluid = handler.getFluidInTank(i);
+            if (fluid.isEmpty()) {
+                return searchedFluid.isEmpty() || handler.fill(searchedFluid, FluidAction.SIMULATE) > 0;
             }
 
             if (searchedFluid == null || searchedFluid.isFluidEqual(fluid)) {
-                float percentage = fluid.getAmount() / (float) tankProperties.getCapacity();
+                float percentage = fluid.getAmount() / (float) handler.getTankCapacity(i);
                 return percentage < type.level;
             }
         }

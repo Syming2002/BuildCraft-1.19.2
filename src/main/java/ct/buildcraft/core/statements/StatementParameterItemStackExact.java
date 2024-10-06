@@ -10,16 +10,14 @@ import java.util.Objects;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-
-import buildcraft.api.core.render.ISprite;
-import buildcraft.api.statements.IStatement;
-import buildcraft.api.statements.IStatementContainer;
-import buildcraft.api.statements.IStatementParameter;
-import buildcraft.api.statements.StatementMouseClick;
-
-import buildcraft.lib.misc.StackUtil;
+import ct.buildcraft.api.core.render.ISprite;
+import ct.buildcraft.api.statements.IStatement;
+import ct.buildcraft.api.statements.IStatementContainer;
+import ct.buildcraft.api.statements.IStatementParameter;
+import ct.buildcraft.api.statements.StatementMouseClick;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 
 public class StatementParameterItemStackExact implements IStatementParameter {
     protected ItemStack stack;
@@ -27,7 +25,7 @@ public class StatementParameterItemStackExact implements IStatementParameter {
     @Nonnull
     @Override
     public ItemStack getItemStack() {
-        return StackUtil.EMPTY;
+        return ItemStack.EMPTY;
     }
 
     @Override
@@ -67,17 +65,17 @@ public class StatementParameterItemStackExact implements IStatementParameter {
     }
 
     @Override
-    public void writeToNbt(NBTTagCompound compound) {
+    public void writeToNbt(CompoundTag compound) {
         if (stack != null) {
-            NBTTagCompound tagCompound = new NBTTagCompound();
-            stack.writeToNBT(tagCompound);
-            compound.setTag("stack", tagCompound);
+            CompoundTag tagCompound = new CompoundTag();
+            stack.deserializeNBT(tagCompound);
+            compound.put("stack", tagCompound);
         }
     }
 
-    public static StatementParameterItemStackExact readFromNbt(NBTTagCompound nbt) {
+    public static StatementParameterItemStackExact readFromNbt(CompoundTag nbt) {
         StatementParameterItemStackExact param = new StatementParameterItemStackExact();
-        param.stack = new ItemStack(nbt.getCompoundTag("stack"));
+        param.stack = ItemStack.of(nbt.getCompound("stack"));
         return param;
     }
 
@@ -94,7 +92,7 @@ public class StatementParameterItemStackExact implements IStatementParameter {
 
     private static boolean areItemsEqual(ItemStack stack1, ItemStack stack2) {
         if (stack1 != null) {
-            return stack2 != null && stack1.isItemEqual(stack2) && ItemStack.areItemStackTagsEqual(stack1, stack2);
+            return stack2 != null && stack1.sameItem(stack2) && ItemStack.isSameItemSameTags(stack1, stack2);
         } else {
             return stack2 == null;
         }
@@ -106,11 +104,11 @@ public class StatementParameterItemStackExact implements IStatementParameter {
     }
 
     @Override
-    public String getDescription() {
+    public Component getDescription() {
         if (stack != null) {
             return stack.getDisplayName();
         } else {
-            return "";
+            return Component.empty();
         }
     }
 

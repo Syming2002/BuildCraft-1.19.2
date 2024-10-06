@@ -1,5 +1,6 @@
 package ct.buildcraft.factory;
 
+import ct.buildcraft.BCFactorySprites;
 import ct.buildcraft.factory.blockEntity.TileDistiller;
 import ct.buildcraft.factory.blockEntity.TileTank;
 import ct.buildcraft.factory.client.render.RenderDistiller;
@@ -7,14 +8,15 @@ import ct.buildcraft.factory.client.render.RenderHeatExchange;
 import ct.buildcraft.factory.client.render.RenderMiningWell;
 import ct.buildcraft.factory.client.render.RenderPump;
 import ct.buildcraft.factory.client.render.RenderTank;
+
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.TextureStitchEvent.Pre;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -52,13 +54,21 @@ public class BCFactory
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
-        
+//        modEventBus.addListener(this::gatherData);//DataGenerator
         BCFactoryBlocks.preInit(modEventBus);
         BCFactoryItems.preInit(modEventBus);
+        BCFactoryGuis.preInit(modEventBus);
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
         vaildID();
  //       MinecraftForge.EVENT_BUS.register(EntityBlockPump::new);
+    }
+    
+    public void gatherData(GatherDataEvent event) {
+        event.getGenerator().addProvider(
+            event.includeServer(),
+            new BCFactoryRecipesProvider(event.getGenerator())
+        );
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)
@@ -88,13 +98,6 @@ public class BCFactory
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents
     {
-        public static final ResourceLocation PUMPTUBE = new ResourceLocation("buildcraftfactory:blocks/pump/tube");
-        public static final ResourceLocation MININGTUBE = new ResourceLocation("buildcraftfactory:blocks/mining_well/tube");
-        
-        public static final ResourceLocation DISTILLER_POWER_A = new ResourceLocation("buildcraftfactory:blocks/distiller/power_sprite_a");
-        public static final ResourceLocation DISTILLER_POWER_B = new ResourceLocation("buildcraftfactory:blocks/distiller/power_sprite_b");
-        public static final ResourceLocation DISTILLER_POWER_C = new ResourceLocation("buildcraftfactory:blocks/distiller/power_sprite_c");
-        public static final ResourceLocation DISTILLER_POWER_D = new ResourceLocation("buildcraftfactory:blocks/distiller/power_sprite_d");
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
@@ -102,6 +105,7 @@ public class BCFactory
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
         }
+        
         @SubscribeEvent
         public static void registryRender(EntityRenderersEvent.RegisterRenderers e) {
         	e.registerBlockEntityRenderer(BCFactoryBlocks.ENTITYBLOCKTANK.get(), RenderTank::new);
@@ -111,20 +115,13 @@ public class BCFactory
         	e.registerBlockEntityRenderer(BCFactoryBlocks.ENTITYBLOCKDISTILLER.get(), RenderDistiller::new);
         	e.registerBlockEntityRenderer(BCFactoryBlocks.ENTITYBLOCKHEATEXCHANGE.get(), RenderHeatExchange::new);
         }
+        
         @SubscribeEvent
         public static void registrtTexture(Pre e){
-        	
-        	LOGGER.info(e.getAtlas().location().getPath());
         	if("textures/atlas/blocks.png".equals(e.getAtlas().location().getPath())) {
-        		e.addSprite(PUMPTUBE);
-        		e.addSprite(MININGTUBE);
-        		e.addSprite(DISTILLER_POWER_A);
-        		e.addSprite(DISTILLER_POWER_B);
-        		e.addSprite(DISTILLER_POWER_C);
-        		e.addSprite(DISTILLER_POWER_D);
+        		BCFactorySprites.registrtTexture(e);
         	}
         }
-
     }
 
     

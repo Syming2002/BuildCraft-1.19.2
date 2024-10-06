@@ -44,7 +44,7 @@ public class LaserBoxRenderer {
         makeLaserBox(box, type, center);
 
         for (LaserData_BC8 data : box.laserData) {
-            LaserRenderer_BC8.renderLaserDynamic(data, bb);
+            LaserRenderer_BC8.renderLaserDynamic(null, null, data, bb);//TODO temporary
         }
     }
 
@@ -123,7 +123,7 @@ public class LaserBoxRenderer {
         Direction faceForMax = VecUtil.getFacing(axis, false);
         Vec3 one = min.add(Vec3.atLowerCornerOf(faceForMin.getNormal()).scale(1 / 16D));
         Vec3 two = max.add(Vec3.atLowerCornerOf(faceForMax.getNormal()).scale(1 / 16D));
-        return new LaserData_BC8(type, one, two, RENDER_SCALE);
+        return new LaserData_BC8(type, one, two, null, RENDER_SCALE);//TODO temporary
     }
 
 }

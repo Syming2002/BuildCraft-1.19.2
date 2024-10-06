@@ -6,17 +6,18 @@ import com.mojang.serialization.Codec;
 import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.lib.misc.data.Box;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class OilGenFeature extends Feature<NoneFeatureConfiguration>{
 	
+/*    private static final double DESERT_NOISE_FIELD_SCALE = 0.001;
+    private static final double DESERT_NOISE_FIELD_THRESHOLD = 0.7;
+    private static final double OCEAN_NOISE_FIELD_SCALE = 0.0005;
+    private static final double OCEAN_NOISE_FIELD_THRESHOLD = 0.9;//*/
     /** The distance that oil generation will be checked to see if their structures overlap with the currently
      * generating chunk. This should be large enough that all oil generation can fit inside this radius. If this number
      * is too big then oil generation will be slightly slower */

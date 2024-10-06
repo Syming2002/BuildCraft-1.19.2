@@ -23,6 +23,7 @@ import ct.buildcraft.api.core.BCDebugging;
 import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.api.core.EnumPipePart;
 import ct.buildcraft.api.core.SafeTimeTracker;
+import ct.buildcraft.api.items.FluidItemDrops;
 import ct.buildcraft.api.mj.IMjReceiver;
 import ct.buildcraft.api.mj.MjAPI;
 import ct.buildcraft.core.BCCoreBlocks;
@@ -39,10 +40,12 @@ import ct.buildcraft.lib.misc.VecUtil;
 import ct.buildcraft.lib.mj.MjRedstoneBatteryReceiver;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
@@ -107,8 +110,8 @@ public class TilePump extends TileMiner {
     public TilePump(BlockPos pos, BlockState state) {
     	super(BCFactoryBlocks.ENTITYBLOCKPUMP.get(), pos, state); 
         tank.setCanFill(false);
-//        tankManager.add(tank);
-        caps.addCapabilityInstance(CapUtil.CAP_FLUIDS, tank, EnumPipePart.VALUES);
+        tankManager.addLast(tank);
+        caps.addCapabilityInstance(CapUtil.CAP_FLUIDS, tankManager, EnumPipePart.VALUES);
     }
 
     @Override
@@ -233,7 +236,7 @@ public class TilePump extends TileMiner {
 
     private static boolean isOil(Fluid queueFluid) {
         if (BCModules.ENERGY.isLoaded()) {
-            return FluidUtilBC.areFluidsEqual(queueFluid, BCEnergyFluids.OIL_COOL_SOURCE.get());//curdeOil[0]
+            return FluidUtilBC.areFluidsEqual(queueFluid, BCEnergyFluids.crudeOil[0]);//
         }
         return false;
     }
@@ -386,13 +389,21 @@ public class TilePump extends TileMiner {
         } while ((path = path.parent) != null);
         return null;
     }
+    
+	@Override
+	public void addDrops(NonNullList<ItemStack> toDrop, int fortune) {
+		FluidItemDrops.addFluidDrops(toDrop, tank);
+		super.addDrops(toDrop, fortune);
+	}
 
     // NBT
 
     @Override
 	public void saveAdditional(CompoundTag nbt) {
         super.saveAdditional(nbt);
-        nbt.putLong("oilSpringPos", oilSpringPos.asLong());
+        if (oilSpringPos != null) {
+        	nbt.putLong("oilSpringPos", oilSpringPos.asLong());
+        }
 		nbt.put("tank", tank.serializeNBT());
         
 	}
@@ -400,9 +411,7 @@ public class TilePump extends TileMiner {
 	@Override
 	public void load(CompoundTag nbt) {
 		super.load(nbt);
-        if (oilSpringPos != null) {
-        	oilSpringPos = BlockPos.of(nbt.getLong("oilSpringPos"));//nbt.get("oilSpringPos"));
-        }
+		oilSpringPos = BlockPos.of(nbt.getLong("oilSpringPos"));//nbt.get("oilSpringPos"));
         tank.readFromNBT(nbt.getCompound("tank"));
 	}
 

@@ -17,7 +17,6 @@ import org.jetbrains.annotations.NotNull;
 
 import ct.buildcraft.api.core.IFluidFilter;
 import ct.buildcraft.api.core.IFluidHandlerAdv;
-import ct.buildcraft.lib.gui.ContainerBC_Neptune;
 import ct.buildcraft.lib.misc.InventoryUtil;
 import ct.buildcraft.lib.misc.LocaleUtil;
 import ct.buildcraft.lib.misc.SoundUtil;
@@ -28,6 +27,7 @@ import ct.buildcraft.lib.tile.TileBC_Neptune;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.Fluid;
@@ -294,27 +294,21 @@ public class Tank implements IFluidHandlerAdv, IFluidHandler, IFluidTank {
         return (f.isEmpty() ? 0 : f.getAmount()) + " / " + capacity + " mB of " + (!f.isEmpty() ? f.getFluid().getFluidType().getDescriptionId() : "n/a");
     }
 
-    public void onGuiClicked(ContainerBC_Neptune container) {
-        Player player = container.player;
-        ItemStack held = player.getInventory().getSelected();
+    public void onGuiClicked(AbstractContainerMenu menu, Player player){//ContainerBC_Neptune container) {
+        ItemStack held = menu.getCarried();
         if (held.isEmpty()) {
             return;
         }
-        ItemStack stack = transferStackToTank(container, held);
+        ItemStack stack = transferStackToTank(player, held);
         //debug
-        player.getInventory().setPickedItem(stack);
-/*        ((ServerPlayer) player).updateHeldItem();
-        player.inventoryContainer.detectAndSendChanges();
-        if (player.openContainer != null) {
-            player.openContainer.detectAndSendChanges();
-        }*/
+        menu.setCarried(stack);
+        menu.broadcastChanges();
     }
 
     /** Attempts to transfer the given stack to this tank.
      *
      * @return The left over item after attempting to add the stack to this tank. */
-    public ItemStack transferStackToTank(ContainerBC_Neptune container, ItemStack stack) {
-        Player player = container.player;
+    public ItemStack transferStackToTank(Player player, ItemStack stack) {
         // first try to fill this tank from the item
 
         if (player.level.isClientSide) {
@@ -343,7 +337,7 @@ public class Tank implements IFluidHandlerAdv, IFluidHandler, IFluidTank {
                 }
                 stack.shrink(1);
                 FluidStack fl = getFluid();
-                if (fl != null) {
+                if (!fl.isEmpty()) {
                 	//debug
                     SoundUtil.playBucketEmpty(player.level, player.blockPosition(), fl);
                 }
@@ -468,5 +462,9 @@ public class Tank implements IFluidHandlerAdv, IFluidHandler, IFluidTank {
 
 	public void setFilter(Predicate<FluidStack> filter) {
 		this.validator = filter;
+	}
+
+	public void setFluid(FluidStack residueFluid) {
+		this.fluid = residueFluid.copy();
 	}
 }

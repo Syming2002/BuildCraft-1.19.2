@@ -57,8 +57,8 @@ public abstract class TileMarker<C extends MarkerConnection<C>> extends TileBC_N
 	}
 
     @Override
-    public void onRemove() {
-        super.onRemove();
+    public void onRemove(boolean dropSelf) {
+        super.onRemove(dropSelf);
         getLocalCache().removeMarker(getBlockPos());
     }
 

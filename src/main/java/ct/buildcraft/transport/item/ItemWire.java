@@ -7,7 +7,6 @@
 package ct.buildcraft.transport.item;
 
 import ct.buildcraft.lib.item.ItemBC_Neptune;
-import gnu.trove.map.hash.TIntObjectHashMap;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.CreativeModeTab;

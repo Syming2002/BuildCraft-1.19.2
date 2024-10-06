@@ -202,7 +202,7 @@ public class BCEnergyRecipes {
 
     		@Override
     		protected void buildCraftingRecipes(Consumer<FinishedRecipe> writer) {                
-            	ShapedRecipeBuilder builder6 = ShapedRecipeBuilder.shaped(BCCoreItems.ENGINE_ITEM_MAP.get(EnumEngineType.STONE).get(), 1);
+            	ShapedRecipeBuilder builder6 = ShapedRecipeBuilder.shaped(BCCoreItems.ENGINE_ITEM_MAP.get(EnumEngineType.STONE), 1);
                 builder6.pattern("www");
                 builder6.pattern(" g ");
                 builder6.pattern("GpG");
@@ -213,16 +213,16 @@ public class BCEnergyRecipes {
                 builder6.unlockedBy("has_"+BCCoreItems.GEAR_STONE.getId().getPath(), TriggerInstance.hasItems(BCCoreItems.GEAR_STONE.get()));
                 builder6.save(writer);
                 
-            	ShapedRecipeBuilder builder7 = ShapedRecipeBuilder.shaped(BCCoreItems.ENGINE_ITEM_MAP.get(EnumEngineType.IRON).get(), 1);
-                builder6.pattern("www");
-                builder6.pattern(" g ");
-                builder6.pattern("GpG");
-                builder6.define('w', Items.IRON_INGOT);
-                builder6.define('g', Items.GLASS);
-                builder6.define('G', BCCoreItems.GEAR_IRON.get());
-                builder6.define('p', Blocks.PISTON);
-                builder6.unlockedBy("has_"+BCCoreItems.GEAR_IRON.getId().getPath(), TriggerInstance.hasItems(BCCoreItems.GEAR_IRON.get()));
-                builder6.save(writer);
+            	ShapedRecipeBuilder builder7 = ShapedRecipeBuilder.shaped(BCCoreItems.ENGINE_ITEM_MAP.get(EnumEngineType.IRON), 1);
+            	builder7.pattern("www");
+            	builder7.pattern(" g ");
+            	builder7.pattern("GpG");
+                builder7.define('w', Items.IRON_INGOT);
+                builder7.define('g', Items.GLASS);
+                builder7.define('G', BCCoreItems.GEAR_IRON.get());
+                builder7.define('p', Blocks.PISTON);
+                builder7.unlockedBy("has_"+BCCoreItems.GEAR_IRON.getId().getPath(), TriggerInstance.hasItems(BCCoreItems.GEAR_IRON.get()));
+                builder7.save(writer);
                 super.buildCraftingRecipes(writer);
     		}
     }

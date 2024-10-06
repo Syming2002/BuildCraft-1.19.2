@@ -83,9 +83,8 @@ public abstract class PipeBehaviourDiamond extends PipeBehaviour implements Menu
 		switch(face) {
 		case UP:
 			return RenderPipeHolder.UP_UV;
-		case DOWN:{
+		case DOWN:
 			return RenderPipeHolder.DOWN_UV;
-		}
 		case EAST:
 			return RenderPipeHolder.EAST_UV;
 		case WEST:

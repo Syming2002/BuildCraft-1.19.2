@@ -115,7 +115,7 @@ public class ScreenPipeEmzuli extends AbstractContainerScreen<MenuPipeEmzuli>{
 				this.blit(pose, x+2, y+2, imageWidth, 40, 16, 16);
 				return;
 			}
-			Item brush = BCCoreItems.PAINT_BRUSHS.get(DyeColor.byId(num)).get();
+			Item brush = BCCoreItems.PAINT_BRUSHS.get(DyeColor.byId(num));
 			itemRenderer.renderGuiItem(new ItemStack(brush), x+2, y+2);
 		}
 

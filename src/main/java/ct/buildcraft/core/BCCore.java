@@ -10,10 +10,7 @@ import ct.buildcraft.energy.BCEnergyFluids;
 import ct.buildcraft.energy.blockEntity.TileSpringOil;
 import ct.buildcraft.lib.CreativeTabManager;
 import ct.buildcraft.lib.CreativeTabManager.CreativeTabBC;
-import ct.buildcraft.transport.BCTransportModels;
-import ct.buildcraft.transport.client.model.PipeBaseModelGenStandard;
 import com.mojang.logging.LogUtils;
-import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.api.enums.EnumSpring;
 import ct.buildcraft.api.items.FluidItemDrops;
 import net.minecraft.client.Minecraft;
@@ -52,7 +49,7 @@ public class BCCore {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
-        modEventBus.addListener(this::gatherData);//DataGenerator
+//        modEventBus.addListener(this::gatherData);//DataGenerator
 
         // Register the Deferred Register to the mod event bus so blocks get registered
         // Register the Deferred Register to the mod event bus so items get registered

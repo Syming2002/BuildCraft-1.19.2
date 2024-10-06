@@ -17,6 +17,7 @@ import javax.annotation.Nullable;
 
 import org.jetbrains.annotations.NotNull;
 
+import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.api.core.EnumPipePart;
 
 import net.minecraft.core.Direction;
@@ -79,6 +80,10 @@ public class CapabilityHelper implements ICapabilityProvider {
             return LazyOptional.of(supplier).cast();
         }
         for (ICapabilityProvider provider : additional) {
+        	var a = provider.getCapability(capability, facing);
+        	if(a == null) {
+        		BCLog.logger.debug("aaaaa");
+        	}
             if (provider.getCapability(capability, facing).isPresent()) {
                 return provider.getCapability(capability, facing);
             }

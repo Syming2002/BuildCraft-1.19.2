@@ -6,33 +6,28 @@ import java.util.function.Consumer;
 
 import org.jetbrains.annotations.Nullable;
 
-import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.lib.fluid.BCFluid;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.shaders.FogShape;
 
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegisterEvent;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.FogRenderer.FogMode;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -67,7 +62,6 @@ public class BCEnergyFluids {
 
     public static final List<BCFluid> allFluids = new ArrayList<>();
 
-	private static int ID =0;
     private static int[][] data = { //@formatter:off
             // Tabular form of all the fluid values
             // density, viscosity, boil, spread,  tex_light,   tex_dark, sticky, flammable
@@ -82,10 +76,7 @@ public class BCEnergyFluids {
             {      650,       900,    1,      9, 0xF6_D7_00, 0xC4_B7_00,      0,         1 },// Mixed Light Fuels
             {      300,       500,    0,     10, 0xFA_F6_30, 0xE0_D9_00,      0,         1 },// Gas Fuel
         };//@formatter:on
-    private static final String[] NAME = {"oil","oil_residue","oil_heavy","oil_dense","oil_distilled",
-    									  "fuel_dense","fuel_mixed_heavy","fuel_light","fuel_mixed_light","fuel_gaseous"};
-    
-    
+
     public static final ResourceLocation OilCrudeCoolStillTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/crude_oil/oil_crude_cool_still");
     public static final ResourceLocation OilCrudeCoolFlowTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/crude_oil/oil_crude_cool_flow");
     public static final ResourceLocation OilCrudeHotStillTexture = new ResourceLocation("buildcraftenergy:blocks/fluids/crude_oil/oil_crude_hot_still");
@@ -179,7 +170,15 @@ public class BCEnergyFluids {
     
     public static final DeferredRegister<Fluid> FLUIDS = DeferredRegister.create(ForgeRegistries.FLUIDS, BCEnergy.MODID);
     public static final DeferredRegister<FluidType> FLUID_TYPES = DeferredRegister.create(ForgeRegistries.Keys.FLUID_TYPES, BCEnergy.MODID);
+    
+    public static final TagKey<Fluid> IS_OIL = TagKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(BCEnergy.MODID, "is_oil"));
+    public static final TagKey<Fluid> IS_FUEL = TagKey.create(Registry.FLUID_REGISTRY, new ResourceLocation(BCEnergy.MODID, "is_fuel"));
 
+    private static final String[] NAME = {"oil","oil_residue","oil_heavy","oil_dense","oil_distilled",
+			  "fuel_dense","fuel_mixed_heavy","fuel_light","fuel_mixed_light","fuel_gaseous"};
+
+
+    
     public static void registry(IEventBus bus) {
     	registryFluid();
 		FLUID_TYPES.register(bus);
@@ -191,18 +190,18 @@ public class BCEnergyFluids {
     	crudeOil[0] = OIL_SOURCE.get(id++).get();
     	crudeOil[1] = OIL_SOURCE.get(id++).get();
     	crudeOil[2] = OIL_SOURCE.get(id++).get();
-    	oilDistilled[0] = OIL_SOURCE.get(id++).get();
-    	oilDistilled[1] = OIL_SOURCE.get(id++).get();
-    	oilDistilled[2] = OIL_SOURCE.get(id++).get();
+    	oilResidue[0] = OIL_SOURCE.get(id++).get();
+    	oilResidue[1] = OIL_SOURCE.get(id++).get();
+    	oilResidue[2] = OIL_SOURCE.get(id++).get();
     	oilHeavy[0] = OIL_SOURCE.get(id++).get();
     	oilHeavy[1] = OIL_SOURCE.get(id++).get();
     	oilHeavy[2] = OIL_SOURCE.get(id++).get();
     	oilDense[0] = OIL_SOURCE.get(id++).get();
     	oilDense[1] = OIL_SOURCE.get(id++).get();
     	oilDense[2] = OIL_SOURCE.get(id++).get();
-    	oilResidue[0] = OIL_SOURCE.get(id++).get();
-    	oilResidue[1] = OIL_SOURCE.get(id++).get();
-    	oilResidue[2] = OIL_SOURCE.get(id++).get();
+    	oilDistilled[0] = OIL_SOURCE.get(id++).get();
+    	oilDistilled[1] = OIL_SOURCE.get(id++).get();
+    	oilDistilled[2] = OIL_SOURCE.get(id++).get();
     	fuelDense[0] = OIL_SOURCE.get(id++).get();
     	fuelDense[1] = OIL_SOURCE.get(id++).get();
     	fuelDense[2] = OIL_SOURCE.get(id++).get();
@@ -240,6 +239,8 @@ public class BCEnergyFluids {
         OIL_SOURCE.add(SOURCE);
         OIL_BUCKET.add(BUCKET);
         OIL_BLOCK.add(FUEL_GAS_COOL_BLOCK);
+//    	System.out.println("\"item.buildcraftenergy."+(NAME[id]+"/"+NAME[id]+TEM_NAMES[tem]+"_bucket").replace('/', '.')+"\":\"\",");
+
     }
     
     static class aFluidType extends FluidType{

@@ -56,7 +56,7 @@ public class MenuPipeEmzuli extends AbstractContainerMenu {
 	public boolean clickMenuButton(Player p_38875_, int index) {
 		int o = data.get(index);
 		data.set(index, o==128 ? 0 : o == 15 ? 128 : o+1);
-		return super.clickMenuButton(p_38875_, index);
+		return true;
 	}
 
 	

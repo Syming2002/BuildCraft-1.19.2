@@ -34,7 +34,6 @@ import ct.buildcraft.transport.BCTransportBlocks;
 import ct.buildcraft.transport.BCTransportItems;
 import ct.buildcraft.transport.client.model.PipeModelCacheBase;
 import ct.buildcraft.transport.client.model.PipeModelCachePluggable;
-import ct.buildcraft.transport.client.render.PipeWireRenderer;
 import ct.buildcraft.transport.item.ItemWire;
 import ct.buildcraft.transport.pipe.Pipe;
 import ct.buildcraft.transport.tile.TilePipeHolder;
@@ -909,7 +908,8 @@ public class BlockPipeHolder extends BlockBCTile_Neptune implements ICustomPaint
             if (colour == null) {
                 return null;
             }
-            sprite = PipeWireRenderer.getWireSprite(colour).getSprite();
+            BCLog.logger.debug("BlockPipeHolder.getHitSpriteInfo:call undone method. class : PipeWireRenderer");
+//            sprite = PipeWireRenderer.getWireSprite(colour).getSprite();//TODO
         } else if (6 + 6 + 1 + 8 < p && p <= 6 + 6 + 1 + 8 + 36) {
             EnumWireBetween wireBetween = EnumWireBetween.values()[p - 6 - 6 - 1 - 8];
             aabb = wireBetween.boundingBox;
@@ -917,7 +917,8 @@ public class BlockPipeHolder extends BlockBCTile_Neptune implements ICustomPaint
             if (colour == null) {
                 return null;
             }
-            sprite = PipeWireRenderer.getWireSprite(colour).getSprite();
+            BCLog.logger.debug("BlockPipeHolder.getHitSpriteInfo:call undone method. class : PipeWireRenderer");
+//            sprite = PipeWireRenderer.getWireSprite(colour).getSprite();
         } else {
             return null;
         }

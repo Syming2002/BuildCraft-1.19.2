@@ -48,7 +48,7 @@ public class ItemRenderUtil {
 
     private static final Random modelOffsetRandom = new Random(0);
 
-    private static final ItemEntity dummyEntityItem = new ItemEntity(null);
+    private static final ItemEntity dummyEntityItem = null;//new ItemEntity(null);
 /*    private static final ItemRenderer customItemRenderer =
         new ItemRenderer(Minecraft.getInstance().getModelManager(), Minecraft.getInstance().getItemRenderer()) {
             @Override
@@ -69,22 +69,24 @@ public class ItemRenderUtil {
     }
 
     private static Integer makeItemGlList(ItemStackKey item) {
+ /*   	Entity
         int list = GLAllocation.generateDisplayLists(1);
         GL11.glNewList(list, GL11.GL_COMPILE);
         renderItemImpl(0, 0, 0, item.baseStack);
         GL11.glEndList();
-        return list;
+        return list;*/
+    	return null;
     }
 
     private static void onStackRemove(RemovalNotification<ItemStackKey, Integer> notification) {
         Integer val = notification.getValue();
         if (val != null) {
-            GLAllocation.deleteDisplayLists(val);
+//            GLAllocation.deleteDisplayLists(val);
         }
     }
 
     private static void renderItemImpl(double x, double y, double z, ItemStack stack) {
-        GL11.glPushMatrix();
+/*        GL11.glPushMatrix();
         GL11.glTranslated(0, -0.2, 0);
         GL11.glScaled(0.9, 0.9, 0.9);
 
@@ -101,7 +103,7 @@ public class ItemRenderUtil {
         dummyEntityItem.setItem(stack);
         customItemRenderer.doRender(dummyEntityItem, x, y, z, 0, 0);
 
-        GL11.glPopMatrix();
+        GL11.glPopMatrix();*/
     }
 
     // Batch item rendering
@@ -139,7 +141,7 @@ public class ItemRenderUtil {
     private static void renderItemStackInternal(
         double x, double y, double z, ItemStack stack, int stackCount, int lightc, Direction dir, BufferBuilder bb
     ) {
-        if (dir == null) {
+/*        if (dir == null) {
             dir = Direction.EAST;
         }
         dir = BCLibConfig.rotateTravelingItems.changeFacing(dir);
@@ -180,9 +182,9 @@ public class ItemRenderUtil {
                         if (quad.isTinted()) {
                             int colour =
                                 Minecraft.getInstance().getItemColors().getColor(stack, quad.getTintIndex());
- /*                           if (EntityRenderer.anaglyphEnable) {
+                            if (EntityRenderer.anaglyphEnable) {
                                 colour = TextureUtil.anaglyphColor(colour);
-                            }*/
+                            }
                             q.multColouri(colour, colour >> 8, colour >> 16, 0xFF);
                         }
                         q.lighti(lightc);
@@ -208,7 +210,7 @@ public class ItemRenderUtil {
         }
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lightc % (float) 0x1_00_00,
             lightc / (float) 0x1_00_00);
-        Minecraft.getInstance().getItemRenderer().render(stack, model);
+        Minecraft.getInstance().getItemRenderer().render(stack, model);*/
     }
 
     private static void setupModelOffsetRandom(ItemStack stack) {

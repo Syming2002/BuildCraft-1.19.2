@@ -43,7 +43,7 @@ public class EntityBlockFloodGate extends BlockEntity{
 	
 	
 	public EntityBlockFloodGate(BlockPos pos, BlockState bs) {
-		super(BCFactoryBlocks.ENTITYBLOCKFLOODGATE.get(), pos, bs);
+		super(null, pos, bs);
 		blockpos = pos;
 	}
 	LazyOptional<IFluidHandler> fluidHandlerLazyOptional = LazyOptional.of(() -> tank);

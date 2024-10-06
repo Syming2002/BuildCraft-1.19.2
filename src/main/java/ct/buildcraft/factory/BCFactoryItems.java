@@ -1,7 +1,7 @@
 package ct.buildcraft.factory;
 
 import ct.buildcraft.core.BCCore;
-
+import ct.buildcraft.factory.item.ItemWaterGel;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -20,6 +20,10 @@ public class BCFactoryItems {
     public static final RegistryObject<BlockItem> MINING_WELL_BLOCK_ITEM = ITEMS.register("mining_well", () -> new BlockItem(BCFactoryBlocks.MINING_WELL_BLOCK.get(),new Item.Properties().tab(BCCore.BUILDCRAFT_TAB)));
     public static final RegistryObject<BlockItem> DISTILLER_BLOCK_ITEM = ITEMS.register("distiller", () -> new BlockItem(BCFactoryBlocks.DISTILLER_BLOCK.get(),new Item.Properties().tab(BCCore.BUILDCRAFT_TAB)));
     public static final RegistryObject<BlockItem> HEAT_EXCHANGE_BLOCK_ITEM = ITEMS.register("heat_exchange", () -> new BlockItem(BCFactoryBlocks.HEATEXCHANGE_BLOCK.get(),new Item.Properties().tab(BCCore.BUILDCRAFT_TAB)));
+    public static final RegistryObject<BlockItem> AUTO_BENCH_ITEM = ITEMS.register("autoworkbench_item", () -> new BlockItem(BCFactoryBlocks.AUTO_BENCH_BLOCK.get(), new Item.Properties().tab(BCCore.BUILDCRAFT_TAB)));
+    
+    public static final RegistryObject<ItemWaterGel> WATER_GEL_SPAWN = ITEMS.register("water_gel", ItemWaterGel::new);
+    public static final RegistryObject<Item> GEL = ITEMS.register("gel", () -> new Item(new Item.Properties().tab(BCCore.BUILDCRAFT_TAB)));
     
     
     static void preInit(IEventBus bus) {

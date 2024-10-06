@@ -17,15 +17,16 @@ import ct.buildcraft.core.BCCoreSprites;
 import ct.buildcraft.core.BCCoreStatements;
 import ct.buildcraft.lib.client.sprite.SpriteHolderRegistry.SpriteHolder;
 import ct.buildcraft.lib.misc.CapUtil;
-import ct.buildcraft.lib.misc.LocaleUtil;
 
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 
 public class TriggerFluidContainer extends BCStatement implements ITriggerExternal {
     public State state;
@@ -50,8 +51,8 @@ public class TriggerFluidContainer extends BCStatement implements ITriggerExtern
     }
 
     @Override
-    public String getDescription() {
-        return LocaleUtil.localize("gate.trigger.fluid." + state.name().toLowerCase(Locale.ROOT));
+    public Component getDescription() {
+        return Component.translatable("gate.trigger.fluid." + state.name().toLowerCase(Locale.ROOT));
     }
 
     @Override
@@ -65,52 +66,49 @@ public class TriggerFluidContainer extends BCStatement implements ITriggerExtern
                 searchedFluid = FluidUtil.getFluidContained(parameters[0].getItemStack()).get();
             }
 
-            if (searchedFluid != null) {
+            if (!searchedFluid.isEmpty()) {
                 searchedFluid.setAmount(1);
             }
 
-            IFluidTankProperties[] liquids = handler.getTankProperties();
-            if (liquids == null || liquids.length == 0) {
+            int liquids = handler.getTanks();
+            if (liquids == 0) {
                 return false;
             }
 
             switch (state) {
                 case EMPTY:
-                    FluidStack drained = handler.drain(1, false);
-                    return drained == null || drained.amount <= 0;
+                    FluidStack drained = handler.drain(1, FluidAction.SIMULATE);
+                    return drained == null || drained.getAmount() <= 0;
                 case CONTAINS:
-                    for (IFluidTankProperties c : liquids) {
-                        if (c == null) continue;
-                        FluidStack fluid = c.getContents();
-                        if (fluid != null && fluid.amount > 0 && (searchedFluid == null || searchedFluid.isFluidEqual(fluid))) {
+                    for (int i = 0; i < liquids ; i++) {
+                        FluidStack fluid = handler.getFluidInTank(i);
+                        if (!fluid.isEmpty() && (searchedFluid.isEmpty()|| searchedFluid.isFluidEqual(fluid))) {
                             return true;
                         }
                     }
                     return false;
                 case SPACE:
-                    if (searchedFluid == null) {
-                        for (IFluidTankProperties c : liquids) {
-                            if (c == null) continue;
-                            FluidStack fluid = c.getContents();
-                            if ((fluid == null || fluid.amount < c.getCapacity())) {
+                    if (searchedFluid.isEmpty()) {
+                        for (int i = 0; i < liquids ; i++) {
+                            FluidStack fluid = handler.getFluidInTank(i);
+                            if ((fluid.isEmpty() || fluid.getAmount() < handler.getTankCapacity(i))) {
                                 return true;
                             }
                         }
                         return false;
                     }
-                    return handler.fill(searchedFluid, false) > 0;
+                    return handler.fill(searchedFluid, FluidAction.SIMULATE) > 0;
                 case FULL:
-                    if (searchedFluid == null) {
-                        for (IFluidTankProperties c : liquids) {
-                            if (c == null) continue;
-                            FluidStack fluid = c.getContents();
-                            if ((fluid == null || fluid.amount < c.getCapacity())) {
+                    if (searchedFluid.isEmpty()) {
+                        for (int i = 0; i < liquids ; i++) {
+                            FluidStack fluid = handler.getFluidInTank(1);
+                            if ((fluid.isEmpty() || fluid.getAmount() < handler.getTankCapacity(i))) {
                                 return false;
                             }
                         }
                         return true;
                     }
-                    return handler.fill(searchedFluid, false) <= 0;
+                    return handler.fill(searchedFluid, FluidAction.SIMULATE) <= 0;
             }
         }
 

@@ -1,10 +1,14 @@
 package ct.buildcraft.api.properties;
 
 
+import java.util.Map;
+
+import com.google.common.collect.Maps;
+
 import ct.buildcraft.api.enums.EnumEngineType;
 import ct.buildcraft.api.enums.EnumPowerStage;
 import ct.buildcraft.api.enums.EnumSpring;
-
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
@@ -40,15 +44,15 @@ public final class BuildCraftProperties {
     public static final BooleanProperty LED_DONE = BooleanProperty.create("led_done");
     public static final BooleanProperty ACTIVE = BooleanProperty.create("active");
     public static final BooleanProperty VALID = BooleanProperty.create("valid");
-/*
-    public static final EnumPropetry<Boolean> CONNECTED_UP = PropertyBool.create("connected_up");
-    public static final EnumPropetry<Boolean> CONNECTED_DOWN = PropertyBool.create("connected_down");
-    public static final EnumPropetry<Boolean> CONNECTED_EAST = PropertyBool.create("connected_east");
-    public static final EnumPropetry<Boolean> CONNECTED_WEST = PropertyBool.create("connected_west");
-    public static final EnumPropetry<Boolean> CONNECTED_NORTH = PropertyBool.create("connected_north");
-    public static final EnumPropetry<Boolean> CONNECTED_SOUTH = PropertyBool.create("connected_south");
-*/
-//    public static final Map<DirectionProperty, BooleanProperty> CONNECTED_MAP = null;
+
+    public static final BooleanProperty CONNECTED_UP = BooleanProperty.create("connected_up");
+    public static final BooleanProperty CONNECTED_DOWN = BooleanProperty.create("connected_down");
+    public static final BooleanProperty CONNECTED_EAST = BooleanProperty.create("connected_east");
+    public static final BooleanProperty CONNECTED_WEST = BooleanProperty.create("connected_west");
+    public static final BooleanProperty CONNECTED_NORTH = BooleanProperty.create("connected_north");
+    public static final BooleanProperty CONNECTED_SOUTH = BooleanProperty.create("connected_south");
+
+    public static final Map<Direction, BooleanProperty> CONNECTED_MAP ;
 
     // Block state setting flags -these are used by World.markAndNotifyBlock and World.setBlockState. These flags can be
     // added together to pass the additions
@@ -70,8 +74,8 @@ public final class BuildCraftProperties {
     public static final int UPDATE_ALL = UPDATE_NEIGHBOURS + MARK_BLOCK_FOR_UPDATE + UPDATE_EVEN_CLIENT;
 
 
- /*   static {
-        Map<Direction, EnumPropetry<Boolean>> map = Maps.newEnumMap(Direction.class);
+    static {
+        Map<Direction, BooleanProperty> map = Maps.newEnumMap(Direction.class);
         map.put(Direction.DOWN, CONNECTED_DOWN);
         map.put(Direction.UP, CONNECTED_UP);
         map.put(Direction.EAST, CONNECTED_EAST);

@@ -3,7 +3,6 @@ package ct.buildcraft.api.transport.pipe;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import ct.buildcraft.transport.BCTransportPipes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.ModContainer;

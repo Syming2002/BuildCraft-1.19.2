@@ -6,6 +6,7 @@
 
 package ct.buildcraft.factory.client.render;
 
+import ct.buildcraft.BCFactorySprites;
 import ct.buildcraft.factory.BCFactory;
 import ct.buildcraft.factory.BCFactoryBlocks;
 import ct.buildcraft.factory.blockEntity.TileMiningWell;
@@ -56,7 +57,7 @@ public class RenderMiningWell implements BlockEntityRenderer<TileMiningWell> {
         LED_POWER = new RenderPartCube();
         LED_STATUS = new RenderPartCube();
 
-        TextureAtlasSprite spriteTubeMiddle = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(BCFactory.ClientModEvents.MININGTUBE);
+        TextureAtlasSprite spriteTubeMiddle = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(BCFactorySprites.MININGTUBE);
         LaserRow cap = new LaserRow(spriteTubeMiddle, 0, 8, 8, 16);
         LaserRow middle = new LaserRow(spriteTubeMiddle, 0, 0, 16, 8);
 

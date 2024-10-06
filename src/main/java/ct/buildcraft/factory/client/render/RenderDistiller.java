@@ -1,6 +1,6 @@
 package ct.buildcraft.factory.client.render;
 
-import ct.buildcraft.factory.BCFactory;
+import ct.buildcraft.BCFactorySprites;
 import ct.buildcraft.factory.block.BlockDistiller;
 import ct.buildcraft.factory.blockEntity.TileDistiller;
 import ct.buildcraft.lib.client.render.fluid.FluidRenderer;
@@ -20,10 +20,10 @@ import net.minecraftforge.fluids.FluidStack;
 
 public class RenderDistiller implements BlockEntityRenderer<TileDistiller> {
 
-	public static final ResourceLocation DISTILLER_POWER_A = BCFactory.ClientModEvents.DISTILLER_POWER_A;
-	public static final ResourceLocation DISTILLER_POWER_B = BCFactory.ClientModEvents.DISTILLER_POWER_B;
-	public static final ResourceLocation DISTILLER_POWER_C = BCFactory.ClientModEvents.DISTILLER_POWER_C;
-	public static final ResourceLocation DISTILLER_POWER_D = BCFactory.ClientModEvents.DISTILLER_POWER_D;
+	public static final ResourceLocation DISTILLER_POWER_A = BCFactorySprites.DISTILLER_POWER_A;
+	public static final ResourceLocation DISTILLER_POWER_B = BCFactorySprites.DISTILLER_POWER_B;
+	public static final ResourceLocation DISTILLER_POWER_C = BCFactorySprites.DISTILLER_POWER_C;
+	public static final ResourceLocation DISTILLER_POWER_D = BCFactorySprites.DISTILLER_POWER_D;
 
 	protected static final Vec3 INPUT_BOX_MIN = new Vec3(0.01, 0, 0.25+0.01);
 	protected static final Vec3 INPUT_BOX_MAX = new Vec3(0.5-0.01, 1-0.01, 0.75-0.01);

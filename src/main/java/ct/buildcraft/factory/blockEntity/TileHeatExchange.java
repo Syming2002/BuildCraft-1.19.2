@@ -487,6 +487,8 @@ public class TileHeatExchange extends TileBC_Neptune implements IDebuggable {
         public final FluidSmoother smoothedTankInput, smoothedTankOutput;
         public final CapabilityHelper caps = new CapabilityHelper();
         private TileHeatExchange tile;
+    	private FluidStack fluidCache;
+    	private FluidType fluidTypeCache;
 
         ExchangeSection(TileHeatExchange tile) {
             tankInput = new Tank("input", 2 * FluidType.BUCKET_VOLUME, tile);
@@ -570,6 +572,18 @@ public class TileHeatExchange extends TileBC_Neptune implements IDebuggable {
             this.tile = tile;
             tankInput.setBlockEntity(tile);
             tankOutput.setBlockEntity(tile);
+        }
+        
+        public FluidStack getInputFluidForRender(boolean cache) {
+        	if(cache) {
+        		BCLog.logger.debug("cache");
+        		fluidCache = smoothedTankInput.getFluidForRender();
+        		fluidTypeCache = fluidCache.getFluid().getFluidType();
+        	}
+        	return fluidCache;
+        }
+        public FluidType getInputFluidType() {
+        	return fluidTypeCache;
         }
     }
 

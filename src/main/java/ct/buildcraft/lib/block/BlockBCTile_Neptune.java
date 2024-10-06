@@ -4,6 +4,10 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 package ct.buildcraft.lib.block;
 
+import java.util.List;
+
+import com.google.common.collect.ImmutableList;
+
 import ct.buildcraft.lib.tile.TileBC_Neptune;
 
 import net.minecraft.core.BlockPos;
@@ -21,6 +25,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.storage.loot.LootContext.Builder;
 import net.minecraft.world.phys.BlockHitResult;
 
 public abstract class BlockBCTile_Neptune extends BlockBCBase_Neptune implements EntityBlock {
@@ -47,19 +53,21 @@ public abstract class BlockBCTile_Neptune extends BlockBCBase_Neptune implements
         BlockEntity tile = level.getBlockEntity(pos);
         if (tile instanceof TileBC_Neptune) {
             TileBC_Neptune tileBC = (TileBC_Neptune) tile;
-            tileBC.onRemove();
+            tileBC.onRemove(true);
         }
 		super.onBlockExploded(state, level, pos, explosion);
 	}
+    
 
 	@Override
-	public void playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
-        BlockEntity tile = world.getBlockEntity(pos);
+	public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest,
+			FluidState fluid) {
+        BlockEntity tile = level.getBlockEntity(pos);
         if (tile instanceof TileBC_Neptune) {
             TileBC_Neptune tileBC = (TileBC_Neptune) tile;
-            tileBC.onRemove();
+            tileBC.onRemove(!player.isCreative()&&willHarvest);
         }
-        super.playerWillDestroy(world, pos, state, player);
+		return super.onDestroyedByPlayer(state, level, pos, player, willHarvest, fluid);
 	}
 
     @Override
@@ -73,10 +81,13 @@ public abstract class BlockBCTile_Neptune extends BlockBCBase_Neptune implements
         }
 		super.setPlacedBy(world, pos, state, placer, stack);
 	}
+    
+	@Override
+	public List<ItemStack> getDrops(BlockState p_60537_, Builder p_60538_) {
+		return ImmutableList.of();
+	}
 
-
-
-    @SuppressWarnings("deprecation")
+	@SuppressWarnings("deprecation")
 	@Override
 	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player,
 			InteractionHand hand, BlockHitResult hit) {
@@ -99,12 +110,6 @@ public abstract class BlockBCTile_Neptune extends BlockBCBase_Neptune implements
             TileBC_Neptune tileBC = (TileBC_Neptune) tile;
             tileBC.onNeighbourBlockChanged(block, fromPos);
         }
-	}
-
-	@Override
-	public BlockEntity newBlockEntity(BlockPos p_153215_, BlockState p_153216_) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

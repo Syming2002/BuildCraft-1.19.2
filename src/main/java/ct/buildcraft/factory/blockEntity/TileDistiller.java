@@ -25,7 +25,6 @@ import ct.buildcraft.lib.expression.DefaultContexts;
 import ct.buildcraft.lib.fluid.FluidSmoother;
 import ct.buildcraft.lib.fluid.FluidSmoother.IFluidDataSender;
 import ct.buildcraft.lib.fluid.Tank;
-import ct.buildcraft.lib.fluid.TankManager;
 import ct.buildcraft.lib.misc.CapUtil;
 import ct.buildcraft.lib.misc.LocaleUtil;
 import ct.buildcraft.lib.misc.data.AverageLong;
@@ -71,8 +70,6 @@ public class TileDistiller extends TileBC_Neptune implements IDebuggable {
     public final FluidSmoother smoothedTankGasOut;
     public final FluidSmoother smoothedTankLiquidOut;
     
-    public final TankManager tankManager = new TankManager();
-
     /** for render */
     private Direction MODEL_FACING;
     private boolean MODEL_ACTIVE;
@@ -96,7 +93,7 @@ public class TileDistiller extends TileBC_Neptune implements IDebuggable {
 
         tankManager.add(tankIn);
         tankManager.add(tankGasOut);
-        tankManager.add(tankLiquidOut);
+        tankManager.addLast(tankLiquidOut);
 
         smoothedTankIn = new FluidSmoother(createSender(NET_TANK_IN), tankIn);
         smoothedTankGasOut = new FluidSmoother(createSender(NET_TANK_GAS_OUT), tankGasOut);
@@ -221,7 +218,7 @@ public class TileDistiller extends TileBC_Neptune implements IDebuggable {
             MODEL_FACING = state.getValue(BlockBCBase_Neptune.PROP_FACING);
         }
     }
-
+    
     public void update() {
         smoothedTankIn.tick(getLevel());
         smoothedTankGasOut.tick(getLevel());

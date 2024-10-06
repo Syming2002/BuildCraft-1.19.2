@@ -24,6 +24,7 @@ import ct.buildcraft.lib.cache.TileCacheRet;
 import ct.buildcraft.lib.cache.TileCacheType;
 import ct.buildcraft.lib.delta.DeltaManager;
 import ct.buildcraft.lib.delta.DeltaManager.EnumDeltaMessage;
+import ct.buildcraft.lib.fluid.TankManager;
 import ct.buildcraft.lib.migrate.BCVersion;
 import ct.buildcraft.lib.misc.ChunkUtil;
 import ct.buildcraft.lib.misc.FakePlayerProvider;
@@ -110,6 +111,7 @@ public abstract class TileBC_Neptune extends BlockEntity implements IPayloadRece
 
     protected final CapabilityHelper caps = new CapabilityHelper();
     protected final ItemHandlerManager itemManager = new ItemHandlerManager(this::onSlotChange);
+    public final TankManager tankManager = new TankManager();
 
     /** Handles all of the players that are currently using this tile (have a GUI open) */
     private final Set<Player> usingPlayers = Sets.newIdentityHashSet();
@@ -246,16 +248,19 @@ public abstract class TileBC_Neptune extends BlockEntity implements IPayloadRece
     /** Called whenever the block holding this tile is exploded. Called by
      * {@link Block#onBlockExploded(Level, BlockPos, Explosion)} */
     public void onExplode(Explosion explosion) {
-
     }
 
     /** Called whenever the block is removed. Called by {@link #onExplode(Explosion)}, and
      * {@link Block#breakBlock(Level, BlockPos, BlockState)} */
-    public void onRemove() {
+    public void onRemove(boolean dropSelf) {
         NonNullList<ItemStack> toDrop = NonNullList.create();
+        if(dropSelf)
+        	toDrop.add(this.getBlockState()
+        			.getBlock().getCloneItemStack(getBlockState(), null, level, worldPosition, null));//TODO
         addDrops(toDrop, 0);
         Containers.dropContents(level, worldPosition, toDrop);
     }
+    
 
     @Override
     public void setRemoved() {
@@ -290,8 +295,8 @@ public abstract class TileBC_Neptune extends BlockEntity implements IPayloadRece
 
     /** Called whenever {@link #onRemove()} is called (by default). */
     public void addDrops(NonNullList<ItemStack> toDrop, int fortune) {
-//        itemManager.addDrops(toDrop);
-//        tankManager.addDrops(toDrop);
+        itemManager.addDrops(toDrop);
+        tankManager.addDrops(toDrop);
     }
 
     public void onPlacedBy(LivingEntity placer, ItemStack stack) {

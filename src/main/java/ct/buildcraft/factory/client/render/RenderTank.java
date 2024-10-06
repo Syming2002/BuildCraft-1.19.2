@@ -36,16 +36,6 @@ public class RenderTank implements BlockEntityRenderer<TileTank> {
             return;
         }
         matrix.pushPose();
-    	
-/*        FluidStack fluidStack = tank.tank.getFluid();
-        if (!fluidStack.isEmpty()) {
-        	int num = tank.tank.getTanks() - tank.tank_num ;
-            int amount = fluidStack.getAmount()-num*8000;
-        	if(amount<0)
-        		return; 
-        	else
-        	this.renderFluidInTank(tank.getLevel(), tank.getBlockPos(), fluidStack, matrix, buffer,  amount,tank.tank_num==1);
-        }*/
         VertexConsumer bb = buffer.getBuffer(RenderType.cutout());
         
         boolean[] sideRender = { true, true, true, true, true, true };
@@ -62,12 +52,6 @@ public class RenderTank implements BlockEntityRenderer<TileTank> {
         int blocklight = fluid.getFluid().getFluidType().getLightLevel(fluid)<<4;
         blocklight = blocklight > blocklight0 ? blocklight : blocklight0;
         int combinedLight = (skylight0)+(blocklight);
-        
-//        BCLog.logger.debug("" + (tile.getLevel().getSkyDarken()<<20));
-
-
-        
-        
         
         
         FluidRenderer.vertex.lighti(combinedLight);

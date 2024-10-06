@@ -7,6 +7,7 @@
 package ct.buildcraft.transport.block;
 
 import ct.buildcraft.lib.block.BlockBCTile_Neptune;
+import ct.buildcraft.lib.tile.TileBC_Neptune;
 import ct.buildcraft.transport.tile.TileFilteredBuffer;
 
 import net.minecraft.core.BlockPos;
@@ -15,7 +16,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.NetworkHooks;
@@ -26,7 +26,7 @@ public class BlockFilteredBuffer extends BlockBCTile_Neptune {
     }
 
 	@Override
-	public BlockEntity newBlockEntity(BlockPos p_153215_, BlockState p_153216_) {
+	public TileBC_Neptune newBlockEntity(BlockPos p_153215_, BlockState p_153216_) {
 		return new TileFilteredBuffer(p_153215_, p_153216_);
 	}
 

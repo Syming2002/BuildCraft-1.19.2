@@ -18,6 +18,7 @@ import javax.annotation.Nonnull;
 
 import org.jetbrains.annotations.NotNull;
 import ct.buildcraft.api.BCModules;
+import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.api.core.EnumPipePart;
 import ct.buildcraft.api.core.InvalidInputDataException;
 import ct.buildcraft.api.transport.pipe.IFlowItems;
@@ -33,7 +34,6 @@ import ct.buildcraft.api.transport.pluggable.PipePluggable;
 import ct.buildcraft.lib.misc.AdvancementUtil;
 import ct.buildcraft.lib.misc.data.IdAllocator;
 import ct.buildcraft.lib.tile.TileBC_Neptune;
-import ct.buildcraft.silicon.plug.FilterEventHandler;
 import ct.buildcraft.transport.BCTransportBlocks;
 import ct.buildcraft.transport.client.model.ModelPipe;
 import ct.buildcraft.transport.pipe.Pipe;
@@ -159,7 +159,8 @@ public class TilePipeHolder extends TileBC_Neptune implements IPipeHolder/*, ITi
                 eventBus.registerHandler(pipe.behaviour);
                 eventBus.registerHandler(pipe.flow);
                 if (pipe.flow instanceof IFlowItems && BCModules.SILICON.isLoaded()) {
-                    eventBus.registerHandler(FilterEventHandler.class);
+                	BCLog.logger.debug("TilePipeHolder.load:called undone class : FilterEventHandler");
+//                    eventBus.registerHandler(FilterEventHandler.class);
                 }
             } catch (InvalidInputDataException e) {
                 // Unfortunately we can't throw an exception because then this tile won't persist :/
@@ -193,7 +194,8 @@ public class TilePipeHolder extends TileBC_Neptune implements IPipeHolder/*, ITi
             eventBus.registerHandler(pipe.behaviour);
             eventBus.registerHandler(pipe.flow);
             if (pipe.flow instanceof IFlowItems && BCModules.SILICON.isLoaded()) {
-                eventBus.registerHandler(FilterEventHandler.class);
+            	BCLog.logger.debug("TilePipeHolder.load:called undone class : FilterEventHandler");
+//                eventBus.registerHandler(FilterEventHandler.class);
             }
             int meta = ((IItemPipe) item).getcolorID();
             if (meta > 0 && meta <= 16) {
@@ -370,7 +372,8 @@ public class TilePipeHolder extends TileBC_Neptune implements IPipeHolder/*, ITi
                     eventBus.registerHandler(pipe.behaviour);
                     eventBus.registerHandler(pipe.flow);
                     if (pipe.flow instanceof IFlowItems && BCModules.SILICON.isLoaded()) {
-                        eventBus.registerHandler(FilterEventHandler.class);
+                    	BCLog.logger.debug("TilePipeHolder.load:called undone class : FilterEventHandler");
+//                        eventBus.registerHandler(FilterEventHandler.class);
                     }
                 } else if (pipe != Pipe.EMPTY) {
                     eventBus.unregisterHandler(pipe.behaviour);

@@ -22,7 +22,6 @@ import ct.buildcraft.api.statements.IStatementContainer;
 import ct.buildcraft.api.statements.IStatementParameter;
 import ct.buildcraft.api.statements.StatementMouseClick;
 import ct.buildcraft.lib.misc.ColourUtil;
-import ct.buildcraft.lib.misc.LocaleUtil;
 import ct.buildcraft.lib.misc.StackUtil;
 import ct.buildcraft.transport.BCTransportSprites;
 

@@ -97,8 +97,8 @@ public abstract class TileMiner extends TileBC_Neptune implements IDebuggable {
     }
 
     @Override
-    public void onRemove() {
-        super.onRemove();
+    public void onRemove(boolean dropSelf) {
+        super.onRemove(dropSelf);
         for (int y = worldPosition.getY() - 1; y > worldPosition.getY() - BCCoreConfig.miningMaxDepth; y--) {
             BlockPos blockPos = new BlockPos(worldPosition.getX(), y, worldPosition.getZ());
             if (level.getBlockState(blockPos).getBlock() == BCFactoryBlocks.TUBE_BLOCK.get()) {

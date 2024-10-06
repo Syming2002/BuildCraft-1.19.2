@@ -10,22 +10,17 @@ import java.util.Objects;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
-import buildcraft.api.core.render.ISprite;
-import buildcraft.api.statements.IStatement;
-import buildcraft.api.statements.IStatementContainer;
-import buildcraft.api.statements.IStatementParameter;
-import buildcraft.api.statements.StatementMouseClick;
-
-import buildcraft.lib.misc.LocaleUtil;
-import buildcraft.lib.misc.StackUtil;
-
-import buildcraft.core.BCCoreSprites;
+import ct.buildcraft.api.core.render.ISprite;
+import ct.buildcraft.api.statements.IStatement;
+import ct.buildcraft.api.statements.IStatementContainer;
+import ct.buildcraft.api.statements.IStatementParameter;
+import ct.buildcraft.api.statements.StatementMouseClick;
+import ct.buildcraft.core.BCCoreSprites;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class StatementParameterRedstoneLevel implements IStatementParameter {
     public final int level;
@@ -45,27 +40,27 @@ public class StatementParameterRedstoneLevel implements IStatementParameter {
         maxLevel = max;
     }
 
-    public StatementParameterRedstoneLevel(NBTTagCompound nbt) {
+    public StatementParameterRedstoneLevel(CompoundTag nbt) {
         level = nbt.getByte("l");
         minLevel = nbt.getByte("ml");
         maxLevel = nbt.getByte("ma");
     }
 
     @Override
-    public void writeToNbt(NBTTagCompound nbt) {
-        nbt.setByte("l", (byte) level);
-        nbt.setByte("mi", (byte) minLevel);
-        nbt.setByte("ma", (byte) maxLevel);
+    public void writeToNbt(CompoundTag nbt) {
+        nbt.putByte("l", (byte) level);
+        nbt.putByte("mi", (byte) minLevel);
+        nbt.putByte("ma", (byte) maxLevel);
     }
 
     @Nonnull
     @Override
     public ItemStack getItemStack() {
-        return StackUtil.EMPTY;
+        return ItemStack.EMPTY;
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public ISprite getSprite() {
         return BCCoreSprites.PARAM_REDSTONE_LEVEL[level & 15];
     }
@@ -102,8 +97,8 @@ public class StatementParameterRedstoneLevel implements IStatementParameter {
     }
 
     @Override
-    public String getDescription() {
-        return String.format(LocaleUtil.localize("gate.trigger.redstone.input.level"), level);
+    public Component getDescription() {
+        return Component.translatable("gate.trigger.redstone.input.level", level);
     }
 
     @Override

@@ -1,31 +1,14 @@
 package ct.buildcraft.energy;
 
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-
 import org.slf4j.Logger;
 
-import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 
-import ct.buildcraft.api.core.BCLog;
-import ct.buildcraft.core.BCCoreConfig;
 import ct.buildcraft.energy.generation.BCOverWorldRegion;
 import ct.buildcraft.energy.generation.BCSurfaceRuleData;
-import ct.buildcraft.energy.generation.BiomeOilDesert;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.Biomes;
-import net.minecraft.world.level.biome.Climate;
-import net.minecraft.world.level.biome.OverworldBiomeBuilder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.data.event.GatherDataEvent;
@@ -65,7 +48,7 @@ public class BCEnergy {
         //TEST_CODE_END
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
-        modEventBus.addListener(this::gatherData);
+//        modEventBus.addListener(this::gatherData);
         BCEnergyFluids.registry(modEventBus);
         BCEnergyBlocks.init(modEventBus);
         BCEnergyGuis.init();

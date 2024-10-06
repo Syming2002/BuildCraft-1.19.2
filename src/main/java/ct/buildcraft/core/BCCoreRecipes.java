@@ -43,7 +43,7 @@ public class BCCoreRecipes extends RecipeProvider{
 	            builder0.save(writer);
 
 	            for (DyeColor colour : DyeColor.values()) {
-	                ItemPaintbrush_BC8 out = BCCoreItems.PAINT_BRUSHS.get(colour).get();
+	                ItemPaintbrush_BC8 out = BCCoreItems.PAINT_BRUSHS.get(colour);
 	                ShapelessRecipeBuilder recipe = new ShapelessRecipeBuilder(out, 1);
 	                recipe.requires(BCCoreItems.PAINT_BRUSH.get());
 	                recipe.requires(colour.getTag());
@@ -64,7 +64,7 @@ public class BCCoreRecipes extends RecipeProvider{
             builder2.pattern(" o ");
             builder2.pattern("oio");
             builder2.pattern(" o ");
-            builder2.define('o', Items.STONE);
+            builder2.define('o', ItemTags.STONE_TOOL_MATERIALS);
             builder2.define('i', BCCoreItems.GEAR_WOOD.get());
             builder2.unlockedBy("has_"+BCCoreItems.GEAR_WOOD.getId().getPath(), TriggerInstance.hasItems(BCCoreItems.GEAR_WOOD.get()));
             builder2.save(writer);
@@ -96,7 +96,7 @@ public class BCCoreRecipes extends RecipeProvider{
             builder5.unlockedBy("has_"+BCCoreItems.GEAR_WOOD.getId().getPath(), TriggerInstance.hasItems(BCCoreItems.GEAR_WOOD.get()));
             builder5.save(writer);
             
-        	ShapedRecipeBuilder builder6 = ShapedRecipeBuilder.shaped(BCCoreItems.ENGINE_ITEM_MAP.get(EnumEngineType.WOOD).get(), 1);
+        	ShapedRecipeBuilder builder6 = ShapedRecipeBuilder.shaped(BCCoreItems.ENGINE_ITEM_MAP.get(EnumEngineType.WOOD), 1);
             builder6.pattern("www");
             builder6.pattern(" g ");
             builder6.pattern("GpG");
@@ -107,6 +107,27 @@ public class BCCoreRecipes extends RecipeProvider{
             builder6.unlockedBy("has_"+BCCoreItems.GEAR_WOOD.getId().getPath(), TriggerInstance.hasItems(BCCoreItems.GEAR_WOOD.get()));
             builder6.save(writer);
             
+        	ShapedRecipeBuilder stone_engine = ShapedRecipeBuilder.shaped(BCCoreItems.ENGINE_ITEM_MAP.get(EnumEngineType.STONE), 1);
+            stone_engine.pattern("www");
+            stone_engine.pattern(" g ");
+            stone_engine.pattern("GpG");
+            stone_engine.define('w', ItemTags.STONE_CRAFTING_MATERIALS);
+            stone_engine.define('g', Items.GLASS);
+            stone_engine.define('G', BCCoreItems.GEAR_STONE.get());
+            stone_engine.define('p', Blocks.PISTON);
+            stone_engine.unlockedBy("has_"+BCCoreItems.GEAR_STONE.getId().getPath(), TriggerInstance.hasItems(BCCoreItems.GEAR_STONE.get()));
+            stone_engine.save(writer);
+            
+        	ShapedRecipeBuilder iron_engine = ShapedRecipeBuilder.shaped(BCCoreItems.ENGINE_ITEM_MAP.get(EnumEngineType.IRON), 1);
+            iron_engine.pattern("www");
+            iron_engine.pattern(" g ");
+            iron_engine.pattern("GpG");
+            iron_engine.define('w', Items.IRON_INGOT);
+            iron_engine.define('g', Items.GLASS);
+            iron_engine.define('G', BCCoreItems.GEAR_IRON.get());
+            iron_engine.define('p', Blocks.PISTON);
+            iron_engine.unlockedBy("has_"+BCCoreItems.GEAR_IRON.getId().getPath(), TriggerInstance.hasItems(BCCoreItems.GEAR_IRON.get()));
+            iron_engine.save(writer);
             
 	    	
 

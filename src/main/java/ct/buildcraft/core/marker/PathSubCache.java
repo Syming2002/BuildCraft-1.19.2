@@ -83,7 +83,7 @@ public class PathSubCache extends MarkerSubCache<PathConnection> {
 
     @Override
     public LaserType getPossibleLaserType() {
-        return BuildCraftLaserManager.MARKER_PATH_POSSIBLE;
+        return null;//BuildCraftLaserManager.MARKER_PATH_POSSIBLE;
     }
 
     @Override

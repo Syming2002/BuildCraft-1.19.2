@@ -9,8 +9,8 @@ package ct.buildcraft.factory.block;
 import java.util.Locale;
 
 import ct.buildcraft.api.transport.pipe.ICustomPipeConnection;
-import ct.buildcraft.core.blockEntity.TileHeatExchange;
 import ct.buildcraft.factory.BCFactoryBlocks;
+import ct.buildcraft.factory.blockEntity.TileHeatExchange;
 import ct.buildcraft.lib.block.BlockBCTile_Neptune;
 import ct.buildcraft.lib.block.IBlockWithFacing;
 import net.minecraft.core.BlockPos;
@@ -60,7 +60,7 @@ public class BlockHeatExchange extends BlockBCTile_Neptune implements ICustomPip
 
     public BlockHeatExchange() {
         super(Properties.of(Material.GLASS).destroyTime(5.0f)
-    			.explosionResistance(10.0f).sound(SoundType.GLASS));
+    			.explosionResistance(10.0f).sound(SoundType.GLASS).requiresCorrectToolForDrops());
         this.registerDefaultState(this.stateDefinition.any()
         		.setValue(PROP_PART, EnumExchangePart.MIDDLE)
         		.setValue(PROP_CONNECTED_Y, false)

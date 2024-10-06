@@ -5,12 +5,12 @@
 package ct.buildcraft.lib;
 
 import ct.buildcraft.api.core.BCLog;
+import ct.buildcraft.core.BCCoreRecipes;
 import ct.buildcraft.lib.block.VanillaRotationHandlers;
 import ct.buildcraft.lib.net.MessageManager;
 import ct.buildcraft.lib.net.cache.BuildCraftObjectCaches;
-import ct.buildcraft.lib.tile.TileBC_Neptune;
-
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -42,6 +42,7 @@ public class BCLib {
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
+        modEventBus.addListener(this::gatherData);//DataGenerator
 
         try {
             BCLog.logger.info("");
@@ -98,6 +99,11 @@ public class BCLib {
 //        init();postInit();
     }
 
+    public void gatherData(GatherDataEvent event) {
+        event.getGenerator().addProvider(event.includeServer(), new BCTagsProvider.BlockTag(event.getGenerator(), event.getExistingFileHelper()));
+        event.getGenerator().addProvider(event.includeServer(), new BCTagsProvider.FluidTag(event.getGenerator(), event.getExistingFileHelper()));
+        event.getGenerator().addProvider(event.includeServer(), new BCTagsProvider.BiomeTag(event.getGenerator(), event.getExistingFileHelper()));
+    }
 
     public void commonSetup(final FMLCommonSetupEvent event) {
         MessageManager.fmlPostInit();
@@ -113,7 +119,6 @@ public class BCLib {
 
     public static void init(/*FMLInitializationEvent evt*/) {
 //        BCLibProxy.getProxy().fmlInit();
-
         BCLibRegistries.fmlInit();
 //        VanillaListHandlers.fmlInit();
 //        VanillaPaintHandlers.fmlInit();

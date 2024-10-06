@@ -31,6 +31,7 @@ import net.minecraftforge.fluids.FluidStack;
 public enum PipeFlowRendererFluids implements IPipeFlowRenderer<PipeFlowFluids> {
 	INSTANCE;
 
+	private static final boolean[] sides = { true, true, true, true, true, true };
 	@Override
 	public void render(PipeFlowFluids flow, float partialTicks, PoseStack matrix, MultiBufferSource buffer, int lightc,
 			int combinedOverlay) {
@@ -38,8 +39,6 @@ public enum PipeFlowRendererFluids implements IPipeFlowRenderer<PipeFlowFluids> 
 		if (forRender == null) {
 			return;
 		}
-		boolean[] sides = { true, true, true, true, true, true };
-
 		VertexConsumer fluidBuffer = buffer.getBuffer(RenderType.cutoutMipped());
 
 		double[] amounts = flow.getAmountsForRender(partialTicks);
@@ -57,14 +56,16 @@ public enum PipeFlowRendererFluids implements IPipeFlowRenderer<PipeFlowFluids> 
 
 		for (Direction face : Direction.values()) {
 			double size = ((Pipe) flow.pipe).getConnectedDist(face);
+			if(size == 0)
+				continue;
 			double amount = amounts[face.get3DDataValue()];
 			if (face.getAxis() != Axis.Y) {
 				horizontal |= flow.pipe.isConnected(face) && amount > 0;
 			}
 
-			Vec3 center = VecUtil.offset(new Vec3(0.5, 0.5, 0.5), face, 0.245 + size / 2);
+			Vec3 center = VecUtil.offset(new Vec3(0.5, 0.5, 0.5), face, 0.25 + size / 2);
 			Vec3 radius = new Vec3(0.24, 0.24, 0.24);
-			radius = VecUtil.replaceValue(radius, face.getAxis(), 0.005 + size / 2);
+			radius = VecUtil.replaceValue(radius, face.getAxis(), 0.000 + size / 2);
 
 			if (face.getAxis() == Axis.Y) {
 				double perc = amount / flow.capacity;
@@ -74,20 +75,16 @@ public enum PipeFlowRendererFluids implements IPipeFlowRenderer<PipeFlowFluids> 
 
 			Vec3 offset = offsets[face.get3DDataValue()];
 			if (offset == null) offset = Vec3.ZERO;
-			offset = new Vec3(0.0f,0.0f,0.0f);
 			center = center.add(offset);
-//			matrix.translate(-offset.x, -offset.y, -offset.z);
-
+			matrix.translate(-offset.x, -offset.y, -offset.z);
 			Vec3 min = center.subtract(radius);
 			Vec3 max = center.add(radius);
 
-//			if (face.getAxis() == Axis.Y) {
-			if(face == Direction.UP) {
+			if(face.getAxis() == Axis.Y) 
 				FluidRenderer.renderFluid(FluidSpriteType.FROZEN, forRender, 1, 1, min, max, fluidBuffer, matrix.last(), sides);
-
-			} else {
+			else 
 				FluidRenderer.renderFluid(FluidSpriteType.FROZEN, forRender, amount, flow.capacity, min, max, fluidBuffer, matrix.last(), sides);
-			}
+			matrix.translate(offset.x, offset.y, offset.z);
 		}
 
 		double amount = amounts[EnumPipePart.CENTER.getIndex()];
@@ -106,22 +103,6 @@ public enum PipeFlowRendererFluids implements IPipeFlowRenderer<PipeFlowFluids> 
 			min = min.add(offset);
 			max = max.add(offset);
 			FluidRenderer.renderFluid(FluidSpriteType.FROZEN, forRender, amount, flow.capacity, min, max, fluidBuffer, matrix.last(), sides);
-//			BCLog.logger.debug(""+min.x);
-/*			fluidBuffer.vertex(matrix.last().pose(), (float) min.x, (float) max.y, (-1 / 2) + 0.001f)
-			.color(1.0f, 1.0f, 1.0f, 1.0f).uv(0.1f, 0.1f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(15728880)
-			.normal(matrix.last().normal(), 0, 0, 1).endVertex();
-
-	fluidBuffer.vertex(matrix.last().pose(), (float) max.x, (float) max.y, (-1 / 2) + 0.001f)
-			.color(1.0f, 1.0f, 1.0f, 1.0f).uv(0.2f, 0.1f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(15728880)
-			.normal(matrix.last().normal(), 0, 0, 1).endVertex();
-
-	fluidBuffer.vertex(matrix.last().pose(), (float) max.x, (float) min.y, (-1 / 2) + 0.001f)
-			.color(1.0f, 1.0f, 1.0f, 1.0f).uv(0.2f, 0.2f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(15728880)
-			.normal(matrix.last().normal(), 0, 0, 1).endVertex();
-
-	fluidBuffer.vertex(matrix.last().pose(), (float) min.x, (float) min.y, (-1 / 2) + 0.001f)
-			.color(1.0f, 1.0f, 1.0f, 1.0f).uv(0.1f, 0.2f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(15728880)
-			.normal(matrix.last().normal(), 0, 0, 1).endVertex();*/
 			horizPos += (max.y - min.y) * amount / flow.capacity;
 		}
 
@@ -139,8 +120,7 @@ public enum PipeFlowRendererFluids implements IPipeFlowRenderer<PipeFlowFluids> 
 			min = min.add(offset);
 			max = max.add(offset);
 
-/*			FluidRenderer.renderFluid(FluidSpriteType.FROZEN, forRender, 1, 1, min, max, fluidBuffer, matrix.last(),
-					sides);*/
+			FluidRenderer.renderFluid(FluidSpriteType.FROZEN, forRender, 1, 1, min, max, fluidBuffer, matrix.last(), sides);
 			
 		}
 

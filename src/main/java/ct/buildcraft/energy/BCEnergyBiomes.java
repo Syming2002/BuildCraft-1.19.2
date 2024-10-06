@@ -29,6 +29,7 @@ import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.Biomes;
@@ -51,6 +52,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class BCEnergyBiomes {
 	public static final DeferredRegister<Biome> BIOME_REGISTER = DeferredRegister.create(ForgeRegistries.BIOMES, BCEnergy.MODID);
 	public static final DeferredRegister<Feature<?>> FEATURE_REGISTER = DeferredRegister.create(ForgeRegistries.FEATURES, BCEnergy.MODID);
+	
+	public static final TagKey<Biome> IS_OIL_BIOME = TagKey.create(Registry.BIOME_REGISTRY, new ResourceLocation(BCEnergy.MODID, "is_oil_biome"));
 	
     public static final ResourceKey<Biome> OIL_DESERT_KEY = ResourceKey.create(Registry.BIOME_REGISTRY, new ResourceLocation(BCEnergy.MODID,"oil_desert"));
     public static final ResourceKey<Biome> OIL_DEEP_OCEAN_KEY = ResourceKey.create(Registry.BIOME_REGISTRY, new ResourceLocation(BCEnergy.MODID,"oil_deep_ocean"));

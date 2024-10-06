@@ -6,11 +6,14 @@
 
 package ct.buildcraft.transport.client.render;
 
-import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.Direction;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.PoseStack.Pose;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import ct.buildcraft.api.transport.pipe.IPipeBehaviourRenderer;
 
@@ -18,23 +21,24 @@ import ct.buildcraft.lib.client.model.MutableQuad;
 
 import ct.buildcraft.transport.BCTransportModels;
 import ct.buildcraft.transport.pipe.behaviour.PipeBehaviourStripes;
+import ct.buildcraft.transport.tile.TilePipeHolder;
 
-@SideOnly(Dist.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public enum PipeBehaviourRendererStripes implements IPipeBehaviourRenderer<PipeBehaviourStripes> {
     INSTANCE;
 
     @Override
-    public void render(PipeBehaviourStripes stripes, double x, double y, double z, float partialTicks, BufferBuilder bb) {
-        Direction dir = stripes.direction;
+    public void render(PipeBehaviourStripes stripes, float partialTicks, PoseStack matrix, VertexConsumer buffer,
+			int combinedLight, int combinedOverlay) {
+/*        Direction dir = stripes.direction;
         if (dir == null) return;
         MutableQuad[] quads = BCTransportModels.getStripesDynQuads(dir);
-        bb.setTranslation(x, y, z);
-        int light = stripes.pipe.getHolder().getPipeWorld().getCombinedLight(stripes.pipe.getHolder().getPipePos(), 0);
+        int light = stripes.pipe.getHolder().getPipeWorld().getLightEngine().getRawBrightness(stripes.pipe.getHolder().getPipePos(), 0);//TODO
+        Pose pose = matrix.last();
         for (MutableQuad q : quads) {
             q.multShade();
             q.lighti(light);
-            q.render(bb);
-        }
-        bb.setTranslation(0, 0, 0);
+            q.render(pose.pose(), pose.normal(), (VertexConsumer) buffer);
+        }*/
     }
 }

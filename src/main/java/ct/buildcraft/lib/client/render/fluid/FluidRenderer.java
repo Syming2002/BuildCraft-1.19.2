@@ -6,11 +6,14 @@
 
 package ct.buildcraft.lib.client.render.fluid;
 
+import java.lang.reflect.Field;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import ct.buildcraft.api.core.BCLog;
+import ct.buildcraft.lib.BCLib;
 import ct.buildcraft.lib.client.model.MutableVertex;
 import ct.buildcraft.lib.misc.MathUtil;
 import ct.buildcraft.lib.misc.SpriteUtil;
@@ -21,51 +24,60 @@ import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.PoseStack.Pose;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.FallbackResourceManager;
+import net.minecraft.server.packs.resources.MultiPackResourceManager;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
+import net.minecraftforge.registries.ForgeRegistries;
 
 /** Can render 3D fluid cuboid's, up to 1x1x1 in size. Note that they *must* be contained within the 1x1x1 block space -
  * you can't use this to render off large multiblocks. Not thread safe -- this uses static variables so you should only
  * call this from the main client thread. */
 // TODO: thread safety (per thread context?)
+// TODO: Adapt to high resolution texture
 // Perhaps move this into IModelRenderer? And that way we get the buffer, force shaders to cope with fluids (?!), etc
 @OnlyIn(Dist.CLIENT)
 public class FluidRenderer {
 
     private static final EnumMap<FluidSpriteType, Map<String, TextureAtlasSprite>> fluidSprites =
         new EnumMap<>(FluidSpriteType.class);
+    private static final Map<String, ResourceLocation> frozenMap = new HashMap<>();//<orgin, trans>
     public static final MutableVertex vertex = new MutableVertex();
     private static final boolean[] DEFAULT_FACES = { true, true, true, true, true, true };
     private static Function<ResourceLocation, TextureAtlasSprite> blockTexMap;
+    protected static final FrozenTextureGenPackResources pack = new FrozenTextureGenPackResources();
     
     // Cached fields that prevent lots of arguments on most methods
     private static VertexConsumer bb;
     private static Pose pose;
     private static TextureAtlasSprite sprite;
+    private static int spriteW = 16;//may change
+    private static int spriteH = 16;
     private static TexMap texmap;
     private static int color = 0xFFFFFFFF;
     private static boolean invertU, invertV;
     private static double xTexDiff, yTexDiff, zTexDiff;
+    
+    private static boolean loaded = false;
 
     static {
         // TODO: allow the caller to change the light level
@@ -75,34 +87,63 @@ public class FluidRenderer {
         }
     }
 
-/*    public static void onTextureStitchPre(TextureMap map) {
+    public static void onTextureStitchPre(TextureStitchEvent.Pre event) {
+    	if(!loaded) {
+    		loaded = true;
+    		mixinResourcePack();
+    	}
         for (FluidSpriteType type : FluidSpriteType.values()) {
             fluidSprites.get(type).clear();
         }
-        Map<ResourceLocation, SpriteFluidFrozen> spritesStitched = new HashMap<>();
+        Map<ResourceLocation, ResourceLocation> spritesStitched = new HashMap<>();
         for (Fluid fluid : ForgeRegistries.FLUIDS.getValues()) {
         	var flu = IClientFluidTypeExtensions.of(fluid);
             ResourceLocation still = flu.getStillTexture();
             ResourceLocation flowing = flu.getFlowingTexture();
             if (still == null || flowing == null) {
-                throw new IllegalStateException("Encountered a fluid with a null still sprite! (" + fluid.getFluidType().getDescriptionId()
+                BCLog.logger.info("Encountered a fluid with a null still sprite! (" + fluid.getFluidType().getDescriptionId()
                     + " - " + ForgeRegistries.FLUIDS.getKey(fluid) + ")");
+                continue;
             }
             if (spritesStitched.containsKey(still)) {
-                fluidSprites.get(FluidSpriteType.FROZEN).put(fluid.getFluidType().getDescriptionId(), spritesStitched.get(still));
+//               /fluidSprites.get(FluidSpriteType.FROZEN).put(fluid.getFluidType().getDescriptionId(), spritesStitched.get(still));
             } else {
-                SpriteFluidFrozen spriteFrozen = new SpriteFluidFrozen(still);
+                ResourceLocation spriteFrozen = pack.registry(still);
+                event.addSprite(spriteFrozen);
+                frozenMap.put(fluid.getFluidType().getDescriptionId(), spriteFrozen);
+/*                event.addSprite(still);
+                event.addSprite(flowing);*/
                 spritesStitched.put(still, spriteFrozen);
-                if (!map.setTextureEntry(spriteFrozen)) {
-                    throw new IllegalStateException("Failed to set the frozen variant of " + still + "!");
-                }
-                fluidSprites.get(FluidSpriteType.FROZEN).put(fluid.getFluidType().getDescriptionId(), spriteFrozen);
             }
-            // Note: this must be called with EventPriority.LOW so that we don't overwrite other custom sprites.
-            fluidSprites.get(FluidSpriteType.STILL).put(fluid.getFluidType().getDescriptionId(), map.registerSprite(still));
-            fluidSprites.get(FluidSpriteType.FLOWING).put(fluid.getFluidType().getDescriptionId(), map.registerSprite(flowing));
         }
-    }*/
+    }
+    
+    public static void onTextureStitchPost(TextureStitchEvent.Post event) {
+    	
+    }
+    
+    private static void mixinResourcePack() {
+    	ResourceManager reloadable = Minecraft.getInstance().getResourceManager();
+    	try {
+    		Field field = reloadable.getClass().getDeclaredFields()[1];
+    		field.setAccessible(true);
+    		if (field.get(reloadable) instanceof MultiPackResourceManager resources) {
+    			Field[] fs0 = resources.getClass().getDeclaredFields();
+    			for (Field field0 : fs0) {
+    				field0.setAccessible(true);
+    				if (field0.get(resources) instanceof Map namespacedManagers) {//<String, FallbackResourceManager>
+    					if(namespacedManagers.get(BCLib.MODID) instanceof FallbackResourceManager map) 
+    						map.push(pack);;
+    				}
+/*    				if (field0.get(resources) instanceof List packs) 
+    					packs.add(pack);*/
+    			}
+    		}
+        } catch (Exception e) {
+        	BCLog.logger.error("Can not put generated fluidTextureResourcePack into ReourceManager");
+            e.printStackTrace();
+        }
+    }
 
     /** Renders a fluid cuboid to the given vertex buffer. The cube shouldn't cross over any {@literal 0->1} boundary
      * (so the cube must be contained within a block).
@@ -146,22 +187,52 @@ public class FluidRenderer {
      * @param cap The maximum amount of fluid that could be in the stack. Usually the capacity of the tank.
      * @param min The minimum coordinate that the tank should be rendered from
      * @param max The maximum coordinate that the tank will be rendered to.
-     * @param fluidBuffer The {@link BufferBuilder} that the fluid will be rendered into.
-     * @param matrix 
+     * @param fluidBuffer The {@link VertexConsumer} that the fluid will be rendered into.
+     * @param matrix the last position for render
      * @param sideRender A size 6 boolean array that determines if the face will be rendered. If it is null then all
      *            faces will be rendered. The indexes are determined by what {@link Direction#ordinal()} returns. */
     public static void renderFluid(FluidSpriteType type, FluidStack fluid, double amount, double cap, Vec3 min,
         Vec3 max, VertexConsumer fluidBuffer, Pose matrix, boolean[] sideRender) {
-        if (fluid == null || fluid.getFluid() == null || amount <= 0) {
+        if (fluid == null || fluid.getFluid() == null || amount <= 0 ) 
             return;
-        }
-        if (sideRender == null) {
+        renderFluidInteral(type,fluid, fluid.getFluid(), amount, cap, min, max, fluidBuffer, matrix, sideRender);
+    }
+    
+    /** Use only {@link Fluid} for render in order to avoid too often {@link FluidStack} creation
+     *  As a price, parameter of {@link IClientFluidTypeExtensions#getFlowingTexture} will only been {@link FluidStack#EMPTY}
+     *  So this method may render different effect if the Fluid need special use of the parameter.(Such as NBT data in the ItemStack)
+     * 
+     * @param type The type of sprite to use. See {@link FluidSpriteType} for more details.
+     * @param fluidType The fluid to render.
+     * @param amount The actual amount of fluid in the stack. Is a "double" rather than an "int" as then you can
+     *            interpolate between frames.
+     * @param cap The maximum amount of fluid that could be in the stack. Usually the capacity of the tank.
+     * @param min The minimum coordinate that the tank should be rendered from
+     * @param max The maximum coordinate that the tank will be rendered to.
+     * @param fluidBuffer The {@link VertexConsumer} that the fluid will be rendered into.
+     * @param matrix the last position for render
+     * @param sideRender A size 6 boolean array that determines if the face will be rendered. If it is null then all
+     *            faces will be rendered. The indexes are determined by what {@link Direction#ordinal()} returns. */
+    public static void renderFluid(FluidSpriteType type, Fluid fluidType, double amount, double cap, Vec3 min,
+	        Vec3 max, VertexConsumer fluidBuffer, Pose matrix, boolean[] sideRender) {
+        if (fluidType == null || amount <= 0 ) 
+            return;
+        renderFluidInteral(type,FluidStack.EMPTY, fluidType, cap, cap, max, max, fluidBuffer, matrix, sideRender);
+    }
+    
+    private static void renderFluidInteral(FluidSpriteType type, FluidStack texParam, Fluid fluidType, double amount, double cap, Vec3 min,
+	        Vec3 max, VertexConsumer fluidBuffer, Pose matrix, boolean[] sideRender) {
+        if (sideRender == null) 
             sideRender = DEFAULT_FACES;
-        }
+        if (type == null) 
+            type = FluidSpriteType.STILL;
+        sprite = getFluidSprite(type, fluidType, texParam);
+        spriteW = sprite.getWidth();
+        spriteH = sprite.getHeight();
 
         double height = Mth.clamp(amount / cap, 0, 1);
         final Vec3 realMin, realMax;
-        if (fluid.getFluid().getFluidType().getDensity()<0) {
+        if (fluidType.getFluidType().getDensity()<0) {
             realMin = VecUtil.replaceValue(min, Axis.Y, MathUtil.interp(1 - height, min.y, max.y));
             realMax = max;
         } else {
@@ -172,10 +243,6 @@ public class FluidRenderer {
         bb = fluidBuffer;
         pose = matrix;
 
-        if (type == null) {
-            type = FluidSpriteType.STILL;
-        }
-        sprite = getFluidSprite(type, fluid.getFluid(), fluid);
 
         final double xs = realMin.x;
         final double ys = realMin.y;
@@ -214,8 +281,7 @@ public class FluidRenderer {
         }
 
 //        vertex.colouri(RenderUtil.swapARGBforABGR(fluid.getFluid()));
-        vertex.colouri(IClientFluidTypeExtensions.of(fluid.getFluid()).getTintColor());
-        
+        vertex.colouri(IClientFluidTypeExtensions.of(fluidType).getTintColor());
 
         texmap = TexMap.XZ;
         // TODO: Enable/disable inversion for the correct faces
@@ -298,7 +364,7 @@ public class FluidRenderer {
 			break;
 		case FROZEN:
 			if(tex == null) 
-				tex = blockTexMap.apply(IClientFluidTypeExtensions.of(fluid).getStillTexture(stack));
+				tex = blockTexMap.apply(frozenMap.get(key));
 			fluidSprites.get(type).put(key, tex);
 			break;
     	}
@@ -316,13 +382,23 @@ public class FluidRenderer {
     /** Fills up the given region with the fluids texture, repeated. Ignores the value of {@link FluidStack#amount}. Use
      * {@link GuiUtil}'s fluid drawing methods in preference to this. */
     public static void drawFluidForGui(FluidStack fluid, double startX, double startY, double endX, double endY, Pose matrix) {
-
- //       sprite = FluidRenderer.fluidSprites.get(FluidSpriteType.STILL).get(fluid.getFluid().getFluidType().getDescriptionId());
     	sprite = getFluidSprite(FluidSpriteType.STILL, fluid.getFluid(), fluid);
         color = IClientFluidTypeExtensions.of(fluid.getFluid()).getTintColor();
+        drawFluidForGuiInteral(startX, startY, endX, endY, matrix);
+    }
+    
+    public static void drawFluidForGui(Fluid fluid, double startX, double startY, double endX, double endY, Pose matrix) {
+    	sprite = getFluidSprite(FluidSpriteType.STILL, fluid, FluidStack.EMPTY);
+        color = IClientFluidTypeExtensions.of(fluid).getTintColor();
+        drawFluidForGuiInteral(startX, startY, endX, endY, matrix);
+    }
+
+    private static void drawFluidForGuiInteral(double startX, double startY, double endX, double endY, Pose matrix) {
         if (sprite == null) {
             sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(MissingTextureAtlasSprite.getLocation());
         }
+        spriteW = sprite.getWidth();
+        spriteH = sprite.getHeight();
 //        Minecraft.getInstance().getBlockRenderer().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 //        RenderUtil.setGLColorFromInt(fluid.getFluid().getFluidType(fluid));
 
@@ -458,7 +534,12 @@ public class FluidRenderer {
             }
 //            realu = realu > 1 ? 1 : realu;
 //            realv = realv > 1 ? 1 : realv;
-            vertex.texf(sprite.getU(realu * 16), sprite.getV(realv * 16));
+/*            max = max < realv ? realv : max;
+            min = min > realv ? realv : min;
+            if(realu > 1)
+            BCLog.logger.debug(""+realu);*/
+            vertex.texf(sprite.getU(realu * 256/spriteW), sprite.getV(realv * 256/spriteH));
+            
         }
     }
 

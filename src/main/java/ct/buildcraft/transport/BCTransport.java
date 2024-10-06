@@ -15,8 +15,8 @@ import ct.buildcraft.lib.net.MessageManager;
 import ct.buildcraft.transport.net.MessageMultiPipeItem;
 import com.mojang.logging.LogUtils;
 
-import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -25,8 +25,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig.Type;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
 
 //@formatter:off
 @Mod(BCTransport.MODID)
@@ -35,7 +33,7 @@ public class BCTransport {
     public static final String MODID = "buildcrafttransport";
 	static final Logger LOGGER = LogUtils.getLogger();
     
-	public static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(ForgeRegistries.MENU_TYPES, MODID);
+	
 
     public static final CreativeTabBC tabPipes = CreativeTabManager.createTab("buildcraft.pipes");
     public static final CreativeTabBC tabPlugs = CreativeTabManager.createTab("buildcraft.plugs");
@@ -43,7 +41,7 @@ public class BCTransport {
     public BCTransport() {
     	IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
     	modEventBus.addListener(this::commonSetup);
-    	
+    	modEventBus.addListener(this::gatherData);//DataGenerator
 
         BCTransportRegistries.preInit();
         BCTransportConfig.preInit();
@@ -51,7 +49,7 @@ public class BCTransport {
         BCTransportPipes.preInit();
         BCTransportPlugs.preInit();
         BCTransportItems.registry(modEventBus);
-        BCTransportGuis.preInit();
+        BCTransportGuis.preInit(modEventBus);
 //        BCTransportStatements.preInit();
 
         // Reload after all of the pipe defs have been created.
@@ -59,7 +57,6 @@ public class BCTransport {
 
       //  tabPipes.setItem(BCTransportItems.PIPE_ITEM_DIAMOND.get());
      //   tabPlugs.setItem(BCTransportItems.plugBlocker.get());
-        MENUS.register(modEventBus);
         ModLoadingContext.get().registerConfig(Type.COMMON, BCTransportConfig.config);
         //TEMP
     	MessageManager.registerMessageClass(BCModules.TRANSPORT, MessageMultiPipeItem.class, MessageMultiPipeItem.HANDLER, MessageMultiPipeItem::toBytes, MessageMultiPipeItem::new);
@@ -76,6 +73,13 @@ public class BCTransport {
         MinecraftForge.EVENT_BUS.register(BCTransportEventDist.INSTANCE);*/
     }
 
+    public void gatherData(GatherDataEvent event) {
+        event.getGenerator().addProvider(
+            event.includeServer(),
+            new BCTransportRecipesProvider(event.getGenerator())
+        );
+    }
+    
     private void commonSetup(final FMLCommonSetupEvent event) {
     	BCTransportConfig.reloadConfig();
     	tabPipes.setItem(BCTransportItems.PIPE_ITEM_DIAMOND.get());

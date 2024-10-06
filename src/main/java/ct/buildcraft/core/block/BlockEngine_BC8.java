@@ -10,9 +10,11 @@ import ct.buildcraft.core.BCCoreItems;
 import ct.buildcraft.lib.engine.BlockEngineBase_BC8;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
@@ -36,7 +38,7 @@ public class BlockEngine_BC8 extends BlockEngineBase_BC8<EnumEngineType> {
 	@Override
 	public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos,
 			Player player) {
-		return new ItemStack(BCCoreItems.ENGINE_ITEM_MAP.get(state.getValue(getEngineProperty())).get());
+		return new ItemStack(BCCoreItems.ENGINE_ITEM_MAP.get(state.getValue(getEngineProperty())));
 	}
 
 	@Override
@@ -44,10 +46,16 @@ public class BlockEngine_BC8 extends BlockEngineBase_BC8<EnumEngineType> {
 		return BuildCraftProperties.ENGINE_TYPE;
 	}
 	
-    @Override
+	@Override
     public String getUnlocalizedName(EnumEngineType engine) {
         return "block.engine.bc." + engine.unlocalizedTag;
     }
 
+	@Override
+	public boolean canHarvestBlock(BlockState state, BlockGetter level, BlockPos pos, Player player) {
+		return super.canHarvestBlock(state.getValue(BuildCraftProperties.ENGINE_TYPE) == EnumEngineType.WOOD ?
+				Blocks.STONE.defaultBlockState() : state, level, pos, player);
+	}
+    
 
 }

@@ -27,13 +27,14 @@ public class BCCoreBlocks {
 
     
     
-    public static final RegistryObject<Block> ENGINE_BC8 = BLOCKS.register("engine", () -> new BlockEngine_BC8(BlockBehaviour.Properties.of(Material.METAL).strength(25.0f).explosionResistance(10.0f).dynamicShape())
+    public static final RegistryObject<Block> ENGINE_BC8 = BLOCKS.register("engine", () -> new BlockEngine_BC8(BlockBehaviour.Properties.of(Material.METAL)
+    		.strength(25.0f).explosionResistance(10.0f).dynamicShape().requiresCorrectToolForDrops())
     		.registerEngine(EnumEngineType.WOOD, TileEngineRedstone_BC8::new)
     		.registerEngine(EnumEngineType.CREATIVE, TileEngineCreative::new)
     		.registerEngine(EnumEngineType.STONE, TileEngineStone_BC8::new)
     		.registerEngine(EnumEngineType.IRON, TileEngineIron_BC8::new));
 
-    public static final RegistryObject<Block> SPRING = BLOCKS.register("spring", BlockSpring::new);
+    public static final RegistryObject<BlockSpring> SPRING = BLOCKS.register("spring", BlockSpring::new);
 //    public static BlockMarkerPath markerPath;
     
     

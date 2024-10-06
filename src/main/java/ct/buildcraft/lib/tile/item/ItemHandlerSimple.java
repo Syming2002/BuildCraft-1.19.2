@@ -287,5 +287,11 @@ public class ItemHandlerSimple extends AbstractInvItemTransactor
 		return this.checker.canSet(slot, stack);
 	}
 
+	public boolean isEmpty() {
+		for(ItemStack item : stacks) 
+			if(!item.isEmpty()) 
+				return false;
+		return true;
+	}
 
 }

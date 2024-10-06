@@ -140,13 +140,13 @@ public class TileMiningWell extends TileMiner implements GameEventListener {
 	}
 
 	@Override
-	public void onRemove() {
+	public void onRemove(boolean dropSelf) {
         if (!level.isClientSide) {
             if (currentPos != null) {
                 level.destroyBlockProgress(currentPos.hashCode(), currentPos, -1);
             }
         }
-		super.onRemove();
+		super.onRemove(dropSelf);
 	}
 
 	@Override

@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import ct.buildcraft.api.core.EnumPipePart;
 import ct.buildcraft.api.core.IFluidFilter;
 import ct.buildcraft.api.core.IFluidHandlerAdv;
+import ct.buildcraft.api.items.FluidItemDrops;
 import ct.buildcraft.api.tiles.IDebuggable;
 import ct.buildcraft.factory.BCFactoryBlocks;
 import ct.buildcraft.lib.fluid.FluidSmoother;
@@ -32,6 +33,7 @@ import ct.buildcraft.lib.tile.TileBC_Neptune;
 import ct.buildcraft.lib.misc.FluidUtilBC;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -78,7 +80,7 @@ public class TileTank extends TileBC_Neptune implements IDebuggable, IFluidHandl
     	super(BCFactoryBlocks.ENTITYBLOCKTANK.get(), pos, state);
         tank.setBlockEntity(this);
         this.tank = tank;
- //       tankManager.add(tank);
+        tankManager.addLast(tank);
         caps.addCapabilityInstance(CapUtil.CAP_FLUIDS, this, EnumPipePart.VALUES);
         smoothedTank = new FluidSmoother(w -> createAndSendMessage(NET_FLUID_DELTA, w), tank);
     }
@@ -422,8 +424,12 @@ public class TileTank extends TileBC_Neptune implements IDebuggable, IFluidHandl
         }
         return total;
     }
-    
-    
+
+	@Override
+	public void addDrops(NonNullList<ItemStack> toDrop, int fortune) {
+		FluidItemDrops.addFluidDrops(toDrop, tank);
+		super.addDrops(toDrop, fortune);
+	}
 
 	@Override
 	public void saveAdditional(CompoundTag nbt) {

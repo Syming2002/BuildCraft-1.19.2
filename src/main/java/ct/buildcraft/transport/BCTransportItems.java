@@ -31,6 +31,8 @@ public class BCTransportItems {
     
     public static final LinkedHashMap<PipeDefinition, RegistryObject<ItemPipeHolder>> PIPE_MAP = new LinkedHashMap<>();
     
+    public static final RegistryObject<Item> WATER_PROOF;
+    
     public static final RegistryObject<ItemPipeHolder> PIPE_STRUCTURE;
 
     public static final RegistryObject<ItemPipeHolder> PIPE_ITEM_WOOD;
@@ -83,12 +85,12 @@ public class BCTransportItems {
     public static final RegistryObject<ItemPipeHolder> PIPE_ITEM_EMZULI;
     public static final RegistryObject<ItemPipeHolder> PIPE_ITEM_STRIPES;
 
-    public static RegistryObject<ItemPluggableSimple> plugBlocker;
-    public static RegistryObject<ItemPluggableSimple> plugPowerAdaptor;
-    public static RegistryObject<ItemWire> wire;
+    public static final RegistryObject<ItemPluggableSimple> plugBlocker;
+    public static final RegistryObject<ItemPluggableSimple> plugPowerAdaptor;
+    public static final RegistryObject<ItemWire> wire;
 
     static {
-        ITEMS.register("waterproof",() -> new ItemBC_Neptune("waterproof", new Properties().tab(BCTransport.tabPipes)));
+        WATER_PROOF = ITEMS.register("waterproof",() -> new ItemBC_Neptune("waterproof", new Properties().tab(BCTransport.tabPipes)));
         PIPE_STRUCTURE = makePipeItem(BCTransportPipes.structure);
 
         // Register them in order of type -- item, fluid, power
@@ -146,6 +148,8 @@ public class BCTransportItems {
 
     public static RegistryObject<ItemPipeHolder> makePipeItem(PipeDefinition def) {
     	var t = ITEMS.register(def.identifier.getPath(), () -> PipeRegistry.INSTANCE.createItemForPipe(def));
+ //   	System.out.println("\"item.buildcrafttransport."+(def.identifier.getPath()).replace('/', '.')+"\":\"\",");
+
     	PIPE_MAP.put(def, t);
     	return t;
     	

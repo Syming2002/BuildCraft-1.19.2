@@ -2,6 +2,8 @@ package ct.buildcraft.energy.client.gui;
 
 import ct.buildcraft.core.BCCoreBlocks;
 import ct.buildcraft.energy.BCEnergyGuis;
+import ct.buildcraft.energy.blockEntity.TileEngineIron_BC8;
+import ct.buildcraft.lib.fluid.Tank;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -10,6 +12,7 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class MenuEngineIron_BC8 extends AbstractContainerMenu {
 
@@ -47,4 +50,20 @@ public class MenuEngineIron_BC8 extends AbstractContainerMenu {
 	public boolean stillValid(Player player) {
 		return super.stillValid(this.access, player, BCCoreBlocks.ENGINE_BC8.get());
 	}
+
+	@Override
+	public boolean clickMenuButton(Player player, int index) {
+		return access.evaluate((level, pos) ->{
+			BlockEntity be = level.getBlockEntity(pos);
+			if(be instanceof TileEngineIron_BC8 engine) {
+				Tank tank= engine.tankManager.get(index/2);
+				if(tank!=null)
+					tank.onGuiClicked(this, player);
+			}
+			return false;
+		}).orElse(false);
+		
+	}
+	
+	
 }

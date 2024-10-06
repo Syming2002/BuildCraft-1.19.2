@@ -7,8 +7,6 @@
 package ct.buildcraft.energy.blockEntity;
 
 import java.io.IOException;
-import java.util.function.Consumer;
-
 import javax.annotation.Nonnull;
 
 import org.jetbrains.annotations.NotNull;
@@ -22,24 +20,24 @@ import ct.buildcraft.api.fuels.IFuelManager.IDirtyFuel;
 import ct.buildcraft.api.fuels.ISolidCoolant;
 import ct.buildcraft.api.mj.IMjConnector;
 import ct.buildcraft.api.mj.MjAPI;
+import ct.buildcraft.api.properties.BuildCraftProperties;
 import ct.buildcraft.api.transport.pipe.IItemPipe;
 import ct.buildcraft.core.client.render.RenderEngine_BC8;
 import ct.buildcraft.energy.BCEnergyBlocks;
 import ct.buildcraft.energy.client.gui.MenuEngineIron_BC8;
-import ct.buildcraft.lib.delta.DeltaInt;
 import ct.buildcraft.lib.engine.EngineConnector;
 import ct.buildcraft.lib.engine.TileEngineBase_BC8;
 import ct.buildcraft.lib.fluid.Tank;
 import ct.buildcraft.lib.fluid.TankManager;
+import ct.buildcraft.lib.gui.TankContainer;
 import ct.buildcraft.lib.misc.CapUtil;
 import ct.buildcraft.lib.misc.EntityUtil;
 import ct.buildcraft.lib.misc.FluidUtilBC;
 import ct.buildcraft.lib.misc.StackUtil;
 
-import io.netty.buffer.ByteBuf;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -60,7 +58,6 @@ import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class TileEngineIron_BC8 extends TileEngineBase_BC8 implements MenuProvider{
     public static final int MAX_FLUID = 10_000;
@@ -68,7 +65,6 @@ public class TileEngineIron_BC8 extends TileEngineBase_BC8 implements MenuProvid
     public static final double COOLDOWN_RATE = 0.05;
     public static final int MAX_COOLANT_PER_TICK = 40;
 
-    public final TankManager tankManager = new TankManager();
     public final Tank tankFuel = new Tank("fuel", MAX_FLUID, this, this::isValidFuel);
     public final Tank tankCoolant = new Tank("coolant", MAX_FLUID, this, this::isValidCoolant) {
         @Override
@@ -92,6 +88,8 @@ public class TileEngineIron_BC8 extends TileEngineBase_BC8 implements MenuProvid
     private double burnTime;
     private double residueAmount = 0;
     private IFuel currentFuel;
+    
+    private final ContainerData container = new TankContainer(tankFuel, tankCoolant, tankResidue);
     
     public TileEngineIron_BC8(BlockPos pos, BlockState state) {
     	super(BCEnergyBlocks.ENGINE_IRON_TILE_BC8.get(), pos, state);
@@ -434,7 +432,7 @@ public class TileEngineIron_BC8 extends TileEngineBase_BC8 implements MenuProvid
 			else return FluidStack.EMPTY;
 		}
     }
-
+    
 	@Override
 	public TextureAtlasSprite getTextureBack() {
 		return RenderEngine_BC8.IRON_BACK;
@@ -447,46 +445,14 @@ public class TileEngineIron_BC8 extends TileEngineBase_BC8 implements MenuProvid
 
 	@Override
 	public AbstractContainerMenu createMenu(int id, Inventory playerIncentory, Player player) {
-		return new MenuEngineIron_BC8(id, playerIncentory, new EngineIronContainerData(), ContainerLevelAccess.create(level, worldPosition));
+		return new MenuEngineIron_BC8(id, playerIncentory, container, ContainerLevelAccess.create(level, worldPosition));
 	}
 
 	@Override
 	public Component getDisplayName() {
-		return Component.translatable(this.getBlockState().getBlock().getDescriptionId());
+		return Component.translatable("block.buildcraftcore.engine_"+this.getBlockState().getValue(BuildCraftProperties.ENGINE_TYPE).getSerializedName());
 	}
 	
-	public class EngineIronContainerData implements ContainerData{
-		@Override
-		public int get(int p) {
-			switch(p) {
-			case 0 : 
-				return TileEngineIron_BC8.this.tankFuel.getFluidAmount();
-			case 1 :
-				return Registry.FLUID.getId(TileEngineIron_BC8.this.tankFuel.getFluidType());
-			case 2 : 
-				return TileEngineIron_BC8.this.tankCoolant.getFluidAmount();
-			case 3 :
-				return Registry.FLUID.getId(TileEngineIron_BC8.this.tankCoolant.getFluidType());
-			case 4 : 
-				return TileEngineIron_BC8.this.tankResidue.getFluidAmount();
-			case 5 :
-				return Registry.FLUID.getId(TileEngineIron_BC8.this.tankResidue.getFluidType());
-			default :
-				return -1 ;
-			}
-		}
-
-		@Override
-		public void set(int p, int q) {
-
-		}
-
-		@Override
-		public int getCount() {
-			return 6;
-		}
-		
-	}
 	
 
 }

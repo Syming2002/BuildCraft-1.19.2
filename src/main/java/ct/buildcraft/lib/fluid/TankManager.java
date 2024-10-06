@@ -37,7 +37,7 @@ import net.minecraftforge.fluids.FluidStack;
  * the tanks one by one via the {@link #fill(FluidStack, boolean)} and {@link #drain(FluidStack, boolean)} methods. */
 public class TankManager extends ForwardingList<Tank> implements IFluidHandlerAdv, INBTSerializable<CompoundTag> {
 
-    private final List<Tank> tanks = new ArrayList<>();
+    private final ArrayList<Tank> tanks = new ArrayList<>();
 
     public TankManager() {}
 
@@ -52,9 +52,17 @@ public class TankManager extends ForwardingList<Tank> implements IFluidHandlerAd
 
     public void addAll(Tank... values) {
         Collections.addAll(tanks, values);
+        tanks.trimToSize();
+    }
+    
+    public void addLast(Tank value) {
+    	tanks.add(value);
+    	tanks.trimToSize();
     }
 
     public void addDrops(NonNullList<ItemStack> toDrop) {
+    	if(tanks.isEmpty())
+    		return;
         FluidItemDrops.addFluidDrops(toDrop, toArray(new Tank[0]));
     }
 

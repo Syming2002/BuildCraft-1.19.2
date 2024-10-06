@@ -18,13 +18,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
 public class BlockMarkerPath extends BlockMarkerBase {
-    public BlockMarkerPath(Material material, String id) {
-        super(material, id);
+    public BlockMarkerPath() {
+        super(null);
     }
     
     @Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return new TileMarkerPath();
+		return null;//new TileMarkerPath();
 	}
 
 	@Override

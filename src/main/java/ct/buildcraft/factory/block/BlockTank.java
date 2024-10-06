@@ -38,8 +38,7 @@ public class BlockTank extends BlockBCTile_Neptune implements ICustomPipeConnect
 	private static final VoxelShape BOUNDING_BOX = Block.box(2.0D, 0.0D, 2.0D, 14.0D, 16.0D, 14.0D);
 
 	public BlockTank() {
-		super(BlockBehaviour.Properties.of(Material.GLASS).sound(SoundType.GLASS).strength(5.0f)
-				.explosionResistance(10.0f));
+		super(BlockBehaviour.Properties.of(Material.GLASS).sound(SoundType.GLASS).strength(6.0f, 10.0f).requiresCorrectToolForDrops());
 		this.registerDefaultState(this.stateDefinition.any().setValue(JOINED_BELOW, false));
 	}
 

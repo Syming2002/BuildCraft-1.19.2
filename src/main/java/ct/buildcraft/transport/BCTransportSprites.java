@@ -215,7 +215,9 @@ public class BCTransportSprites {
 
     }
     
-    
+    public static SpriteHolder getPipeSignal(boolean active, DyeColor colour) {
+        return (active ? PIPE_SIGNAL_ON : PIPE_SIGNAL_OFF).get(colour);
+    }
     
     public static TextureAtlasSprite[] getTexArray() {
     	if(TEX_SPRITES == null) {
@@ -224,6 +226,10 @@ public class BCTransportSprites {
     				::apply).toList().toArray(new TextureAtlasSprite[1]);
     	}
     	return TEX_SPRITES;
+    }
+
+    public static SpriteHolder getPipeDirection(Direction face) {
+        return ACTION_PIPE_DIRECTION.get(face);
     }
 
 }

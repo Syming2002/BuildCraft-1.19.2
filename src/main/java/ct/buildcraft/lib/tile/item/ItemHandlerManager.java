@@ -133,7 +133,7 @@ public class ItemHandlerManager implements ICapabilityProvider, INBTSerializable
             Wrapper wrapper = wrappers.get(EnumPipePart.fromFacing(facing));
             return LazyOptional.of(() -> wrapper.combined).cast();
         }
-        return null;
+        return LazyOptional.empty();
     }
 
     @Override

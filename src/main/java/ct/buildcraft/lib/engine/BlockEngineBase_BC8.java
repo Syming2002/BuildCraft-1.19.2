@@ -13,8 +13,10 @@ import ct.buildcraft.api.blocks.ICustomRotationHandler;
 import ct.buildcraft.api.core.IEngineType;
 import ct.buildcraft.core.item.ItemEngine_BC8;
 import ct.buildcraft.lib.block.BlockBCTile_Neptune;
+import ct.buildcraft.lib.item.MultiBlockItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -22,7 +24,6 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -32,7 +33,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public abstract class BlockEngineBase_BC8<E extends Enum<E> & IEngineType> extends BlockBCTile_Neptune
+public abstract class BlockEngineBase_BC8<E extends Enum<E> & IEngineType & StringRepresentable> extends BlockBCTile_Neptune
     implements ICustomRotationHandler, EntityBlock{
     private final Map<E, BiFunction<BlockPos, BlockState, ? extends TileEngineBase_BC8>> engineTileConstructors =
         new EnumMap<>(getEngineProperty().getValueClass());
@@ -201,8 +202,8 @@ public abstract class BlockEngineBase_BC8<E extends Enum<E> & IEngineType> exten
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext bpc) {
 		Item item = bpc.getItemInHand().getItem();
-		if(item instanceof ItemEngine_BC8)
-			return super.getStateForPlacement(bpc).setValue(getEngineProperty(), (((ItemEngine_BC8<E>)item).type));
+		if(item instanceof MultiBlockItem)
+			return super.getStateForPlacement(bpc).setValue(getEngineProperty(), (((MultiBlockItem<E>)item).getType()));
 		return super.getStateForPlacement(bpc);
 	}
 

@@ -4,11 +4,10 @@ import ct.buildcraft.api.enums.EnumEngineType;
 import ct.buildcraft.core.BCCore;
 import ct.buildcraft.core.BCCoreBlocks;
 import ct.buildcraft.core.BCCoreItems;
-import ct.buildcraft.core.item.ItemEngine_BC8;
 import ct.buildcraft.energy.blockEntity.TileEngineIron_BC8;
 import ct.buildcraft.energy.blockEntity.TileEngineStone_BC8;
 import ct.buildcraft.energy.blockEntity.TileSpringOil;
-import net.minecraft.world.item.BlockItem;
+import ct.buildcraft.lib.item.MultiBlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -22,8 +21,8 @@ public class BCEnergyBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, BCEnergy.MODID);
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITYS = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, BCEnergy.MODID);
 
-    public static final RegistryObject<BlockItem> ENGINE_STONE_ITEM = BCEnergy.ITEMS.register("engine_stone", () -> new ItemEngine_BC8<EnumEngineType>(BCCoreBlocks.ENGINE_BC8.get(),new Item.Properties().tab(BCCore.BUILDCRAFT_TAB), EnumEngineType.STONE));
-    public static final RegistryObject<BlockItem> ENGINE_IRON_ITEM = BCEnergy.ITEMS.register("engine_iron", () -> new ItemEngine_BC8<EnumEngineType>(BCCoreBlocks.ENGINE_BC8.get(),new Item.Properties().tab(BCCore.BUILDCRAFT_TAB), EnumEngineType.IRON));
+    public static final RegistryObject<MultiBlockItem<EnumEngineType>> ENGINE_STONE_ITEM = BCEnergy.ITEMS.register("engine_stone", () -> new MultiBlockItem<EnumEngineType>(BCCoreBlocks.ENGINE_BC8.get(),new Item.Properties().tab(BCCore.BUILDCRAFT_TAB), EnumEngineType.STONE, BCCoreItems.ENGINE_ITEM_MAP));
+    public static final RegistryObject<MultiBlockItem<EnumEngineType>> ENGINE_IRON_ITEM = BCEnergy.ITEMS.register("engine_iron", () -> new MultiBlockItem<EnumEngineType>(BCCoreBlocks.ENGINE_BC8.get(),new Item.Properties().tab(BCCore.BUILDCRAFT_TAB), EnumEngineType.IRON, BCCoreItems.ENGINE_ITEM_MAP));
  
     public static final RegistryObject<BlockEntityType<TileEngineStone_BC8>> ENGINE_STONE_TILE_BC8 = BLOCK_ENTITYS.register("entity_stone_engine", 
     		() -> BlockEntityType.Builder.of(TileEngineStone_BC8::new, BCCoreBlocks.ENGINE_BC8.get()).build(null));
@@ -38,7 +37,5 @@ public class BCEnergyBlocks {
     static void init(IEventBus bus) {
     	BLOCK_ENTITYS.register(bus);
     	BLOCKS.register(bus);
-    	BCCoreItems.ENGINE_ITEM_MAP.put(EnumEngineType.STONE, ENGINE_STONE_ITEM);
-    	BCCoreItems.ENGINE_ITEM_MAP.put(EnumEngineType.IRON, ENGINE_IRON_ITEM);
     }
 }

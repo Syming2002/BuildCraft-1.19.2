@@ -24,7 +24,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class BlockDistiller extends BlockBCTile_Neptune implements EntityBlock, IBlockWithFacing{
 
 	public BlockDistiller() {
-		super(BlockBehaviour.Properties.of(Material.GLASS).sound(SoundType.GLASS).strength(5.0f).explosionResistance(10.0f));
+		super(BlockBehaviour.Properties.of(Material.GLASS).sound(SoundType.GLASS).strength(5.0f).explosionResistance(10.0f).requiresCorrectToolForDrops());
 	}
 
 	@Override

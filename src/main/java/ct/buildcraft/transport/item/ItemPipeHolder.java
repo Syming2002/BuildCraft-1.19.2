@@ -15,7 +15,6 @@ import ct.buildcraft.api.transport.pipe.IItemPipe;
 import ct.buildcraft.api.transport.pipe.PipeDefinition;
 import ct.buildcraft.transport.BCTransport;
 import ct.buildcraft.transport.BCTransportBlocks;
-import com.mojang.logging.LogUtils;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
@@ -33,9 +32,9 @@ public class ItemPipeHolder extends BlockItem implements IItemPipe {
     private String unlocalizedName;
 
     public ItemPipeHolder(PipeDefinition definition) {
-        super(BCTransportBlocks.pipeHolder.get(), new Item.Properties());
+        super(BCTransportBlocks.pipeHolder.get(), new Item.Properties().tab(BCTransport.tabPipes));
         this.definition = definition;
-        this.unlocalizedName = definition.identifier.getNamespace()+":item."+definition.identifier.getPath();
+        this.unlocalizedName = definition.identifier.toLanguageKey("pipe");
     }
 
 
@@ -71,8 +70,7 @@ public class ItemPipeHolder extends BlockItem implements IItemPipe {
 
 		@Override
 	public Component getName(ItemStack p_41458_) {
-		// TODO Auto-generated method stub
-		return Component.nullToEmpty(unlocalizedName);
+		return Component.translatable(unlocalizedName);
 	}
 		
 	@Override

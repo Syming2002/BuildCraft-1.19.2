@@ -4,16 +4,23 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 package ct.buildcraft.lib;
 
+import java.lang.reflect.Field;
+import java.util.Map;
+
 import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.lib.client.model.ModelHolderRegistry;
+import ct.buildcraft.lib.client.render.fluid.FluidRenderer;
 import ct.buildcraft.lib.client.sprite.SpriteHolderRegistry;
 import ct.buildcraft.lib.misc.FakePlayerProvider;
 import ct.buildcraft.lib.misc.MessageUtil;
 import ct.buildcraft.lib.net.cache.BuildCraftObjectCaches;
-
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.resources.FallbackResourceManager;
+import net.minecraft.server.packs.resources.MultiPackResourceManager;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -25,6 +32,7 @@ import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.ServerTickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.level.LevelEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -39,6 +47,7 @@ public class BCLibEventDist {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
+
         }
         
         @SubscribeEvent
@@ -46,20 +55,24 @@ public class BCLibEventDist {
         {
         }
 		
-	    @SubscribeEvent
+	    @SubscribeEvent//(priority = EventPriority.HIGHEST)
 	    @OnlyIn(Dist.CLIENT)
 	    public static void textureStitchPre(TextureStitchEvent.Pre event) {
 	    	if("textures/atlas/blocks.png".equals(event.getAtlas().location().getPath())) {
 //	    		ReloadManager.INSTANCE.preReloadResources();
 	    		SpriteHolderRegistry.onTextureStitchPre(event);
 	    		ModelHolderRegistry.onTextureStitchPre(event);
+	    		FluidRenderer.onTextureStitchPre(event);
 	    	}
 	    }
-	/*
-	    @SubscribeEvent(priority = EventPriority.LOWEST)
+	
+/*	    @SubscribeEvent(priority = EventPriority.LOWEST)
 	    @OnlyIn(Dist.CLIENT)
 	    public static void textureStitchPreLow(TextureStitchEvent.Pre event) {
-	        FluidRenderer.onTextureStitchPre(event.getMap());
+	    	if("textures/atlas/blocks.png".equals(event.getAtlas().location().getPath())) {
+	    		
+	    	}
+	        
 	    }*/
 
 	    @SubscribeEvent

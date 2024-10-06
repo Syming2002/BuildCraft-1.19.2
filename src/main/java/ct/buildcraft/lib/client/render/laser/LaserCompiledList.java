@@ -7,21 +7,15 @@
 package ct.buildcraft.lib.client.render.laser;
 
 import org.lwjgl.opengl.GL11;
-import org.spongepowered.asm.mixin.MixinEnvironment.Side;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 
-import buildcraft.lib.misc.RenderUtil;
-import buildcraft.lib.misc.RenderUtil.AutoTessellator;
-import net.minecraft.client.renderer.GLAllocation;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
-@SideOnly(Side.CLIENT)
+@OnlyIn(Dist.CLIENT)
 public abstract class LaserCompiledList {
     public abstract void render();
 
@@ -37,7 +31,7 @@ public abstract class LaserCompiledList {
         }
 
         @Override
-        public void vertex(double x, double y, double z, float u, float v, int lmap, float nx, float ny, float nz,
+        public void vertex(float x, float y, float z, float u, float v, int lmap, float nx, float ny, float nz,
             float diffuse) {
             bufferBuilder.vertex(x, y, z);
             bufferBuilder.uv(u, v);
@@ -49,7 +43,7 @@ public abstract class LaserCompiledList {
         }
 
         public LaserCompiledList build() {
-            if (GlConst) {
+/*            if (1!=0) {
                 VertexBuffer vertexBuffer = new VertexBuffer(bufferBuilder.getVertexFormat());
                 bufferBuilder.finishDrawing();
                 bufferBuilder.reset();
@@ -61,12 +55,13 @@ public abstract class LaserCompiledList {
                 tess.tessellator.draw();
                 GL11.glEndList();
                 return new GlList(glList);
-            }
+            }*/
+        	return null;
         }
 
         @Override
         public void close() {
-            tess.close();
+//            tess.close();
         }
     }
 
@@ -99,9 +94,9 @@ public abstract class LaserCompiledList {
 
         @Override
         public void render() {
-            final int stride = useColour ? 28 : 24;
+/*            final int stride = useColour ? 28 : 24;
 
-            vertexBuffer.bindBuffer();
+            vertexBuffer.bind();
             GlStateManager.glEnableClientState(GL11.GL_VERTEX_ARRAY);
             GlStateManager.glVertexPointer(3, GL11.GL_FLOAT, stride, 0);
 
@@ -130,12 +125,12 @@ public abstract class LaserCompiledList {
             if (useColour) {
                 GlStateManager.glDisableClientState(GL11.GL_COLOR_ARRAY);
                 GlStateManager.color(1, 1, 1, 1);
-            }
+            }*/
         }
 
         @Override
         public void delete() {
-            vertexBuffer.deleteGlBuffers();
+///            vertexBuffer.deleteGlBuffers();
         }
     }
 }

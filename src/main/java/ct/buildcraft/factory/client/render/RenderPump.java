@@ -7,6 +7,7 @@
 package ct.buildcraft.factory.client.render;
 
 
+import ct.buildcraft.BCFactorySprites;
 import ct.buildcraft.factory.BCFactory;
 import ct.buildcraft.factory.blockEntity.TilePump;
 import ct.buildcraft.lib.client.render.laser.LaserData_BC8.LaserRow;
@@ -90,7 +91,7 @@ public class RenderPump implements BlockEntityRenderer<TilePump> {
             LED_STATUS[i].center.positiond(ledX + dX * STATUS, Y, ledZ + dZ * STATUS);
         }
 
-        TextureAtlasSprite spriteTubeMiddle = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(BCFactory.ClientModEvents.PUMPTUBE);
+        TextureAtlasSprite spriteTubeMiddle = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(BCFactorySprites.PUMPTUBE);
         LaserRow cap = new LaserRow(spriteTubeMiddle, 0, 8, 8, 16);
         LaserRow middle = new LaserRow(spriteTubeMiddle, 0, 0, 16, 8);
 

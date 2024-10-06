@@ -32,14 +32,15 @@ public class BCEnergySprites {
         		event.addSprite(new ResourceLocation("buildcraftenergy:blocks/fluids/heat_" + h + "_still"));
         		event.addSprite(new ResourceLocation("buildcraftenergy:blocks/fluids/heat_" + h + "_flow"));
             }
-        	event.addSprite(fuel_flow);
-            event.addSprite(fuel_still);
-            event.addSprite(oil_flow);
-            event.addSprite(oil_still);
+//        	event.addSprite(fuel_flow);
+//            event.addSprite(fuel_still);
+//            event.addSprite(oil_flow);
+//            event.addSprite(oil_still);
     		event.addSprite(IRON_BACK_R);
     		event.addSprite(IRON_SIDE_R);
     		event.addSprite(STONE_BACK_R);
     		event.addSprite(STONE_SIDE_R);
+    		
         }
     }
 }
