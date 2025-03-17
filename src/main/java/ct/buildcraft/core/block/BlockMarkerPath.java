@@ -15,16 +15,17 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
 
 public class BlockMarkerPath extends BlockMarkerBase {
     public BlockMarkerPath() {
-        super(null);
+        super(Properties.of(Material.DECORATION));
     }
     
     @Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return null;//new TileMarkerPath();
+		return new TileMarkerPath(pos, state);
 	}
 
 	@Override

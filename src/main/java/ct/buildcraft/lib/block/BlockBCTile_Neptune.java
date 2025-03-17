@@ -18,6 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
@@ -77,7 +78,8 @@ public abstract class BlockBCTile_Neptune extends BlockBCBase_Neptune implements
         if (tile instanceof TileBC_Neptune) {
             TileBC_Neptune tileBC = (TileBC_Neptune) tile;
             tileBC.onPlacedBy(placer, stack);
-            tileBC.onNeighbourBlockChanged(Blocks.AIR, pos);
+            tileBC.onNeighbourBlockChanged(Blocks.AIR.defaultBlockState(), pos);
+            tileBC.neighbourBlockChanged(Blocks.AIR.defaultBlockState(), pos, false);
         }
 		super.setPlacedBy(world, pos, state, placer, stack);
 	}
@@ -87,7 +89,6 @@ public abstract class BlockBCTile_Neptune extends BlockBCBase_Neptune implements
 		return ImmutableList.of();
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player,
 			InteractionHand hand, BlockHitResult hit) {
@@ -96,20 +97,34 @@ public abstract class BlockBCTile_Neptune extends BlockBCBase_Neptune implements
             TileBC_Neptune tileBC = (TileBC_Neptune) tile;
             return tileBC.onActivated(player, hand, hit);
         }
-		return super.use(state, world, pos, player, hand, hit);
+		return InteractionResult.PASS;
 	}
 
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block,
-			BlockPos fromPos, boolean p_60514_) {
-		super.neighborChanged(state, level, pos, block, fromPos, p_60514_);
+	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighbor,
+			BlockPos fromPos, boolean harvest) {
         BlockEntity tile = level.getBlockEntity(pos);
         if (tile instanceof TileBC_Neptune) {
             TileBC_Neptune tileBC = (TileBC_Neptune) tile;
-            tileBC.onNeighbourBlockChanged(block, fromPos);
+            tileBC.neighbourBlockChanged(state, fromPos, harvest);
         }
+		super.neighborChanged(state, level, pos, neighbor, fromPos, harvest);
+
+	}
+	
+	
+	
+	//Only Update for tileEntity changed
+	@Override
+	public void onNeighborChange(BlockState state, LevelReader level, BlockPos pos, BlockPos neighbor) {
+        BlockEntity tile = level.getBlockEntity(pos);
+        if (tile instanceof TileBC_Neptune) {
+            TileBC_Neptune tileBC = (TileBC_Neptune) tile;
+            tileBC.onNeighbourBlockChanged(state, neighbor);
+        }
+		super.onNeighborChange(state, level, pos, neighbor);
 	}
 
 	@Override

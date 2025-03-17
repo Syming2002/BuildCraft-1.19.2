@@ -7,28 +7,24 @@
 package ct.buildcraft.factory.client.render;
 
 
-import ct.buildcraft.BCFactorySprites;
-import ct.buildcraft.factory.BCFactory;
-import ct.buildcraft.factory.blockEntity.TilePump;
-import ct.buildcraft.lib.client.render.laser.LaserData_BC8.LaserRow;
-import ct.buildcraft.lib.client.render.laser.LaserData_BC8.LaserType;
-import ct.buildcraft.lib.client.render.tile.RenderPartCube;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.PoseStack.Pose;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 
-import net.minecraft.client.Minecraft;
+import ct.buildcraft.factory.BCFactorySprites;
+import ct.buildcraft.factory.blockEntity.TilePump;
+import ct.buildcraft.lib.client.render.laser.LaserData_BC8.LaserRow;
+import ct.buildcraft.lib.client.render.laser.LaserData_BC8.LaserType;
+import ct.buildcraft.lib.client.render.tile.RenderPartCube;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
-import net.minecraft.world.inventory.InventoryMenu;
 
 
 public class RenderPump implements BlockEntityRenderer<TilePump> {
@@ -91,9 +87,8 @@ public class RenderPump implements BlockEntityRenderer<TilePump> {
             LED_STATUS[i].center.positiond(ledX + dX * STATUS, Y, ledZ + dZ * STATUS);
         }
 
-        TextureAtlasSprite spriteTubeMiddle = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(BCFactorySprites.PUMPTUBE);
-        LaserRow cap = new LaserRow(spriteTubeMiddle, 0, 8, 8, 16);
-        LaserRow middle = new LaserRow(spriteTubeMiddle, 0, 0, 16, 8);
+        LaserRow cap = new LaserRow(BCFactorySprites.pump_tube, 0, 8, 8, 16);
+        LaserRow middle = new LaserRow(BCFactorySprites.pump_tube, 0, 0, 16, 8);
 
         LaserRow[] middles = { middle };
 

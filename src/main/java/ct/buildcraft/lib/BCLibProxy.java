@@ -34,6 +34,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
 public abstract class BCLibProxy {
@@ -41,7 +42,7 @@ public abstract class BCLibProxy {
     static void MessageRegistry() {
         MessageManager.registerMessageClass(BCModules.LIB, MessageUpdateTile.class, MessageUpdateTile.HANDLER, MessageUpdateTile::toBytes, MessageUpdateTile::new);
 //       MessageManager.registerMessageClass(BCModules.LIB, MessageContainer.class, MessageContainer.HANDLER, MessageContainer::toBytes, MessageContainer::new);
-//        MessageManager.registerMessageClass(BCModules.LIB, MessageMarker.class, MessageMarker.HANDLER, MessageMarker::toBytes, MessageMarker::new, Dist.CLIENT);
+        MessageManager.registerMessageClass(BCModules.LIB, MessageMarker.class, MessageMarker.HANDLER, MessageMarker::toBytes, MessageMarker::new/*, Dist.CLIENT*/);
         MessageManager.registerMessageClass(BCModules.LIB, MessageObjectCacheRequest.class,
             MessageObjectCacheRequest.HANDLER, MessageObjectCacheRequest::toBytes, MessageObjectCacheRequest::new/*, Dist.DEDICATED_SERVER*/);
         MessageManager.registerMessageClass(BCModules.LIB, MessageObjectCacheResponse.class, MessageObjectCacheResponse.HANDLER, MessageObjectCacheResponse::toBytes, MessageObjectCacheResponse::new/*, Dist.CLIENT*/);
@@ -50,6 +51,8 @@ public abstract class BCLibProxy {
 //        MessageManager.registerMessageClass(BCModules.LIB, MessageDebugResponse.class, MessageDebugResponse.HANDLER, MessageDebugResponse::toBytes, MessageDebugResponse::new, Dist.CLIENT)*/;
     }
 
+
+    
     static void fmlInit() {}
 
     void fmlPostInit() {}

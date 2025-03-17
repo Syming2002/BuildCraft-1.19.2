@@ -132,9 +132,9 @@ public class Box implements IBox {
 
     public List<BlockPos> getBlocksInArea() {
         List<BlockPos> blocks = new ArrayList<>();
-
-        for (BlockPos pos : (BlockPos[])BlockPos.betweenClosedStream(min, max).toArray()) {
-            blocks.add(pos);
+        
+        for(BlockPos pos : BlockPos.betweenClosed(min, max)) {
+        	blocks.add(pos.immutable());
         }
 
         return blocks;

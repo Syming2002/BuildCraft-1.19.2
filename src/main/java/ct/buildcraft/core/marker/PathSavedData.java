@@ -14,18 +14,18 @@ import net.minecraft.nbt.CompoundTag;
 public class PathSavedData extends MarkerSavedData<PathSubCache, PathConnection> {
     public static final String NAME = "buildcraft_marker_path";
 
-    public PathSavedData(String name) {
-        super(name);
+    public PathSavedData(CompoundTag tag, String name) {
+        super(tag, name);
     }
 
-    public PathSavedData() {
-        this(NAME);
+    public PathSavedData(CompoundTag tag) {
+        super(tag, NAME);
     }
     
-    public PathSavedData(CompoundTag tag) {
-    	super(tag, NAME);
+    public PathSavedData() {
+    	super(NAME);
     }
-
+    
     public void loadInto(PathSubCache subCache) {
         setCache(subCache);
         for (BlockPos p : markerPositions) {

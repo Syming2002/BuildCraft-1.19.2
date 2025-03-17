@@ -44,11 +44,9 @@ public class BCTransportEventDist {
         public static void onClientSetup(FMLClientSetupEvent event)
         {
         	PipeApiClient.registry = PipeRegistryClient.INSTANCE;
-        	BCTransportSprites.preInit();
+        	BCTransportSprites.init();
         	BCTransportModels.fmlInit();
         	BCTransportGuis.clientInit(event);
-        	BCTransport.LOGGER.info("HELLO FROM CLIENT SETUP");
-        	BCTransport.LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
         }
         @SubscribeEvent
         public static void registryRender(EntityRenderersEvent.RegisterRenderers e) {

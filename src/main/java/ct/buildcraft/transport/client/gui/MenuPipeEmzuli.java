@@ -30,14 +30,14 @@ public class MenuPipeEmzuli extends AbstractContainerMenu {
 		this.data = data;
 		for(int i = 0; i < 3; ++i) 
 			for(int j = 0; j < 9; ++j) 
-				this.addSlot(new Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 48 + i * 18));
+				this.addSlot(new Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
 		
 		for(int k = 0; k < 9; ++k) 
-			this.addSlot(new Slot(playerInventory, k, 8 + k * 18, 106));
+			this.addSlot(new Slot(playerInventory, k, 8 + k * 18, 142));
 		
 		for(int i = 0; i < 2;i++) 
 			for(int j = 0; j<2;j++)
-				this.addSlot(new RecordSlot(dataInventory, 2*i+j, 25+109*j, 28	*i - 15));
+				this.addSlot(new RecordSlot(dataInventory, 2*i+j, 25+109*j, 28	*i + 21));
 		
 		addDataSlots(data);
 	}

@@ -12,6 +12,7 @@ import ct.buildcraft.api.core.EnumPipePart;
 import ct.buildcraft.api.enums.EnumPowerStage;
 import ct.buildcraft.api.mj.IMjConnector;
 import ct.buildcraft.api.mj.MjAPI;
+import ct.buildcraft.api.properties.BuildCraftProperties;
 import ct.buildcraft.core.client.render.RenderEngine_BC8;
 import ct.buildcraft.energy.BCEnergyBlocks;
 import ct.buildcraft.energy.client.gui.MenuEngineStone_BC8;
@@ -63,8 +64,8 @@ public class TileEngineStone_BC8 extends TileEngineBase_BC8 implements MenuProvi
 
     public TileEngineStone_BC8(BlockPos pos, BlockState state) {
     	super(BCEnergyBlocks.ENGINE_STONE_TILE_BC8.get(), pos, state);
-        invFuel = itemManager.addInvHandler("fuel", 1, this::isValidFuel, EnumAccess.BOTH, EnumPipePart.VALUES).setChecker(null).setChecker((a,b) -> ForgeHooks.getBurnTime(b,RecipeType.SMELTING)>0);
-//        caps.addProvider(itemManager);
+        invFuel = itemManager.addInvHandler("fuel", 1, this::isValidFuel, EnumAccess.BOTH, EnumPipePart.VALUES).setChecker((a,b) -> ForgeHooks.getBurnTime(b,RecipeType.SMELTING)>0);
+        caps.addProvider(itemManager);
     }
 
     
@@ -74,7 +75,7 @@ public class TileEngineStone_BC8 extends TileEngineBase_BC8 implements MenuProvi
         return isForceInserting || getItemBurnTime(stack) > 0;
     }
 
-    // TileEntity overrides
+    // BlockEntity overrides
 
     @Override
     public void load(CompoundTag nbt) {
@@ -237,7 +238,7 @@ public class TileEngineStone_BC8 extends TileEngineBase_BC8 implements MenuProvi
 
 	@Override
 	public Component getDisplayName() {
-		return Component.translatable(this.getBlockState().getBlock().getDescriptionId());
+		return Component.translatable("block.buildcraftcore.engine_"+this.getBlockState().getValue(BuildCraftProperties.ENGINE_TYPE).getSerializedName());
 	}
 	
 /*	//Container

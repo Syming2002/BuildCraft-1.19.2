@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 
 import org.jetbrains.annotations.Nullable;
 
+import ct.buildcraft.core.BCCore;
 import ct.buildcraft.lib.fluid.BCFluid;
 
 import com.mojang.blaze3d.shaders.FogShape;
@@ -29,7 +30,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
@@ -230,7 +230,7 @@ public class BCEnergyFluids {
         RegistryObject<FluidType> TYPE = FLUID_TYPES.register(NAME[id]+TEM_NAMES[tem], () -> new aFluidType(FluidType.Properties.create().canDrown(true).canSwim(false).density(data[id][0]).viscosity(data[id][1]).temperature(TEMS[tem]), OIL_TEXTURE[id][2*tem], OIL_TEXTURE[id][2*tem+1], id) );
         RegistryObject<BCFluid> SOURCE = RegistryObject.create(new ResourceLocation(BCEnergy.MODID,NAME[id]+TEM_NAMES[tem]+"_source"), ForgeRegistries.Keys.FLUIDS, BCEnergy.MODID);
         RegistryObject<BCFluid> FLOWING = RegistryObject.create(new ResourceLocation(BCEnergy.MODID,NAME[id]+TEM_NAMES[tem]+"_flowing"), ForgeRegistries.Keys.FLUIDS, BCEnergy.MODID);
-        RegistryObject<BucketItem> BUCKET = BCEnergy.ITEMS.register(NAME[id]+"/"+NAME[id]+TEM_NAMES[tem]+"_bucket", () -> new BucketItem(SOURCE,new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC).craftRemainder(Items.BUCKET)));
+        RegistryObject<BucketItem> BUCKET = BCEnergy.ITEMS.register(NAME[id]+"/"+NAME[id]+TEM_NAMES[tem]+"_bucket", () -> new BucketItem(SOURCE,new Item.Properties().stacksTo(1).tab(BCCore.tabFluids).craftRemainder(Items.BUCKET)));
         RegistryObject<LiquidBlock> FUEL_GAS_COOL_BLOCK = BCEnergyBlocks.BLOCKS.register(NAME[id]+"/"+NAME[id]+TEM_NAMES[tem], () -> new LiquidBlock(SOURCE, BlockBehaviour.Properties.of(FLAMMABLELIQUID).noCollission().strength(100.0F).noLootTable()));
         ForgeFlowingFluid.Properties properties = new ForgeFlowingFluid.Properties(TYPE, SOURCE, FLOWING).bucket(BUCKET).block(FUEL_GAS_COOL_BLOCK);//.slopeFindDistance(0);
         FLUIDS.register(NAME[id]+TEM_NAMES[tem]+"_source", () -> new BCFluid.Source(properties).setHeat(tem));

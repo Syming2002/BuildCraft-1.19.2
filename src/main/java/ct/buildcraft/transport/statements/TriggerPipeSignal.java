@@ -54,7 +54,7 @@ public class TriggerPipeSignal extends BCStatement implements ITriggerInternal {
 
     @Override
     public Component getDescription() {
-        return Component.translatable(LocaleUtil.localize("gate.trigger.pipe.wire." + (active ? "active" : "inactive")));
+        return (Component.translatable("gate.trigger.pipe.wire." + (active ? "active" : "inactive")));
 //            ColourUtil.getTextFullTooltip(colour));
     }
 

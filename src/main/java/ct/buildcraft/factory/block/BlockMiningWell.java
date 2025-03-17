@@ -33,7 +33,6 @@ public class BlockMiningWell extends BlockBCTile_Neptune implements IBlockWithFa
     	return new TileMiningWell(pos, state);
 	}
     
-    
 
 	@Override
 	public VoxelShape getOcclusionShape(BlockState p_60578_, BlockGetter p_60579_, BlockPos p_60580_) {
@@ -66,6 +65,6 @@ public class BlockMiningWell extends BlockBCTile_Neptune implements IBlockWithFa
 
 	@Override
 	public <T extends BlockEntity> GameEventListener getListener(ServerLevel level, T tile) {
-		return tile instanceof TileMiningWell be ? be :null;
+		return tile instanceof TileMiningWell be ? be.worldEventListener :null;
 	}
 }

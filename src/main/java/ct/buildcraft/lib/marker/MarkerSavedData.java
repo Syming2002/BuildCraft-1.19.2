@@ -10,12 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ct.buildcraft.api.core.BCLog;
-import ct.buildcraft.lib.misc.NBTUtilBC;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.LongTag;
+import net.minecraft.nbt.LongArrayTag;
 import net.minecraft.world.level.saveddata.SavedData;
 
 public abstract class MarkerSavedData<S extends MarkerSubCache<C>, C extends MarkerConnection<C>> extends SavedData {
@@ -26,30 +24,31 @@ public abstract class MarkerSavedData<S extends MarkerSubCache<C>, C extends Mar
     protected final List<BlockPos> markerPositions = new ArrayList<>();
     protected final List<List<BlockPos>> markerConnections = new ArrayList<>();
     private S subCache;
-
+    
     public MarkerSavedData(String name) {
-		this.mapName = name;
-    }
-
+    	this.mapName = name;
+	}
+    
     public MarkerSavedData(CompoundTag nbt, String name) {
         mapName = name;
     	markerPositions.clear();
         markerConnections.clear();
 
-        ListTag positionList = (ListTag) nbt.get("positions");
+        LongArrayTag positionList = (LongArrayTag) nbt.get("positions");
         int s = positionList.size();
         for (int i = 0; i < s; i++) {
-            markerPositions.add(NBTUtilBC.readBlockPos(positionList.get(i)));
+            markerPositions.add(BlockPos.of(positionList.get(i).getAsLong()));
         }
 
         ListTag connectionList = (ListTag) nbt.get("connections");
         int s1 = connectionList.size();
         for (int i = 0; i < s1; i++) {
-            positionList = (ListTag) connectionList.get(i);
+            positionList = (LongArrayTag) connectionList.get(i);
             List<BlockPos> inner = new ArrayList<>();
             markerConnections.add(inner);
+            s = positionList.size();
             for (int j = 0; j < s; j++) {
-                inner.add(NBTUtilBC.readBlockPos(positionList.get(j)));
+                inner.add(BlockPos.of(positionList.get(j).getAsLong()));
             }
         }
 
@@ -69,7 +68,7 @@ public abstract class MarkerSavedData<S extends MarkerSubCache<C>, C extends Mar
         }
     }
 
-    @Override
+	@Override
     public CompoundTag save(CompoundTag nbt) {
         markerPositions.clear();
         markerConnections.clear();
@@ -79,21 +78,22 @@ public abstract class MarkerSavedData<S extends MarkerSubCache<C>, C extends Mar
             markerConnections.add(new ArrayList<>(connection.getMarkerPositions()));
         }
 
-        ListTag positionList = new ListTag();
-        for (BlockPos p : markerPositions) {
-            positionList.addAll(markerPositions.stream().map(po -> LongTag.valueOf(po.asLong())).toList());
-        }
-        nbt.put("positions", positionList);
+        int len = markerPositions.size();
+        long[] positionList = new long[len];
+        for(int i=0;i<len;i++)
+        	positionList[i] = (markerPositions.get(i).asLong());
+        nbt.put("positions", new LongArrayTag(positionList));
 
         ListTag connectionList = new ListTag();
-        int counter = 0;
-        for (List<BlockPos> connection : markerConnections) {
-            ListTag inner = new ListTag();
-            int i = 0;
-            for (BlockPos p : connection) {
-                inner.addTag(i++, LongTag.valueOf(p.asLong()));
+        len = markerConnections.size();
+        for (int counter=0;counter<len;counter++) {
+        	List<BlockPos> connection = markerConnections.get(counter);
+            int size = connection.size();
+            long[] inner = new long[size];
+            for(int j=0;j<size;j++) {
+            	inner[j] = connection.get(j).asLong();
             }
-            connectionList.addTag(counter++, inner);
+            connectionList.addTag(counter, new LongArrayTag(inner));
         }
         nbt.put("connections", connectionList);
 

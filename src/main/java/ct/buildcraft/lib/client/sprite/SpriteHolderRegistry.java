@@ -26,6 +26,7 @@ import ct.buildcraft.api.core.BCDebugging;
 import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.api.core.render.ISprite;
 import ct.buildcraft.lib.misc.SpriteUtil;
+
 import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.Minecraft;
@@ -97,23 +98,23 @@ public class SpriteHolderRegistry {
         }
     }
 
-    public static void onTextureStitchPost() {
+    public static void onTextureStitchPost(TextureStitchEvent.Post event) {
         if (DEBUG&&ModLoader.isLoadingStateValid()) {
             BCLog.logger.info("[lib.sprite.holder] List of registered sprites:");
             List<ResourceLocation> locations = new ArrayList<>();
             locations.addAll(HOLDER_MAP.keySet());
             locations.sort(Comparator.comparing(ResourceLocation::toString));
-
-            TextureAtlasSprite missing = Minecraft.getInstance().getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).getSprite(MissingTextureAtlasSprite.getLocation());
-
+            TextureAtlas manager = event.getAtlas();
+            TextureAtlasSprite missing = manager.getSprite(MissingTextureAtlasSprite.getLocation());
+            
+            
             for (ResourceLocation r : locations) {
                 SpriteHolder sprite = HOLDER_MAP.get(r);
-                TextureAtlasSprite stitched = sprite.sprite;
+                TextureAtlasSprite stitched = manager.getSprite(r);
+                sprite.sprite = stitched;
                 String status = "  ";
-                if (stitched == null) {
-                    status += "(Sprite was registered too late)";
-                } else if (missing.getU0() == stitched.getU0() && missing.getV0() == stitched.getV0()) {
-                    status += "(Sprite did not exist in a resource pack)";
+                if (missing.getU0() == stitched.getU0() && missing.getV0() == stitched.getV0()) {
+                    status += "fail to load sprite "+r +" ,using missinggo instead";
                 }
 
                 BCLog.logger.info("  - " + r + status);
@@ -142,12 +143,14 @@ public class SpriteHolderRegistry {
         private TextureAtlasSprite getSpriteChecking() {
             if (sprite == null & !hasCalled) {
                 hasCalled = true;
-                String warnText = "[lib.sprite.holder] Tried to use the sprite " + spriteLocation + " before it was stitched!";
+                Minecraft mc = Minecraft.getInstance();
+                sprite = mc.getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS).getSprite(spriteLocation);
+/*                String warnText = "[lib.sprite.holder] Tried to use the sprite " + spriteLocation + " before it was stitched!";
                 if (DEBUG) {
                     BCLog.logger.warn(warnText, new Throwable());
                 } else {
                     BCLog.logger.warn(warnText);
-                }
+                }*/
             }
             return sprite;
         }
@@ -165,7 +168,7 @@ public class SpriteHolderRegistry {
         @Override
         public float getInterpV(double v) {
             TextureAtlasSprite s = getSpriteChecking();
-            return s == null ? (float)v : s.getU(v*16);
+            return s == null ? (float)v : s.getV(v*16);
         }
 
         @Override

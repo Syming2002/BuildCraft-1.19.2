@@ -6,40 +6,70 @@
 
 package ct.buildcraft.lib.client.render.laser;
 
+import java.util.Arrays;
 import java.util.Objects;
 
+import ct.buildcraft.api.core.render.ISprite;
 import ct.buildcraft.lib.client.sprite.SpriteHolderRegistry.SpriteHolder;
-import com.mojang.math.Matrix4f;
 
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 
 /** Holds information on what a single laser in the world: its {@link LaserType}, is position, its size, and some other
  * misc rendering info. */
 public class LaserData_BC8 {
+	
+	private static int id = 0;
+	private static int lenth = 16;
+	
+	private static LaserData_BC8[] objCache = new LaserData_BC8[lenth];
+	private static int[] hashCache = new int[lenth];
+
+	
     public final LaserType laserType;
-    public final BlockPos pos;
     public final Vec3 start, end;
     public final double scale;
     public final boolean enableDiffuse, doubleFace;
     public final int minBlockLight;
     private final int hash;
 
-    public LaserData_BC8(LaserType laserType, Vec3 start, Vec3 end, BlockPos pos, double scale) {
-        this(laserType, start, end, pos, scale, true, false, 0);
+    public LaserData_BC8(LaserType laserType, Vec3 start, Vec3 end, double scale) {
+        this(laserType, start, end, scale, true, false, 0);
     }
 
-    public LaserData_BC8(LaserType laserType, Vec3 start, Vec3 end, BlockPos pos, double scale, boolean enableDiffuse, boolean doubleFace, int minBlockLight) {
-        this.laserType = laserType;
-		this.pos = pos;
+    public LaserData_BC8(LaserType laserType, Vec3 start, Vec3 end, double scale, boolean enableDiffuse, boolean doubleFace, int minBlockLight) {
+        this(laserType, start, end, scale, enableDiffuse, doubleFace, minBlockLight, Objects.hash(laserType, start, end, Double.doubleToLongBits(scale), enableDiffuse, doubleFace, minBlockLight));
+    }
+    
+    protected LaserData_BC8(LaserType laserType, Vec3 start, Vec3 end, double scale, boolean enableDiffuse, boolean doubleFace, int minBlockLight, int hash) {
+    	this.laserType = laserType;
         this.start = start;
         this.end = end;
         this.scale = scale;
         this.enableDiffuse = enableDiffuse;
         this.doubleFace = doubleFace;
         this.minBlockLight = minBlockLight;
-        hash = Objects.hash(laserType, start, end, Double.doubleToLongBits(scale), enableDiffuse, doubleFace, minBlockLight);
+        this.hash = hash;
+    }
+    
+    //Cache
+    public static LaserData_BC8 of(LaserType laserType, Vec3 start, Vec3 end, double scale, boolean enableDiffuse, boolean doubleFace, int minBlockLight, int id) {
+    	int hash = Objects.hash(laserType, start, end, Double.doubleToLongBits(scale), enableDiffuse, doubleFace, minBlockLight);
+    	if(hash != hashCache[id]) {
+    		objCache[id] = new LaserData_BC8(laserType, start, end, scale, enableDiffuse, doubleFace, minBlockLight, id);
+    		hashCache[id] = hash;
+    	}
+    	return objCache[id];
+    }
+    
+    public static int AllocateId(int amount) {
+    	int k = id;
+    	id+=amount;
+    	if(id>lenth){
+    		lenth +=16;
+    		objCache = Arrays.copyOf(objCache, lenth);
+    		hashCache = Arrays.copyOf(hashCache, lenth);
+    	}
+    	return k;
     }
 
     @Override
@@ -78,25 +108,25 @@ public class LaserData_BC8 {
             this.capEnd = capEnd;
         }
 
-        public LaserType(LaserType from, TextureAtlasSprite replacementSprite) {
-            this.capStart = new LaserRow(from.capStart, replacementSprite);
-            this.capEnd = new LaserRow(from.capEnd, replacementSprite);
-            this.start = new LaserRow(from.start, replacementSprite);
-            this.end = new LaserRow(from.end, replacementSprite);
+        public LaserType(LaserType from, SpriteHolder markerDefaultPossible) {
+            this.capStart = new LaserRow(from.capStart, markerDefaultPossible);
+            this.capEnd = new LaserRow(from.capEnd, markerDefaultPossible);
+            this.start = new LaserRow(from.start, markerDefaultPossible);
+            this.end = new LaserRow(from.end, markerDefaultPossible);
             this.variations = new LaserRow[from.variations.length];
             for (int i = 0; i < variations.length; i++) {
-                this.variations[i] = new LaserRow(from.variations[i], replacementSprite);
+                this.variations[i] = new LaserRow(from.variations[i], markerDefaultPossible);
             }
         }
     }
 
     public static class LaserRow {
-        public final TextureAtlasSprite sprite;
+        public final ISprite sprite;
         public final double uMin, vMin, uMax, vMax;
         public final int width, height;
         public final LaserSide[] validSides;
 
-        public LaserRow(TextureAtlasSprite sprite, int uMin, int vMin, int uMax, int vMax, int textureSize, LaserSide... sides) {
+        public LaserRow(ISprite sprite, int uMin, int vMin, int uMax, int vMax, int textureSize, LaserSide... sides) {
             this.sprite = sprite;
             this.uMin = uMin / (double) textureSize;
             this.vMin = vMin / (double) textureSize;
@@ -111,11 +141,11 @@ public class LaserData_BC8 {
             }
         }
 
-        public LaserRow(TextureAtlasSprite sprite, int uMin, int vMin, int uMax, int vMax, LaserSide... sides) {
+        public LaserRow(ISprite sprite, int uMin, int vMin, int uMax, int vMax, LaserSide... sides) {
             this(sprite, uMin, vMin, uMax, vMax, 16, sides);
         }
 
-        public LaserRow(LaserRow from, TextureAtlasSprite sprite) {
+        public LaserRow(LaserRow from, ISprite sprite) {
             this.sprite = sprite;
             this.uMin = from.uMin;
             this.vMin = from.vMin;

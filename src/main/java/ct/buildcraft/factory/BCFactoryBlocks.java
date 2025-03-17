@@ -60,7 +60,7 @@ public class BCFactoryBlocks {
     
     
 	
-	static void preInit(IEventBus bus){
+	static void registry(IEventBus bus){
 		BLOCKS.register(bus);
 		BLOCK_ENTITYS.register(bus);
 	}

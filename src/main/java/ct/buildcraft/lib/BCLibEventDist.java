@@ -4,39 +4,41 @@
  * distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 package ct.buildcraft.lib;
 
-import java.lang.reflect.Field;
-import java.util.Map;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
 
-import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.lib.client.model.ModelHolderRegistry;
+import ct.buildcraft.lib.client.render.DetachedRenderer;
+import ct.buildcraft.lib.client.render.DetachedRenderer.RenderMatrixType;
+import ct.buildcraft.lib.client.render.MarkerRenderer;
 import ct.buildcraft.lib.client.render.fluid.FluidRenderer;
+import ct.buildcraft.lib.client.render.laser.LaserRenderer_BC8;
 import ct.buildcraft.lib.client.sprite.SpriteHolderRegistry;
+import ct.buildcraft.lib.marker.MarkerCache;
 import ct.buildcraft.lib.misc.FakePlayerProvider;
 import ct.buildcraft.lib.misc.MessageUtil;
 import ct.buildcraft.lib.net.cache.BuildCraftObjectCaches;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.packs.resources.FallbackResourceManager;
-import net.minecraft.server.packs.resources.MultiPackResourceManager;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
+import net.minecraftforge.client.event.ModelEvent.BakingCompleted;
 import net.minecraftforge.client.event.RegisterTextureAtlasSpriteLoadersEvent;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.ServerTickEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.network.NetworkEvent.ClientCustomPayloadLoginEvent;
 
 
 public class BCLibEventDist {
@@ -47,7 +49,18 @@ public class BCLibEventDist {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
+/*            ReloadableRegistryManager manager = ReloadableRegistryManager.RESOURCE_PACKS;
+            BuildCraftRegistryManager.managerResourcePacks = manager;
+            manager.registerRegistry(GuidePageRegistry.INSTANCE);*/
 
+            DetachedRenderer.INSTANCE.addRenderer(RenderMatrixType.FROM_WORLD_ORIGIN, MarkerRenderer.INSTANCE);
+            // various sprite registers
+            BCLibSprites.fmlPreInitClient();
+//            BCLibConfig.configChangeListeners.add(LibConfigChangeListener.INSTANCE);
+
+//            MessageManager.setHandler(MessageMarker.class, MessageMarker.HANDLER, Dist.CLIENT);
+//            MessageManager.setHandler(MessageObjectCacheResponse.class, MessageObjectCacheResponse.HANDLER, Dist.CLIENT);
+//            MessageManager.setHandler(MessageDebugResponse.class, MessageDebugResponse.HANDLER, Dist.CLIENT);
         }
         
         @SubscribeEvent
@@ -56,7 +69,6 @@ public class BCLibEventDist {
         }
 		
 	    @SubscribeEvent//(priority = EventPriority.HIGHEST)
-	    @OnlyIn(Dist.CLIENT)
 	    public static void textureStitchPre(TextureStitchEvent.Pre event) {
 	    	if("textures/atlas/blocks.png".equals(event.getAtlas().location().getPath())) {
 //	    		ReloadManager.INSTANCE.preReloadResources();
@@ -76,33 +88,45 @@ public class BCLibEventDist {
 	    }*/
 
 	    @SubscribeEvent
-	    @OnlyIn(Dist.CLIENT)
 	    public static void textureStitchPost(TextureStitchEvent.Post event) {
-	        TextureAtlas map = event.getAtlas();
-	        SpriteHolderRegistry.onTextureStitchPost();
+	    	if("textures/atlas/blocks.png".equals(event.getAtlas().location().getPath()))
+	        SpriteHolderRegistry.onTextureStitchPost(event);
 	    }
-	/*
+	
 	    @SubscribeEvent
-	    @OnlyIn(Dist.CLIENT)
-	    public static void modelBake(ModelBakeEvent event) {
+	    public static void modelBake(BakingCompleted event) {
 	        SpriteHolderRegistry.exportTextureMap();
 	        LaserRenderer_BC8.clearModels();
 	        ModelHolderRegistry.onModelBake();
-	        ModelVariableData.onModelBake();
 	    }
 
-	    @SubscribeEvent
-	    @OnlyIn(Dist.CLIENT)
-	    public static void renderWorldLast(RenderWorldLastEvent event) {
-	        Minecraft mc = Minecraft.getInstance();
-	        Player player = mc.player;
-	        if (player == null) return;
-	        float partialTicks = event.getPartialTicks();
-
-//	        DetachedRenderer.INSTANCE.renderWorldLastEvent(player, partialTicks);
-	    }
-	*/
+	    
 	}
+	/*	    @SubscribeEvent
+    public static void renderWorldLast(RenderLevelLastEvent event) {
+        Minecraft mc = Minecraft.getInstance();
+        Player player = mc.player;
+        if (player == null) return;
+        float partialTicks = event.getPartialTicks();
+
+//        DetachedRenderer.INSTANCE.renderWorldLastEvent(player, partialTicks);
+    }
+*/
+	@SubscribeEvent
+    public static void renderWorldLast(RenderLevelStageEvent event) {
+    	if(event.getStage() != RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS) {
+    		return ;
+    	}
+        Minecraft mc = Minecraft.getInstance();
+        Player player = mc.player;
+        if (player == null) return;
+        PoseStack pose = event.getPoseStack();
+        Matrix4f matrix = event.getProjectionMatrix();
+        float partialTicks = event.getPartialTick();
+        Camera camera = event.getCamera();
+        
+        DetachedRenderer.INSTANCE.renderWorldLastEvent(pose, matrix, player, partialTicks, camera);
+    }
 
     @SubscribeEvent
     public static void onEntityJoinWorld(EntityJoinLevelEvent event) {
@@ -110,13 +134,13 @@ public class BCLibEventDist {
         if (entity instanceof ServerPlayer) {
             ServerPlayer playerMP = (ServerPlayer) entity;
             // Delay sending join messages to player as it makes it work when in single-player
- //           MessageUtil.doDelayedServer(() -> MarkerCache.onPlayerJoinWorld(playerMP));
+            MessageUtil.doDelayedServer(() -> MarkerCache.onPlayerJoinLevel(playerMP));
         }
     }
 
     @SubscribeEvent
     public static void onWorldUnload(LevelEvent.Unload event) {
-//        MarkerCache.onWorldUnload(event.getLevel());
+        MarkerCache.onLevelUnload(event.getLevel());
         if (event.getLevel() instanceof ServerLevel) {
             FakePlayerProvider.INSTANCE.unloadWorld((ServerLevel) event.getLevel());
         }
@@ -132,7 +156,6 @@ public class BCLibEventDist {
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
     public static void onConnectToServer(ClientPlayerNetworkEvent.LoggingIn event) {
-    	BCLog.logger.debug("ssss");
         BuildCraftObjectCaches.onClientJoinServer();
     }
 
@@ -151,7 +174,7 @@ public class BCLibEventDist {
         if (event.phase == Phase.END) {
             BuildCraftObjectCaches.onClientTick();
             MessageUtil.postClientTick();
- /*           Minecraft mc = Minecraft.getInstance();
+/*            Minecraft mc = Minecraft.getInstance();
             LocalPlayer player = mc.player;
             if (player != null && ItemDebugger.isShowDebugInfo(player)) {
                 HitResult mouseOver = mc.hitResult;

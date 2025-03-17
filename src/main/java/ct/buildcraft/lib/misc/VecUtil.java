@@ -23,8 +23,8 @@ public class VecUtil {
     public static final Vec3 VEC_HALF = new Vec3(0.5, 0.5, 0.5);
     public static final Vec3 VEC_ONE = new Vec3(1, 1, 1);
 
-    public static Vec3 add(Vec3 a, Vec3 b) {
-        return a.add(b.x, b.y, b.z);
+    public static Vec3 add(Vec3 a, Vec3i b) {
+        return a.add(b.getX(), b.getY(), b.getZ());
     }
 
     public static Vec3 offset(Vec3 from, Direction direction, double by) {

@@ -5,11 +5,11 @@ import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
+import ct.buildcraft.core.BCCore;
 import ct.buildcraft.energy.generation.BCOverWorldRegion;
 import ct.buildcraft.energy.generation.BCSurfaceRuleData;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -68,14 +68,13 @@ public class BCEnergy {
     }
     private void commonSetup(final FMLCommonSetupEvent event)
     {
+    	BCCore.tabFluids.setItem(BCEnergyFluids.OIL_BUCKET.get(0).get());
     	BCEnergyFluids.init();
     	BCEnergyRecipes.init();
     	BCEnergyConfig.reloadConfig(MODID);
     	Regions.register(new BCOverWorldRegion(40));
     	SurfaceRuleManager.addSurfaceRules(SurfaceRuleManager.RuleCategory.OVERWORLD, MODID, BCSurfaceRuleData.oilDesertRule());
     	event.enqueueWork(BCEnergyBiomes::registryFeature);
-    	LOGGER.info("HELLO FROM COMMON SETUP");
-        LOGGER.info("DIRT BLOCK >> {}", ForgeRegistries.BLOCKS.getKey(Blocks.DIRT));
         
     }
     public void gatherData(GatherDataEvent event) {

@@ -6,8 +6,8 @@ package ct.buildcraft.core.marker;
 
 import java.util.List;
 
+import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.core.BCCoreConfig;
-import ct.buildcraft.core.client.BuildCraftLaserManager;
 import ct.buildcraft.lib.client.render.laser.LaserData_BC8.LaserType;
 import ct.buildcraft.lib.marker.MarkerCache;
 import ct.buildcraft.lib.marker.MarkerSubCache;
@@ -16,12 +16,18 @@ import com.google.common.collect.ImmutableList;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 
 public class PathSubCache extends MarkerSubCache<PathConnection> {
-    public PathSubCache(ServerLevel world) {
+    public PathSubCache(Level world) {
         super(world, MarkerCache.CACHES.indexOf(PathCache.INSTANCE));
-        PathSavedData data = (PathSavedData) world.getDataStorage()
-        		.computeIfAbsent(PathSavedData::new, PathSavedData::new, PathSavedData.NAME);
+        PathSavedData data = null ;
+        if(world instanceof ServerLevel sworld)
+        data = (PathSavedData) sworld.getDataStorage().computeIfAbsent(PathSavedData::new, PathSavedData::new, PathSavedData.NAME);
+        if(data == null) {
+        	data = new PathSavedData();
+        	BCLog.logger.debug("PathSubCache:fail");
+        }
         data.loadInto(this);
     }
 

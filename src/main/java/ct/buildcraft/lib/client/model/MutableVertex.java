@@ -7,8 +7,6 @@
 package ct.buildcraft.lib.client.model;
 
 
-import ct.buildcraft.api.core.BCLog;
-import ct.buildcraft.api.core.render.ISprite;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Matrix3f;
@@ -16,6 +14,7 @@ import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
 
+import ct.buildcraft.api.core.render.ISprite;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -47,7 +46,9 @@ public class MutableVertex {
     /** The texture co-ord of this vertex. Should usually be between 0-1 */
     public float tex_u, tex_v;
     /** The light of this vertex. Should be in the range 0-15. */
-    public byte light_block, light_sky;
+    public short light_block, light_sky;
+    
+    public int overlay = OverlayTexture.NO_OVERLAY;
 
     public MutableVertex() {
         normal_x = 0;
@@ -170,9 +171,10 @@ public class MutableVertex {
         bb.vertex(pose, position_x, position_y, position_z)
         .color(colour_r, colour_g, colour_b, colour_a)
         .uv(tex_u, tex_v)
-        .overlayCoords(OverlayTexture.NO_OVERLAY)
-        .uv2(light_block << 4, light_sky << 4)
-//        .uv2(15728880)
+        .overlayCoords(overlay)
+        .uv2(light_block, light_sky)
+
+//        .uv2(15728640)
         .normal(normalMatrix, normal_x, normal_y, normal_z)
         .endVertex();
        
@@ -192,7 +194,6 @@ public class MutableVertex {
 
     public void renderColour(VertexConsumer bb) {
         bb.color(colour_r, colour_g, colour_b, colour_a);
-//        BCLog.logger.debug("" + light_block);
     }
 
     public void renderTex(VertexConsumer bb) {
@@ -369,12 +370,12 @@ public class MutableVertex {
     }
 
     public MutableVertex lighti(int combined) {
-        return lighti((combined >> 4)&0x0F, combined >> 20);
+        return lighti(combined & 0xFFFF, combined >> 16 & 0xFFFF);
     }
 
     public MutableVertex lighti(int block, int sky) {
-        light_block = (byte) block;
-        light_sky = (byte) sky;
+        light_block = (short) block;
+        light_sky = (short) sky;
         return this;
     }
 
@@ -393,6 +394,10 @@ public class MutableVertex {
 
     public int[] lighti() {
         return new int[] { light_block, light_sky };
+    }
+    
+    public void overlay(int overlay) {
+    	this.overlay = overlay;
     }
 
     public MutableVertex transform(Matrix3f matrix) {

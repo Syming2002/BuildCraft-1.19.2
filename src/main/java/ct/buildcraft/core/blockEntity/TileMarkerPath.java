@@ -5,20 +5,19 @@
 package ct.buildcraft.core.blockEntity;
 
 import ct.buildcraft.api.core.IPathProvider;
+import ct.buildcraft.core.BCCoreBlocks;
 import ct.buildcraft.core.marker.PathCache;
 import ct.buildcraft.core.marker.PathConnection;
 import ct.buildcraft.lib.tile.TileMarker;
 import com.google.common.collect.ImmutableList;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class TileMarkerPath extends TileMarker<PathConnection> implements IPathProvider {
 
-    public TileMarkerPath(BlockEntityType<?> p_155228_, BlockPos p_155229_, BlockState p_155230_) {
-		super(p_155228_, p_155229_, p_155230_);
-		// TODO Auto-generated constructor stub
+    public TileMarkerPath(BlockPos pos, BlockState state) {
+		super(BCCoreBlocks.MARKER_PATH_TILE_BC8.get(), pos, state);
 	}
 
 	@Override

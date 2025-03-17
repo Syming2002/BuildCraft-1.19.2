@@ -21,22 +21,17 @@ public class ScreenEngineIron extends ContainerScreenBase<MenuEngineIron_BC8>{
 
 	private static final ResourceLocation TEXTURE_BASE = BCEnergySprites.ENGINE_IRON_GUI;
 
-	protected static final TankComponent fuelTank = new TankComponent(26, 18, 16, 60);
-	protected static final TankComponent coolantTank = new TankComponent(80, 18, 16, 60);
-	protected static final TankComponent residueTank = new TankComponent(134, 18, 16, 60);
+	protected static final TankComponent fuelTank = new TankComponent(26, 18, 16, 60, 10000);
+	protected static final TankComponent coolantTank = new TankComponent(80, 18, 16, 60, 10000);
+	protected static final TankComponent residueTank = new TankComponent(134, 18, 16, 60, 10000);
 	
 	protected final ContainerData data;
-	protected int fuelId;
-	protected int coolantId;
-	protected int residueId;
-	protected Fluid fuel;
-	protected Fluid coolant;
-	protected Fluid residue;
 	
 	public ScreenEngineIron(MenuEngineIron_BC8 be, Inventory p_97742_, Component p_97743_) {
 		super(be, p_97742_, p_97743_, 3, TEXTURE_BASE);
 		data = be.data;
 		inventoryLabelY += 12;
+		imageHeight += 10;
 		this.add(fuelTank, true);
 		this.add(coolantTank, true);
 		this.add(residueTank, true);
@@ -66,22 +61,6 @@ public class ScreenEngineIron extends ContainerScreenBase<MenuEngineIron_BC8>{
         return toolTip ;
     }
 
-	@Override
-	public boolean mouseClicked(double x, double y, int mouse) {
-/*		FluidStack tank = null;
-		if(this.isHovering(26, 18, 16, 60, x, y)) tank = fuel;
-		else if(this.isHovering(80, 18, 16, 60, x, y)) tank = coolant;
-		else if(this.isHovering(134, 18, 16, 60, x, y)) tank = residue;
-		
-		if(tank != null) {
-			FluidUtil.
-			FluidUtilBC.onTankActivated(minecraft.player, minecraft.player.blockPosition(), mouse == 0 ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND, tank);
-		}*/
-		return super.mouseClicked(x, y, mouse);
-	}
-    
-    
-	
 
 
 }

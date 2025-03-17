@@ -11,6 +11,8 @@ public abstract class AbstractComponent implements ContainerComponent{
 	
 	protected int offset;
 	
+	protected boolean isPressing;
+	
 	protected int x;
 	protected int y;
 	protected int xs;//X Size
@@ -35,12 +37,25 @@ public abstract class AbstractComponent implements ContainerComponent{
 	@Override
 	public boolean onClick(double x, double y, int mouse) {
 		if(isHovering((int)(x-screen.getGuiLeft()), (int)(y-screen.getGuiTop()))) {
-			Minecraft mc = screen.getMinecraft();
-			mc.gameMode.handleInventoryButtonClick(screen.getMenu().containerId, offset);
-			return true;
+			isPressing = true;
+			return ClickedAction(y, y, mouse);
 		}
 		return false;
 	}
+	
+	public boolean ClickedAction(double x, double y, int mouse) {
+		Minecraft mc = screen.getMinecraft();
+		mc.gameMode.handleInventoryButtonClick(screen.getMenu().containerId, offset);
+		return true;
+	}
+	
+
+	@Override
+	public boolean mouseRelease(double x, double y, int mouse) {
+		isPressing = false;
+		return false;
+	}
+
 
 	@Override
 	public void setup(AbstractContainerScreen<?> screen, ContainerData data) {

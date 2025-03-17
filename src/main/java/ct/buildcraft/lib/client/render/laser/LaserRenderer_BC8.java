@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.lib.client.render.laser.LaserData_BC8.LaserType;
 import ct.buildcraft.lib.misc.SpriteUtil;
 import com.google.common.cache.CacheBuilder;
@@ -19,6 +18,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalNotification;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
@@ -34,8 +34,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class LaserRenderer_BC8 {
-    private static final Map<LaserType, CompiledLaserType> COMPILED_LASER_TYPES = new HashMap<>();
     private static final LoadingCache<LaserData_BC8, LaserCompiledList> COMPILED_STATIC_LASERS;
+    private static final Map<LaserType, CompiledLaserType> COMPILED_LASER_TYPES = new HashMap<>();
     private static final LoadingCache<LaserData_BC8, LaserCompiledBuffer> COMPILED_DYNAMIC_LASERS;
 
     public static final VertexFormat FORMAT_LESS, FORMAT_ALL;
@@ -80,19 +80,19 @@ public class LaserRenderer_BC8 {
 
     private static LaserCompiledList makeStaticLaser(LaserData_BC8 data) {
         try (LaserCompiledList.Builder renderer = new LaserCompiledList.Builder(data.enableDiffuse)) {
-            makeLaser(data, renderer);
+            makeLaser(data, renderer, true);
             return renderer.build();
         }
     }
 
     private static LaserCompiledBuffer makeDynamicLaser(LaserData_BC8 data) {
         LaserCompiledBuffer.Builder renderer = new LaserCompiledBuffer.Builder(data.enableDiffuse);
-        makeLaser(data, renderer);
+        makeLaser(data, renderer, false);
         return renderer.build();
     }
 
-    private static void makeLaser(LaserData_BC8 data, ILaserRenderer renderer) {
-        LaserContext ctx = new LaserContext(renderer, data, data.enableDiffuse, data.doubleFace);
+    private static void makeLaser(LaserData_BC8 data, ILaserRenderer renderer, boolean isStatic) {
+        LaserContext ctx = new LaserContext(renderer, data, data.enableDiffuse, data.doubleFace, isStatic);
         CompiledLaserType type = compileType(data.laserType);
         type.bakeFor(ctx);
     }
@@ -105,7 +105,8 @@ public class LaserRenderer_BC8 {
     }
 
     public static int computeLightmap(double x, double y, double z, int minBlockLight) {
-        Level level = Minecraft.getInstance().level;
+    	Minecraft mc = Minecraft.getInstance();
+        Level level = mc.level;
 
         if (level == null) return 0;
         int blockLight =
@@ -154,10 +155,10 @@ public class LaserRenderer_BC8 {
         }
     }
 
-    public static void renderLaserStatic(LaserData_BC8 data) {
-        LaserCompiledList compiled = COMPILED_STATIC_LASERS.getUnchecked(data);
+    public static void renderLaserStatic(PoseStack pose, Matrix4f matrix, LaserData_BC8 data) {
+        LaserCompiledList compiled = COMPILED_STATIC_LASERS.getUnchecked(data);//TODO
         SpriteUtil.bindBlockTextureMap();
-        compiled.render();
+        compiled.render(pose, matrix);
     }
 
     /** Assumes the buffer uses {@link DefaultVertexFormats#BLOCK} */

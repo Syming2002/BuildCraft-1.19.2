@@ -9,10 +9,15 @@ package ct.buildcraft.lib.client.render.laser;
 import java.util.ArrayList;
 import java.util.List;
 
+import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.lib.client.render.laser.LaserData_BC8.LaserType;
 import ct.buildcraft.lib.misc.VecUtil;
 import ct.buildcraft.lib.misc.data.Box;
+
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix3f;
+import com.mojang.math.Matrix4f;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -24,19 +29,20 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class LaserBoxRenderer {
     private static final double RENDER_SCALE = 1 / 16.05;
 
-    public static void renderLaserBoxStatic(Box box, LaserType type, boolean center) {
+    public static void renderLaserBoxStatic(PoseStack pose, Matrix4f matrix, Box box, LaserType type, boolean center) {
+//    	BCLog.logger.debug("LaserBoxRenderer.renderLaserBoxStatic:call unimplemented method");
         if (box == null || box.min() == null || box.max() == null) {
             return;
         }
-
+        
         makeLaserBox(box, type, center);
 
         for (LaserData_BC8 data : box.laserData) {
-            LaserRenderer_BC8.renderLaserStatic(data);
+            LaserRenderer_BC8.renderLaserStatic(pose, matrix, data);
         }
     }
 
-    public static void renderLaserBoxDynamic(Box box, LaserType type, VertexConsumer bb, boolean center) {
+    public static void renderLaserBoxDynamic(Box box, LaserType type, Matrix4f pose, Matrix3f normal, VertexConsumer bb, boolean center) {
         if (box == null || box.min() == null || box.max() == null) {
             return;
         }
@@ -44,7 +50,7 @@ public class LaserBoxRenderer {
         makeLaserBox(box, type, center);
 
         for (LaserData_BC8 data : box.laserData) {
-            LaserRenderer_BC8.renderLaserDynamic(null, null, data, bb);//TODO temporary
+            LaserRenderer_BC8.renderLaserDynamic(pose, normal, data, bb);//TODO temporary
         }
     }
 
@@ -123,7 +129,7 @@ public class LaserBoxRenderer {
         Direction faceForMax = VecUtil.getFacing(axis, false);
         Vec3 one = min.add(Vec3.atLowerCornerOf(faceForMin.getNormal()).scale(1 / 16D));
         Vec3 two = max.add(Vec3.atLowerCornerOf(faceForMax.getNormal()).scale(1 / 16D));
-        return new LaserData_BC8(type, one, two, null, RENDER_SCALE);//TODO temporary
+        return new LaserData_BC8(type, one, two, RENDER_SCALE);//TODO temporary
     }
 
 }

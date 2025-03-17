@@ -26,7 +26,8 @@ public class BlockEngine_BC8 extends BlockEngineBase_BC8<EnumEngineType> {
     public BlockEngine_BC8(Properties material) {
         super(material);
         this.registerDefaultState(
-        		this.stateDefinition.any().setValue(TYPE, EnumEngineType.WOOD));
+        		this.stateDefinition.any()
+        		.setValue(TYPE, EnumEngineType.WOOD));
     }
     
 	@Override

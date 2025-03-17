@@ -26,7 +26,7 @@ public class BCFactoryItems {
     public static final RegistryObject<Item> GEL = ITEMS.register("gel", () -> new Item(new Item.Properties().tab(BCCore.BUILDCRAFT_TAB)));
     
     
-    static void preInit(IEventBus bus) {
+    static void registry(IEventBus bus) {
     	ITEMS.register(bus);
     }
 }

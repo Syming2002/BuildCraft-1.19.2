@@ -16,10 +16,21 @@ public class TankComponent extends AbstractComponent{
 	
 	protected int typeCache;
 	protected Fluid fluidCache;
+	protected final int capacity;
+	protected final byte renderType;
 	
-	public TankComponent(int x, int y, int sx, int sy) {
+	public TankComponent(int x, int y, int sx, int sy, int capacity) {
 		super(x, y, sx, sy);
+		this.capacity = capacity;
+		renderType = U_TO_D;
 	}
+	
+	public TankComponent(int x, int y, int sx, int sy, int capacity, byte type) {
+		super(x, y, sx, sy);
+		this.capacity = capacity;
+		renderType = type;
+	}
+	
 	
 	@Override
 	public void render(PoseStack pose, int mouseX, int mouseY, float partialTick) {
@@ -31,7 +42,7 @@ public class TankComponent extends AbstractComponent{
 			fluidCache = TankContainer.getFluid(type);
 		}
 		if(this.fluidCache != null)
-			FluidRenderer.drawFluidForGui(this.fluidCache,leftpos+x,toppos+y+ys, leftpos+x+xs, toppos+y+ys-(ys*data.get(offset+1)/10000f), pose.last());
+			FluidRenderer.drawFluidForGui(this.fluidCache,leftpos+x,toppos+y+ys, leftpos+x+xs, toppos+y+ys-(ys*data.get(offset+1)/capacity), pose.last());
 	}
 
 	@Override
@@ -50,7 +61,7 @@ public class TankComponent extends AbstractComponent{
         List<Component> toolTip = Lists.newArrayList();
         if (amount > 0) 
         	toolTip.add(fluid.getFluidType().getDescription());
-        toolTip.add(Component.translatable(LocaleUtil.localizeFluidStaticAmount(amount, 10000)).withStyle(ChatFormatting.GRAY));//TODO
+        toolTip.add(Component.translatable(LocaleUtil.localizeFluidStaticAmount(amount, capacity)).withStyle(ChatFormatting.GRAY));//TODO
         return toolTip ;
     }
 	

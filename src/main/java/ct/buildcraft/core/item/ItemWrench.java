@@ -1,9 +1,13 @@
 package ct.buildcraft.core.item;
 
 import ct.buildcraft.api.blocks.CustomRotationHelper;
+import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.api.tools.IToolWrench;
 import ct.buildcraft.core.BCCore;
+import ct.buildcraft.factory.BCFactoryBlocks;
+import ct.buildcraft.factory.blockEntity.TileTank;
 import ct.buildcraft.lib.misc.SoundUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -17,6 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.fml.loading.FMLLoader;
 
 public class ItemWrench extends Item implements IToolWrench{
 
@@ -39,8 +44,9 @@ public class ItemWrench extends Item implements IToolWrench{
 		Vec3 c = coc.getClickLocation();
         BlockState state = world.getBlockState(pos);
 		//DEBUG
-/*		if(true) {
-			ct.buildcraft.api.core.BCLog.logger.debug("ItemWrench"+(BCFactoryItems.GEL.get() == BCFactoryItems.GEL.get()));
+//        BCLog.logger.info(""+FMLLoader.getNaming());
+		if(world.getBlockEntity(pos) instanceof TileTank tile) {
+			ct.buildcraft.api.core.BCLog.logger.debug("ItemWrench"+tile.tank.getFluidType().getFluidType().getDescriptionId());
 			return InteractionResult.CONSUME;
 		}//*/
         InteractionResult result = CustomRotationHelper.INSTANCE.attemptRotateBlock(world, pos, state, side);

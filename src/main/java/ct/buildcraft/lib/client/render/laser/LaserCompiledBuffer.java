@@ -7,7 +7,6 @@
 package ct.buildcraft.lib.client.render.laser;
 
 
-import ct.buildcraft.api.core.BCLog;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
@@ -42,12 +41,11 @@ public class LaserCompiledBuffer {
             buffer.color(c & 0xFF, (c >> 8) & 0xFF, (c >> 16) & 0xFF, (c >> 24) & 0xFF);
 
             // TEX_2F
-            buffer.uv(data[counter++], data[counter++]);
+            buffer.uv(data[counter++]+0.00f, data[counter++]+0.000f);
 
             // TEX_2S
             int lmap = (int)data[counter++];
-            buffer.uv2((lmap >> 16) & 0xFFFF, lmap & 0xFFFF);
-//            buffer.uv2(15728800);
+            buffer.uv2(lmap);
             buffer.normal(normal, data[counter++], data[counter++], data[counter++]);
             buffer.overlayCoords(OverlayTexture.NO_OVERLAY);
 

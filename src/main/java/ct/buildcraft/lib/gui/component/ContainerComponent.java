@@ -7,9 +7,16 @@ import net.minecraft.world.inventory.ContainerData;
 
 public interface ContainerComponent{
 	
+	public static final byte R_TO_L = 1;
+	public static final byte L_TO_R = 2;
+	public static final byte U_TO_D = 4;
+	public static final byte D_TO_U = 8;
+	
 	public void render(PoseStack pose, int mouseX, int mouseY, float partialTick);
 	
 	public default boolean onClick(double x, double y, int mouse) {return false;}
+	
+	public default boolean mouseRelease(double x, double y, int mouse) {return false;};
 	
 	public default boolean isHovering(int x, int y) {return false;}
 	
@@ -31,7 +38,7 @@ public interface ContainerComponent{
 	
 	public default void setDataoffset(int offset) {}
 	
-	public default int getNeedDataSize() {return 0;}
+	public int getNeedDataSize();
 	
 	public default void onClose() {};
 }

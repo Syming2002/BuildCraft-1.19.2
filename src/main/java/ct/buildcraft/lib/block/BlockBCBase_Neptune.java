@@ -46,10 +46,6 @@ public class BlockBCBase_Neptune extends Block {
 
     // BlockState
 
-    protected void addProperties(List<EnumProperty<?>> properties) {
-
-    }
-
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> bs) {
         if (this instanceof IBlockWithFacing) 

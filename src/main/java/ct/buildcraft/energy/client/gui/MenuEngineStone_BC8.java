@@ -1,5 +1,6 @@
 package ct.buildcraft.energy.client.gui;
 
+import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.core.BCCoreBlocks;
 import ct.buildcraft.energy.BCEnergyGuis;
 
@@ -18,7 +19,7 @@ import net.minecraftforge.items.SlotItemHandler;
 public class MenuEngineStone_BC8 extends AbstractContainerMenu {
 
 	private final ContainerLevelAccess access;
-	private final ContainerData data;
+	protected final ContainerData data;
 	
 	public MenuEngineStone_BC8(int containerId, Inventory playerInventory) {
 		this(containerId, playerInventory, new ItemStackHandler(1), new SimpleContainerData(2), ContainerLevelAccess.NULL);

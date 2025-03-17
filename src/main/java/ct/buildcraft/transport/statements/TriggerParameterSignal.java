@@ -130,7 +130,7 @@ public class TriggerParameterSignal implements IStatementParameter {
         if (colour == null) {
             return Component.empty();
         }
-        return Component.translatable(LocaleUtil.localize("gate.trigger.pipe.wire." + (active ? "active" : "inactive")));
+        return (Component.translatable("gate.trigger.pipe.wire." + (active ? "active" : "inactive")));
     //        ColourUtil.getTextFullTooltip(colour));
     }
 

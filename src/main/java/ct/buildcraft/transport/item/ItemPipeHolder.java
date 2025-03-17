@@ -13,7 +13,7 @@ import java.util.List;
 
 import ct.buildcraft.api.transport.pipe.IItemPipe;
 import ct.buildcraft.api.transport.pipe.PipeDefinition;
-import ct.buildcraft.transport.BCTransport;
+import ct.buildcraft.core.BCCore;
 import ct.buildcraft.transport.BCTransportBlocks;
 
 import net.minecraft.core.NonNullList;
@@ -32,7 +32,7 @@ public class ItemPipeHolder extends BlockItem implements IItemPipe {
     private String unlocalizedName;
 
     public ItemPipeHolder(PipeDefinition definition) {
-        super(BCTransportBlocks.pipeHolder.get(), new Item.Properties().tab(BCTransport.tabPipes));
+        super(BCTransportBlocks.pipeHolder.get(), new Item.Properties().tab(BCCore.tabPipes));
         this.definition = definition;
         this.unlocalizedName = definition.identifier.toLanguageKey("pipe");
     }
@@ -61,7 +61,7 @@ public class ItemPipeHolder extends BlockItem implements IItemPipe {
 
 	@Override
     public Collection<CreativeModeTab> getCreativeTabs() {
-        return Collections.singletonList(BCTransport.tabPipes);
+        return Collections.singletonList(BCCore.tabPipes);
     }
 	
 	
@@ -81,10 +81,10 @@ public class ItemPipeHolder extends BlockItem implements IItemPipe {
             tooltip.add(Component.translatable(localised).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
         if (definition.flowType == PipeApi.flowFluids) {
             PipeApi.FluidTransferInfo fti = PipeApi.getFluidTransferInfo(definition);
-            tooltip.add(Component.translatable(LocaleUtil.localizeFluidFlow(fti.transferPerTick)));
+            tooltip.add(Component.translatable(Component.translatableFluidFlow(fti.transferPerTick)));
         } else if (definition.flowType == PipeApi.flowPower) {
             PipeApi.PowerTransferInfo pti = PipeApi.getPowerTransferInfo(definition);
-            tooltip.add(Component.translatable(LocaleUtil.localizeMjFlow(pti.transferPerTick)));
+            tooltip.add(Component.translatable(Component.translatableMjFlow(pti.transferPerTick)));
             // TODO: remove this! (Not localised b/c localisations happen AFTER this is removed)
             tooltip.add(Component.literal("Work in progress - the above limit isn't enforced!"));
         }*/

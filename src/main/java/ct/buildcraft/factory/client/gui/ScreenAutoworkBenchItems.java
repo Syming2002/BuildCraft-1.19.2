@@ -3,18 +3,12 @@ package ct.buildcraft.factory.client.gui;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import ct.buildcraft.BCFactorySprites;
-import ct.buildcraft.transport.BCTransportSprites;
-import ct.buildcraft.transport.client.gui.MenuFilteredBuffer;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import ct.buildcraft.factory.BCFactorySprites;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
 
 public class ScreenAutoworkBenchItems extends AbstractContainerScreen<MenuAutoWorkbenchItems>{
 	private static final ResourceLocation TEXTURE_BASE = BCFactorySprites.AUTO_BENCH_GUI;

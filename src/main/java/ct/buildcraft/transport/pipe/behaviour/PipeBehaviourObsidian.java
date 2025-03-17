@@ -168,7 +168,7 @@ public class PipeBehaviourObsidian extends PipeBehaviour implements IMjRedstoneR
             }
             ItemStack extracted = transactor.extract(StackFilter.ALL, 1, max, simulate == FluidAction.SIMULATE);
             if (!extracted.isEmpty()) {
-                if (simulate == FluidAction.SIMULATE) {
+                if (simulate == FluidAction.EXECUTE) {//DEBUG
                     flowItem.insertItemsForce(extracted, faceFrom, null, INSERT_SPEED);
                 }
                 return power - powerReqPerItem * extracted.getCount();

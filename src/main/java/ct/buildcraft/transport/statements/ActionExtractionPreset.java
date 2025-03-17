@@ -35,7 +35,7 @@ public class ActionExtractionPreset extends BCStatement implements IActionIntern
     @Override
     public Component getDescription() {
     	return MutableComponent.create(new TranslatableContents("gate.action.extraction"));
-//        return LocaleUtil.localize("gate.action.extraction", ColourUtil.getTextFullTooltip(index.colour));
+//        return Component.translatable("gate.action.extraction", ColourUtil.getTextFullTooltip(index.colour));
     }
 
     @Override

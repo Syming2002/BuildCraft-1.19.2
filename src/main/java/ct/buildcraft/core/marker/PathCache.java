@@ -6,7 +6,6 @@ package ct.buildcraft.core.marker;
 
 import ct.buildcraft.lib.marker.MarkerCache;
 
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
 public class PathCache extends MarkerCache<PathSubCache> {
@@ -18,6 +17,6 @@ public class PathCache extends MarkerCache<PathSubCache> {
 
     @Override
     protected PathSubCache createSubCache(Level world) {
-        return new PathSubCache((ServerLevel)world);
+        return new PathSubCache(world);
     }
 }

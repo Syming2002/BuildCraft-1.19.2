@@ -8,32 +8,29 @@ package ct.buildcraft.lib.client.render.laser;
 
 import ct.buildcraft.lib.client.model.MutableQuad;
 import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class LaserContext {
-	public final Matrix4f matrix = new Matrix4f();
-	public final BlockPos pos;
+	public final Matrix3f matrix = new Matrix3f();
+	private final Vector3f offset;
 	private final Vector3f point = new Vector3f();
-	private final Vector4f normal = new Vector4f();
+	private final Vector3f normal = new Vector3f();
 	private final ILaserRenderer renderer;
 	public final double length;
-	private final boolean useNormalColour, drawBothSides;
+	private final boolean useNormalColour, drawBothSides, isStatic;
 	private final int minBlockLight;
 
-	public LaserContext(ILaserRenderer renderer, LaserData_BC8 data, boolean useNormalColour, boolean isCullEnabled) {
+	public LaserContext(ILaserRenderer renderer, LaserData_BC8 data, boolean useNormalColour, boolean isCullEnabled, boolean isStatic) {
 		this.renderer = renderer;
 		this.useNormalColour = useNormalColour;
 		this.drawBothSides = isCullEnabled;
 		this.minBlockLight = data.minBlockLight;
-		this.pos = data.pos;
+		this.isStatic = isStatic;
 		
 		Vec3 delta = data.start.subtract(data.end);
 		double dx = delta.x;
@@ -66,13 +63,12 @@ public class LaserContext {
 		// 4: translate forward by "start"
 		matrix.setIdentity();
 		// // Step 4
-		matrix.multiply(
-				Matrix4f.createTranslateMatrix((float) data.start.x, (float) data.start.y, (float) data.start.z));
+		offset = new Vector3f(data.start);
 		// Step 3
-		matrix.multiply(Matrix4f.createScaleMatrix((float) data.scale, (float) data.scale, (float) data.scale));
+		matrix.mul(Matrix3f.createScaleMatrix((float) data.scale, (float) data.scale, (float) data.scale));
 		Quaternion q = new Quaternion(0.0F, (float) Math.sin((angleZ / 2.0F)), 0.0F, (float) Math.cos((angleZ / 2.0F)));
 		q.mul(new Quaternion(0.0F, 0.0F, (float) Math.sin((angleY / 2.0F)), (float) Math.cos((angleY / 2.0F))));
-		matrix.multiply(q);
+		matrix.mul(q);
 	}
 
 	@OnlyIn(Dist.CLIENT)
@@ -81,8 +77,8 @@ public class LaserContext {
 			normal.setX((float) nx);
 			normal.setY((float) ny);
 			normal.setZ((float) nz);
-			normal.setW(0);
 			normal.transform(matrix);
+//			normal.add(offset);
 			n[0] = normal.x();
 			n[1] = normal.y();
 			n[2] = normal.z();
@@ -101,15 +97,20 @@ public class LaserContext {
 	private float diffuse;
 
 	@OnlyIn(Dist.CLIENT)
-	public void addPoint(double xIn, double yIn, double zIn, double uIn, double vIn, BlockPos pos) {
+	public void addPoint(double xIn, double yIn, double zIn, double uIn, double vIn) {
 		point.setX((float) xIn);
 		point.setY((float) yIn);
 		point.setZ((float) zIn);
-		point.transform(new Matrix3f(matrix));
-		int lmap = LaserRenderer_BC8.computeLightmap(point.x() + pos.getX()+0.5f, point.y() + pos.getY()+0.5f, point.z() + pos.getZ()+0.5f, minBlockLight);
-		x[index] = point.x();
-		y[index] = point.y();
-		z[index] = point.z();
+		point.transform(matrix);
+		
+		float rx = offset.x() + point.x();//real X position
+		float ry = offset.y() + point.y();
+		float rz = offset.z() + point.z();
+		
+		int lmap = LaserRenderer_BC8.computeLightmap(rx, ry, rz, minBlockLight);
+		x[index] = isStatic ? rx : point.x();
+		y[index] = isStatic ? ry : point.y();
+		z[index] = isStatic ? rz : point.z();
 		u[index] = uIn;
 		v[index] = vIn;
 		l[index] = lmap;

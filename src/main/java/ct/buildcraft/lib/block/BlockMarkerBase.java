@@ -20,8 +20,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
@@ -33,7 +36,7 @@ import net.minecraftforge.api.distmarker.Dist;
 
 public abstract class BlockMarkerBase extends BlockBCTile_Neptune implements ICustomRotationHandler{
     private static final Map<Direction, VoxelShape> BOUNDING_BOXES = new EnumMap<>(Direction.class);
-    private static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    private static final DirectionProperty FACING = BlockStateProperties.FACING;
     private static final BooleanProperty ACTIVE = BuildCraftProperties.ACTIVE;
     static {
         double halfWidth = 0.1;
@@ -42,20 +45,27 @@ public abstract class BlockMarkerBase extends BlockBCTile_Neptune implements ICu
         final double nw = 0.5 - halfWidth;
         final double pw = 0.5 + halfWidth;
         final double ih = 1 - h;
-        BOUNDING_BOXES.put(Direction.DOWN, Block.box(nw, ih, nw, pw, 1, pw));
-        BOUNDING_BOXES.put(Direction.UP, Block.box(nw, 0, nw, pw, h, pw));
-        BOUNDING_BOXES.put(Direction.SOUTH, Block.box(nw, nw, 0, pw, pw, h));
-        BOUNDING_BOXES.put(Direction.NORTH, Block.box(nw, nw, ih, pw, pw, 1));
-        BOUNDING_BOXES.put(Direction.EAST, Block.box(0, nw, nw, h, pw, pw));
-        BOUNDING_BOXES.put(Direction.WEST, Block.box(ih, nw, nw, 1, pw, pw));
+        BOUNDING_BOXES.put(Direction.DOWN, Shapes.box(nw, ih, nw, pw, 1, pw));
+        BOUNDING_BOXES.put(Direction.UP, Shapes.box(nw, 0, nw, pw, h, pw));
+        BOUNDING_BOXES.put(Direction.SOUTH, Shapes.box(nw, nw, 0, pw, pw, h));
+        BOUNDING_BOXES.put(Direction.NORTH, Shapes.box(nw, nw, ih, pw, pw, 1));
+        BOUNDING_BOXES.put(Direction.EAST, Shapes.box(0, nw, nw, h, pw, pw));
+        BOUNDING_BOXES.put(Direction.WEST, Shapes.box(ih, nw, nw, 1, pw, pw));
     }
 
     public BlockMarkerBase(Properties material) {
-        super(material.destroyTime(0.25f));
+        super(material.strength(0.25f).sound(SoundType.WOOD));
         this.registerDefaultState(this.stateDefinition.any()
         		.setValue(FACING, Direction.NORTH)
         		.setValue(ACTIVE, false));
     }
+    
+	@Override
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> bs) {
+		bs.add(FACING);
+		bs.add(ACTIVE);
+		super.createBlockStateDefinition(bs);
+	}
 
 
  
@@ -98,10 +108,14 @@ public abstract class BlockMarkerBase extends BlockBCTile_Neptune implements ICu
 			CollisionContext p_60482_) {
 		return BOUNDING_BOXES.get(state.getValue(FACING));
 	}
-
-
+	
 	
     @Override
+	public VoxelShape getInteractionShape(BlockState p_60547_, BlockGetter p_60548_, BlockPos p_60549_) {
+		return super.getInteractionShape(p_60547_, p_60548_, p_60549_);
+	}
+
+	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext bpc) {
 		return super.getStateForPlacement(bpc).setValue(FACING, bpc.getClickedFace());
 	}
@@ -109,12 +123,16 @@ public abstract class BlockMarkerBase extends BlockBCTile_Neptune implements ICu
 
 
 
+    public BlockState updateShape(BlockState p_58143_, Direction p_58144_, BlockState p_58145_, LevelAccessor p_58146_, BlockPos p_58147_, BlockPos p_58148_) {
+        return p_58144_.getOpposite() == p_58143_.getValue(FACING) && !p_58143_.canSurvive(p_58146_, p_58147_) ? Blocks.AIR.defaultBlockState() : p_58143_;
+     }
 
 
 
     @Override
-	public boolean canSurvive(BlockState p_60525_, LevelReader level, BlockPos pos) {
-		return super.canSupportCenter(level, pos, Direction.NORTH);
+	public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+    	Direction d = state.getValue(FACING);
+    	return super.canSupportCenter(level, pos.offset(d.getOpposite().getNormal()), d);
 	}
 
 

@@ -9,9 +9,9 @@ package ct.buildcraft.lib.engine;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.function.BiFunction;
+
 import ct.buildcraft.api.blocks.ICustomRotationHandler;
 import ct.buildcraft.api.core.IEngineType;
-import ct.buildcraft.core.item.ItemEngine_BC8;
 import ct.buildcraft.lib.block.BlockBCTile_Neptune;
 import ct.buildcraft.lib.item.MultiBlockItem;
 import net.minecraft.core.BlockPos;

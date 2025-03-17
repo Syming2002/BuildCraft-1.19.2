@@ -16,6 +16,8 @@ import ct.buildcraft.lib.marker.MarkerConnection;
 import ct.buildcraft.lib.marker.MarkerSubCache;
 import ct.buildcraft.lib.misc.VecUtil;
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
@@ -203,29 +205,29 @@ public class PathConnection extends MarkerConnection<PathConnection> {
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void renderInWorld() {
+    public void renderInWorld(PoseStack pose, Matrix4f matrix) {
         BlockPos last = null;
         for (BlockPos p : positions) {
             if (last == null) {
                 last = p;
             } else {
-                renderLaser(VecUtil.add(VEC_HALF, Vec3.atBottomCenterOf(last)), VecUtil.add(VEC_HALF, Vec3.atBottomCenterOf(p)));
+                renderLaser(pose, matrix, VEC_HALF.add(Vec3.atBottomCenterOf(last)), VEC_HALF.add(Vec3.atBottomCenterOf(p)));
                 last = p;
             }
         }
         if (loop) {
             BlockPos from = positions.getLast();
             BlockPos to = positions.getFirst();
-            renderLaser(VecUtil.add(VEC_HALF, Vec3.atBottomCenterOf(from)), VecUtil.add(VEC_HALF, Vec3.atBottomCenterOf(to)));
+            renderLaser(pose, matrix, VEC_HALF.add(Vec3.atBottomCenterOf(from)), VEC_HALF.add(Vec3.atBottomCenterOf(to)));
         }
     }
 
     @OnlyIn(Dist.CLIENT)
-    private static void renderLaser(Vec3 from, Vec3 to) {
+    private static void renderLaser(PoseStack pose, Matrix4f matrix, Vec3 from, Vec3 to) {
         Vec3 one = offset(from, to);
         Vec3 two = offset(to, from);
-//        LaserData_BC8 data = new LaserData_BC8(BuildCraftLaserManager.MARKER_PATH_CONNECTED, one, two, RENDER_SCALE);
-//        LaserRenderer_BC8.renderLaserStatic(data);
+        LaserData_BC8 data = new LaserData_BC8(BuildCraftLaserManager.MARKER_PATH_CONNECTED, one, two, RENDER_SCALE);
+        LaserRenderer_BC8.renderLaserStatic(pose, matrix, data);
     }
 
     @OnlyIn(Dist.CLIENT)

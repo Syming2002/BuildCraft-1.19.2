@@ -1,6 +1,6 @@
 {
-    "parent":"item/generated",
-    "textures":{
-        "layer0":"buildcraftenergy:items/oil_dense_bucket"
-    }
+    "loader":"forge:fluid_container",
+    "parent": "forge:item/bucket_drip",
+    "fluid": "buildcraftenergy:blocks/fluids/dense_oil/oil_dense_hot_still",
+    "flip_gas": false
 }

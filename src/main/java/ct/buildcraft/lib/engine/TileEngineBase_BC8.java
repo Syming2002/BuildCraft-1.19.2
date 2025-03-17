@@ -20,7 +20,6 @@ import ct.buildcraft.api.mj.MjCapabilityHelper;
 import ct.buildcraft.api.tiles.IDebuggable;
 import ct.buildcraft.core.client.model.ModelEngine;
 import ct.buildcraft.lib.block.VanillaRotationHandlers;
-import ct.buildcraft.lib.misc.LocaleUtil;
 import ct.buildcraft.lib.misc.NBTUtilBC;
 import ct.buildcraft.lib.misc.collect.OrderedEnumMap;
 import ct.buildcraft.lib.tile.TileBC_Neptune;
@@ -34,7 +33,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -118,6 +116,7 @@ public abstract class TileEngineBase_BC8 extends TileBC_Neptune implements IDebu
                 Direction newDir = buffer.readEnum(Direction.class);
                 if(newDir != currentDirection) {
                 	requestModelDataUpdate();
+                	level.blockUpdated(worldPosition, getBlockState().getBlock());
                 	currentDirection = newDir;
                 }
                 powerStage = buffer.readEnum(EnumPowerStage.class);
@@ -281,8 +280,8 @@ public abstract class TileEngineBase_BC8 extends TileBC_Neptune implements IDebu
     protected abstract IMjConnector createConnector();
 
     @Override
-    public void onNeighbourBlockChanged(Block block, BlockPos nehighbour) {
-        super.onNeighbourBlockChanged(block, nehighbour);
+    public void neighbourBlockChanged(BlockState state, BlockPos nehighbour, boolean a) {
+    	super.onNeighbourBlockChanged(state, nehighbour);
         isRedstonePowered = level.hasNeighborSignal(worldPosition);
         
     }
@@ -618,11 +617,11 @@ public abstract class TileEngineBase_BC8 extends TileBC_Neptune implements IDebu
     @Override
     public void getDebugInfo(List<String> left, List<String> right, Direction side) {
         left.add("facing = " + currentDirection);
-        left.add("heat = " + LocaleUtil.localizeHeat(heat) + " -- " + String.format("%.2f %%", getHeatLevel()));
-        left.add("power = " + LocaleUtil.localizeMj(power));
+        left.add("heat = " + (heat) + " -- " + String.format("%.2f %%", getHeatLevel()));
+        left.add("power = " + (power));
         left.add("stage = " + powerStage);
         left.add("progress = " + progress);
-        left.add("last = " + LocaleUtil.localizeMjFlow(lastPower));
+        left.add("last = " + (lastPower));
     }
 
     @OnlyIn(Dist.CLIENT)

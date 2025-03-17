@@ -88,10 +88,7 @@ public class FluidRenderer {
     }
 
     public static void onTextureStitchPre(TextureStitchEvent.Pre event) {
-    	if(!loaded) {
-    		loaded = true;
-    		mixinResourcePack();
-    	}
+    	mixinResourcePack();
         for (FluidSpriteType type : FluidSpriteType.values()) {
             fluidSprites.get(type).clear();
         }
@@ -123,6 +120,7 @@ public class FluidRenderer {
     }
     
     private static void mixinResourcePack() {
+    	BCLog.logger.debug("called sfasfafafsafaghsg");
     	ResourceManager reloadable = Minecraft.getInstance().getResourceManager();
     	try {
     		Field field = reloadable.getClass().getDeclaredFields()[1];
@@ -376,7 +374,7 @@ public class FluidRenderer {
     	
         vertex.positiond(x, y, z);
         texmap.apply(x - xTexDiff, y - yTexDiff, z - zTexDiff);
-        vertex.renderAsBlock(pose.pose(), pose.normal(), bb);
+        vertex.renderAsBlock(pose.pose(), pose.normal(), bb);//TODO
     }
 
     /** Fills up the given region with the fluids texture, repeated. Ignores the value of {@link FluidStack#amount}. Use

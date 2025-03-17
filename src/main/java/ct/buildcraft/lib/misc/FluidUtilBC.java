@@ -196,6 +196,6 @@ public class FluidUtilBC {
             }
 //            player.inventoryContainer.detectAndSendChanges();
         }
-        return true;
+        return changed;
     }
 }

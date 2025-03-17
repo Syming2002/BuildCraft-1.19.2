@@ -3,9 +3,14 @@ package ct.buildcraft.api.properties;
 
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
+import ct.buildcraft.api.enums.EnumDecoratedBlock;
 import ct.buildcraft.api.enums.EnumEngineType;
+import ct.buildcraft.api.enums.EnumLaserTableType;
+import ct.buildcraft.api.enums.EnumMachineState;
+import ct.buildcraft.api.enums.EnumOptionalSnapshotType;
 import ct.buildcraft.api.enums.EnumPowerStage;
 import ct.buildcraft.api.enums.EnumSpring;
 import net.minecraft.core.Direction;
@@ -13,6 +18,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 
 public final class BuildCraftProperties {
 	/**use {@link BlockStateProperties.HORIZONTAL_FACING}*/
@@ -25,17 +31,17 @@ public final class BuildCraftProperties {
 /*    public static final EnumPropetry<DyeColor> BLOC K_COLOR = PropertyEnum.create("color", DyeColor.class);*/
     public static final EnumProperty<EnumSpring> SPRING_TYPE = EnumProperty.create("type", EnumSpring.class);
     public static final EnumProperty<EnumEngineType> ENGINE_TYPE = EnumProperty.create("type", EnumEngineType.class);
- /*   public static final EnumPropetry<EnumLaserTableType> LASER_TABLE_TYPE = PropertyEnum.create("type", EnumLaserTableType.class);
-    public static final EnumPropetry<EnumMachineState> MACHINE_STATE = PropertyEnum.create("state", EnumMachineState.class);
-*/
-	public static final EnumProperty<EnumPowerStage> ENERGY_STAGE = EnumProperty.create("stage", EnumPowerStage.class);
-/*
-    public static final EnumPropetry<EnumOptionalSnapshotType> SNAPSHOT_TYPE = PropertyEnum.create("snapshot_type", EnumOptionalSnapshotType.class);
-    public static final EnumPropetry<EnumDecoratedBlock> DECORATED_BLOCK = PropertyEnum.create("decoration_type", EnumDecoratedBlock.class);
+    public static final EnumProperty<EnumLaserTableType> LASER_TABLE_TYPE = EnumProperty.create("type", EnumLaserTableType.class);
+    public static final EnumProperty<EnumMachineState> MACHINE_STATE = EnumProperty.create("state", EnumMachineState.class);
 
-    public static final EnumPropetry<Integer> GENERIC_PIPE_DATA = PropertyInteger.create("pipe_data", 0, 15);
-    public static final EnumPropetry<Integer> LED_POWER = PropertyInteger.create("led_power", 0, 3);
-*/
+	public static final EnumProperty<EnumPowerStage> ENERGY_STAGE = EnumProperty.create("stage", EnumPowerStage.class);
+
+    public static final EnumProperty<EnumOptionalSnapshotType> SNAPSHOT_TYPE = EnumProperty.create("snapshot_type", EnumOptionalSnapshotType.class);
+    public static final EnumProperty<EnumDecoratedBlock> DECORATED_BLOCK = EnumProperty.create("decoration_type", EnumDecoratedBlock.class);
+
+    public static final IntegerProperty GENERIC_PIPE_DATA = IntegerProperty.create("pipe_data", 0, 15);
+    public static final IntegerProperty LED_POWER = IntegerProperty.create("led_power", 0, 3);
+
     public static final BooleanProperty JOINED_BELOW = BooleanProperty.create("joined_below");
     public static final BooleanProperty WORK_STATE = BooleanProperty.create("work_state");
     public static final BooleanProperty IS_BOTTOM = BooleanProperty.create("is_bottom");
@@ -52,7 +58,7 @@ public final class BuildCraftProperties {
     public static final BooleanProperty CONNECTED_NORTH = BooleanProperty.create("connected_north");
     public static final BooleanProperty CONNECTED_SOUTH = BooleanProperty.create("connected_south");
 
-    public static final Map<Direction, BooleanProperty> CONNECTED_MAP ;
+    public static final ImmutableMap<Direction, BooleanProperty> CONNECTED_MAP ;
 
     // Block state setting flags -these are used by World.markAndNotifyBlock and World.setBlockState. These flags can be
     // added together to pass the additions
@@ -87,4 +93,5 @@ public final class BuildCraftProperties {
     /*
     /** Deactivate constructor */
     private BuildCraftProperties() {}
+    
 }

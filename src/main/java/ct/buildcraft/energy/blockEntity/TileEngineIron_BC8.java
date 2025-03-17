@@ -28,7 +28,6 @@ import ct.buildcraft.energy.client.gui.MenuEngineIron_BC8;
 import ct.buildcraft.lib.engine.EngineConnector;
 import ct.buildcraft.lib.engine.TileEngineBase_BC8;
 import ct.buildcraft.lib.fluid.Tank;
-import ct.buildcraft.lib.fluid.TankManager;
 import ct.buildcraft.lib.gui.TankContainer;
 import ct.buildcraft.lib.misc.CapUtil;
 import ct.buildcraft.lib.misc.EntityUtil;
@@ -37,7 +36,6 @@ import ct.buildcraft.lib.misc.StackUtil;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -109,7 +107,7 @@ public class TileEngineIron_BC8 extends TileEngineBase_BC8 implements MenuProvid
         caps.addCapabilityInstance(CapUtil.CAP_FLUIDS, fluidHandler, EnumPipePart.VALUES);
     }
 
-    // TileEntity overrides
+    // BlockEntity overrides
 
     @Override
     public void saveAdditional(CompoundTag nbt) {

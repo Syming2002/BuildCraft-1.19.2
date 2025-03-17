@@ -10,6 +10,9 @@ import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
+
 import ct.buildcraft.lib.tile.TileMarker;
 
 import net.minecraft.core.BlockPos;
@@ -31,9 +34,10 @@ public abstract class MarkerConnection<C extends MarkerConnection<C>> {
     public abstract Collection<BlockPos> getMarkerPositions();
 
     @OnlyIn(Dist.CLIENT)
-    public abstract void renderInWorld();
+    public abstract void renderInWorld(PoseStack pose, Matrix4f matrix);
 
     public void getDebugInfo(BlockPos caller, List<String> left) {
+    	left.add("MarkerConnection:DEBUG TODO");
 /*        Collection<BlockPos> positions = getMarkerPositions();
         List<BlockPos> list = new ArrayList<>(positions);
         if (positions instanceof Set) {

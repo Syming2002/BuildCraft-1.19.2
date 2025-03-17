@@ -250,7 +250,7 @@ public class TilePipeHolder extends TileBC_Neptune implements IPipeHolder/*, ITi
     }
 
     @Override
-    public void onNeighbourBlockChanged(Block block, BlockPos neighbour) {
+    public void onNeighbourBlockChanged(BlockState state, BlockPos neighbour) {
         if (level.isClientSide()) {
             return;
         }

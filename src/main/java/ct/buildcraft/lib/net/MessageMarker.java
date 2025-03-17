@@ -13,6 +13,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import ct.buildcraft.api.core.BCLog;
+import ct.buildcraft.lib.marker.MarkerCache;
 import ct.buildcraft.lib.misc.MessageUtil;
 
 import net.minecraft.client.Minecraft;
@@ -80,7 +81,8 @@ public class MessageMarker {
             ctx.get().setPacketHandled(true);
             return;
     	}
-        Level world = Minecraft.getInstance().level;
+    	Minecraft mc = Minecraft.getInstance();
+        Level world = mc.level;
         if (world == null) {
             if (DEBUG) {
                 BCLog.logger.warn("[lib.messages][marker] The world was null for a message!");
@@ -88,19 +90,15 @@ public class MessageMarker {
             ctx.get().setPacketHandled(true);
             return;
         }
-        /*
-         * 
-         * 
-         * to do
-         */
-/*        if (message.cacheId < 0 || message.cacheId >= MarkerCache.CACHES.size()) {
+        if (message.cacheId < 0 || message.cacheId >= MarkerCache.CACHES.size()) {
             if (DEBUG) {
                 BCLog.logger.warn("[lib.messages][marker] The cache ID " + message.cacheId + " was invalid!");
             }
             return;
         }
         MarkerCache<?> cache = MarkerCache.CACHES.get(message.cacheId);
-        cache.getSubCache(world).handleMessageMain(message);*/
+//        BCLog.logger.error("MessageMarker:FAIL to handle message!");
+        cache.getSubCache(world).handleMessageMain(message);
         ctx.get().setPacketHandled(true);
     };
 }

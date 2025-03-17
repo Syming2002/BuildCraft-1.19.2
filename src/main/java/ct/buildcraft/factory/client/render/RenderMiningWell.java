@@ -6,28 +6,24 @@
 
 package ct.buildcraft.factory.client.render;
 
-import ct.buildcraft.BCFactorySprites;
-import ct.buildcraft.factory.BCFactory;
-import ct.buildcraft.factory.BCFactoryBlocks;
-import ct.buildcraft.factory.blockEntity.TileMiningWell;
-import ct.buildcraft.lib.client.render.laser.LaserData_BC8.LaserRow;
-import ct.buildcraft.lib.client.render.laser.LaserData_BC8.LaserType;
-import ct.buildcraft.lib.client.render.tile.RenderPartCube;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.PoseStack.Pose;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 
-import net.minecraft.client.Minecraft;
+import ct.buildcraft.factory.BCFactoryBlocks;
+import ct.buildcraft.factory.BCFactorySprites;
+import ct.buildcraft.factory.blockEntity.TileMiningWell;
+import ct.buildcraft.lib.client.render.laser.LaserData_BC8.LaserRow;
+import ct.buildcraft.lib.client.render.laser.LaserData_BC8.LaserType;
+import ct.buildcraft.lib.client.render.tile.RenderPartCube;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.Vec3;
@@ -57,9 +53,8 @@ public class RenderMiningWell implements BlockEntityRenderer<TileMiningWell> {
         LED_POWER = new RenderPartCube();
         LED_STATUS = new RenderPartCube();
 
-        TextureAtlasSprite spriteTubeMiddle = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(BCFactorySprites.MININGTUBE);
-        LaserRow cap = new LaserRow(spriteTubeMiddle, 0, 8, 8, 16);
-        LaserRow middle = new LaserRow(spriteTubeMiddle, 0, 0, 16, 8);
+        LaserRow cap = new LaserRow(BCFactorySprites.mining_tube, 0, 8, 8, 16);
+        LaserRow middle = new LaserRow(BCFactorySprites.mining_tube, 0, 0, 16, 8);
 
         LaserRow[] middles = { middle };
 
@@ -118,6 +113,7 @@ public class RenderMiningWell implements BlockEntityRenderer<TileMiningWell> {
         LED_POWER.center.colouri(COLOUR_POWER[colourIndex]);
 //        BCLog.logger.debug("" + COLOUR_POWER[colourIndex]);
         LED_POWER.center.lightf(percentFilled > 0.01 ? 1 : 0, 0);
+        LED_POWER.center.overlay(overlay);
 
         LED_POWER.render(pose, normalMatrix, buffer);
 
@@ -125,7 +121,8 @@ public class RenderMiningWell implements BlockEntityRenderer<TileMiningWell> {
         boolean complete = tile.isComplete();
         LED_STATUS.center.colouri(complete ? COLOUR_STATUS_OFF : COLOUR_STATUS_ON);
         LED_STATUS.center.lighti(complete ? BLOCK_LIGHT_STATUS_OFF : BLOCK_LIGHT_STATUS_ON);
-
+        LED_POWER.center.overlay(overlay);
+        
         LED_STATUS.render(pose, normalMatrix, buffer);
 
         matrix.popPose();

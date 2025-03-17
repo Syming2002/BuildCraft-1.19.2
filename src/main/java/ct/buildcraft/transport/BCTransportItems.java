@@ -9,6 +9,7 @@ package ct.buildcraft.transport;
 import java.util.LinkedHashMap;
 
 import ct.buildcraft.api.transport.pipe.PipeDefinition;
+import ct.buildcraft.core.BCCore;
 import ct.buildcraft.lib.item.ItemBC_Neptune;
 import ct.buildcraft.lib.item.ItemPluggableSimple;
 import ct.buildcraft.transport.item.ItemPipeHolder;
@@ -90,7 +91,7 @@ public class BCTransportItems {
     public static final RegistryObject<ItemWire> wire;
 
     static {
-        WATER_PROOF = ITEMS.register("waterproof",() -> new ItemBC_Neptune("waterproof", new Properties().tab(BCTransport.tabPipes)));
+        WATER_PROOF = ITEMS.register("waterproof",() -> new ItemBC_Neptune("waterproof", new Properties().tab(BCCore.tabPipes)));
         PIPE_STRUCTURE = makePipeItem(BCTransportPipes.structure);
 
         // Register them in order of type -- item, fluid, power
@@ -132,11 +133,11 @@ public class BCTransportItems {
         // pipePowerIron = makePipeItem(BCTransportPipes.ironPower);
         PIPE_POWER_SAND_STONE = makePipeItem(BCTransportPipes.sandstonePower);
 
-        plugBlocker = ITEMS.register("plug_blocker",() -> new ItemPluggableSimple("plug_blocker", BCTransportPlugs.blocker, new Properties().tab(BCTransport.tabPlugs)));
+        plugBlocker = ITEMS.register("plug_blocker",() -> new ItemPluggableSimple("plug_blocker", BCTransportPlugs.blocker, new Properties().tab(BCCore.tabPlugs)));
         plugPowerAdaptor = ITEMS.register("plug_power_adaptor", () -> new ItemPluggableSimple("plug_power_adaptor",
-            BCTransportPlugs.powerAdaptor, ItemPluggableSimple.PIPE_BEHAVIOUR_ACCEPTS_RS_POWER, new Properties().tab(BCTransport.tabPlugs)));
+            BCTransportPlugs.powerAdaptor, ItemPluggableSimple.PIPE_BEHAVIOUR_ACCEPTS_RS_POWER, new Properties().tab(BCCore.tabPlugs)));
 
-        wire = ITEMS.register("wire", () -> new ItemWire("wire", new Properties().tab(BCTransport.tabPlugs)));
+        wire = ITEMS.register("wire", () -> new ItemWire("wire", new Properties().tab(BCCore.tabPlugs)));
     }
     
     

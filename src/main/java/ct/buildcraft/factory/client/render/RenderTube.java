@@ -28,8 +28,6 @@ public class RenderTube implements BlockEntityRenderer<TileMiner> {
     public RenderTube(LaserType laserType) {
         this.laserType = laserType;
     }
-    
-    
 
     @Override
 	public void render(TileMiner tile, float partialTicks, PoseStack matrix, MultiBufferSource builder,
@@ -44,12 +42,12 @@ public class RenderTube implements BlockEntityRenderer<TileMiner> {
         Matrix4f pose = p.pose();
         Matrix3f normal = p.normal();
 
-        Vec3 start = new Vec3(0.5, 0, 0.5);
-        Vec3 end = new Vec3(0.5, -tile.getLength(partialTicks), 0.5);
-        LaserData_BC8 data = new LaserData_BC8(laserType, start, end, tile.getBlockPos(), 1 / 16.0);
+        BlockPos pos = tile.getBlockPos();
+        Vec3 start = new Vec3(0.5+pos.getX(), 0+pos.getY(), 0.5+pos.getZ());
+        Vec3 end = new Vec3(0.5+pos.getX(), pos.getY()-tile.getLength(partialTicks), 0.5+pos.getZ());
+        LaserData_BC8 data = new LaserData_BC8(laserType, start, end, 1 / 16.0);
         LaserRenderer_BC8.renderLaserDynamic(pose, normal, data, buffer);
 
-//        matrix.translate(from.getX(), from.getY(), from.getZ());
         matrix.popPose();
 	}
 }

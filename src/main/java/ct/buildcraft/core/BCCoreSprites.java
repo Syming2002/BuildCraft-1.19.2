@@ -135,7 +135,7 @@ public class BCCoreSprites {
         return SpriteHolderRegistry.getHolder("buildcraftcore:" + suffix);
     }
 
-    public static void fmlPreInit() {
+    public static void init() {
         // Nothing, just to register the sprites
     }
 }

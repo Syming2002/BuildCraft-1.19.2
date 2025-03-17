@@ -15,6 +15,7 @@ import ct.buildcraft.lib.client.sprite.SpriteHolderRegistry;
 import ct.buildcraft.lib.client.sprite.SpriteHolderRegistry.SpriteHolder;
 import ct.buildcraft.lib.misc.ColourUtil;
 import ct.buildcraft.transport.client.model.PipeBaseModelGenStandard;
+import ct.buildcraft.transport.client.render.PipeFlowRendererItems;
 import ct.buildcraft.transport.pipe.behaviour.PipeBehaviourEmzuli.SlotIndex;
 
 import net.minecraft.client.Minecraft;
@@ -163,7 +164,7 @@ public class BCTransportSprites {
         return SpriteHolderRegistry.getHolder("buildcraft" + module + ":" + loc);
     }
     
-	public static void preInit() {
+	public static void init() {
 /*		PIPE_TEX.put(BCTransportPipes.structure, STRUCTURE);
 		PIPE_TEX.put(BCTransportPipes.woodItem, WOOD_ITEM);
 		PIPE_TEX.put(BCTransportPipes.woodFluid, WOOD_FLUID);
@@ -211,6 +212,7 @@ public class BCTransportSprites {
     		event.addSprite(FILTERED_BUFFER_GUI);*/
     		event.addSprite(FILTERED_BUFFER_NOTTHING_SLOT_GUI);
     		event.addSprite(FILTERED_BUFFER_EMPTY_SLOT_GUI);
+    		PipeFlowRendererItems.onModelBake();
     	}
 
     }

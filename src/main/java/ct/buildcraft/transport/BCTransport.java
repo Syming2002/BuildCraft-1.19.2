@@ -6,15 +6,10 @@
 
 package ct.buildcraft.transport;
 
-import org.slf4j.Logger;
-
 import ct.buildcraft.api.BCModules;
-import ct.buildcraft.lib.CreativeTabManager;
-import ct.buildcraft.lib.CreativeTabManager.CreativeTabBC;
+import ct.buildcraft.core.BCCore;
 import ct.buildcraft.lib.net.MessageManager;
 import ct.buildcraft.transport.net.MessageMultiPipeItem;
-import com.mojang.logging.LogUtils;
-
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -31,23 +26,21 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 //@formatter:on
 public class BCTransport {
     public static final String MODID = "buildcrafttransport";
-	static final Logger LOGGER = LogUtils.getLogger();
     
-	
 
-    public static final CreativeTabBC tabPipes = CreativeTabManager.createTab("buildcraft.pipes");
-    public static final CreativeTabBC tabPlugs = CreativeTabManager.createTab("buildcraft.plugs");
+/*    public static final CreativeTabBC tabPipes = CreativeTabManager.createTab("buildcraft.pipes");
+    public static final CreativeTabBC tabPlugs = CreativeTabManager.createTab("buildcraft.plugs");*/
 
     public BCTransport() {
     	IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-    	modEventBus.addListener(this::commonSetup);
-    	modEventBus.addListener(this::gatherData);//DataGenerator
+        modEventBus.addListener(this::init);
+//    	modEventBus.addListener(this::gatherData);//DataGenerator
 
         BCTransportRegistries.preInit();
         BCTransportConfig.preInit();
-        BCTransportBlocks.registry(modEventBus);
         BCTransportPipes.preInit();
         BCTransportPlugs.preInit();
+        BCTransportBlocks.registry(modEventBus);
         BCTransportItems.registry(modEventBus);
         BCTransportGuis.preInit(modEventBus);
 //        BCTransportStatements.preInit();
@@ -55,10 +48,10 @@ public class BCTransport {
         // Reload after all of the pipe defs have been created.
 //        BCTransportConfig.reloadConfig(EnumRestartRequirement.GAME);
 
-      //  tabPipes.setItem(BCTransportItems.PIPE_ITEM_DIAMOND.get());
-     //   tabPlugs.setItem(BCTransportItems.plugBlocker.get());
         ModLoadingContext.get().registerConfig(Type.COMMON, BCTransportConfig.config);
-        //TEMP
+
+/*      MessageManager.registerMessageClass(BCModules.TRANSPORT, MessageWireSystems.class, Side.CLIENT);
+        MessageManager.registerMessageClass(BCModules.TRANSPORT, MessageWireSystemsPowered.class, Side.CLIENT);*/
     	MessageManager.registerMessageClass(BCModules.TRANSPORT, MessageMultiPipeItem.class, MessageMultiPipeItem.HANDLER, MessageMultiPipeItem::toBytes, MessageMultiPipeItem::new);
     	
         MinecraftForge.EVENT_BUS.register(this);
@@ -72,6 +65,12 @@ public class BCTransport {
 
         MinecraftForge.EVENT_BUS.register(BCTransportEventDist.INSTANCE);*/
     }
+    
+    public void init(final FMLCommonSetupEvent event) {
+    	BCTransportConfig.reloadConfig();
+    	BCCore.tabPipes.setItem(BCTransportItems.PIPE_ITEM_DIAMOND.get());
+    	BCCore.tabPlugs.setItem(BCTransportItems.plugBlocker.get());
+    }
 
     public void gatherData(GatherDataEvent event) {
         event.getGenerator().addProvider(
@@ -80,22 +79,11 @@ public class BCTransport {
         );
     }
     
-    private void commonSetup(final FMLCommonSetupEvent event) {
-    	BCTransportConfig.reloadConfig();
-    	tabPipes.setItem(BCTransportItems.PIPE_ITEM_DIAMOND.get());
-    	tabPlugs.setItem(BCTransportItems.plugBlocker.get());
-    }
-/*    public static void init(FMLInitializationEvent evt) {
-        BCTransportProxy.getProxy().fmlInit();
-        BCTransportRegistries.init();
-    }*/
-
     // How much time we wasted during a tantrum
     // We ensure that this never exceeds 15 seconds, even if we receive over a million invalid IMC messages
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event)
     {
-        LOGGER.info("Build");
     }
 
         	

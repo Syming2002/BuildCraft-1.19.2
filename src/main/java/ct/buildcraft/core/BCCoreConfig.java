@@ -71,7 +71,7 @@ public class BCCoreConfig {
     private static DoubleValue propMiningMultiplier;
     private static IntValue propMiningMaxDepth;
 
-    public static void preInit() {
+    public static void registry() {
         ForgeConfigSpec.Builder con_builder = new ForgeConfigSpec.Builder();
 
 /*        config = new ForgeConfigSpec(new File(cfgFolder, "main.cfg"));

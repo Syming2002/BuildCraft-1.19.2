@@ -25,7 +25,6 @@ public class BCTransportBlocks {
     
     private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, BCTransport.MODID);
     private static final DeferredRegister<BlockEntityType<?>> BET = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, BCTransport.MODID);
-    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, BCTransport.MODID);
 
     public static final RegistryObject<Block> filterBuffer = BLOCKS.register("filtered_buffer", BlockFilteredBuffer::new);
     public static final RegistryObject<Block> pipeHolder = BLOCKS.register("pipe_holder", BlockPipeHolder::new);
@@ -33,11 +32,10 @@ public class BCTransportBlocks {
     		() -> BlockEntityType.Builder.of(TileFilteredBuffer::new, filterBuffer.get()).build(null));
     public static final RegistryObject<BlockEntityType<TilePipeHolder>> PIPE_HOLDER_BE = BET.register("entity_pipe_holder",
     		() -> BlockEntityType.Builder.of(TilePipeHolder::new, pipeHolder.get()).build(null));
-    public static final RegistryObject<BlockItem> FILTERED_BUFFER_ITEM = ITEMS.register("filtered_buffer", () -> new BlockItem(filterBuffer.get(), new Item.Properties().tab(BCCore.BUILDCRAFT_TAB)));
+    public static final RegistryObject<BlockItem> FILTERED_BUFFER_ITEM = BCTransportItems.ITEMS.register("filtered_buffer", () -> new BlockItem(filterBuffer.get(), new Item.Properties().tab(BCCore.BUILDCRAFT_TAB)));
 
     public static void registry(IEventBus b) {
     	BLOCKS.register(b);
-    	ITEMS.register(b);
     	BET.register(b);
     }
 }

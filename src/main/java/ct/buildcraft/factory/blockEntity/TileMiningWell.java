@@ -30,10 +30,42 @@ import net.minecraft.world.level.gameevent.PositionSource;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 
-public class TileMiningWell extends TileMiner implements GameEventListener {
+public class TileMiningWell extends TileMiner {
 	private final BlockPositionSource blockPosSource = new BlockPositionSource(this.worldPosition);
     private boolean shouldCheck = true;
     private final SafeTimeTracker tracker = new SafeTimeTracker(256);
+    public final GameEventListener worldEventListener = new GameEventListener() {
+    	@Override
+    	public boolean handleEventsImmediately() {
+    		return true;
+    	}
+    	@Override
+    	public PositionSource getListenerSource() {
+    		return blockPosSource;
+    	}
+    	@Override
+    	public int getListenerRadius() {
+    		int limt = BCCoreConfig.miningMaxDepth;
+    		int high = worldPosition.getY()+64;
+    		return high < limt ? high: limt;
+    	}
+    	@Override
+    	public boolean handleGameEvent(ServerLevel p_223757_, Message msg) {
+    		GameEvent e = msg.gameEvent();
+    		if(e == GameEvent.BLOCK_PLACE || e == GameEvent.BLOCK_DESTROY) {
+    			Vec3 pos = msg.source();
+//    			BCLog.logger.debug("TileMingWell:"+msg.source()+"pos:"+
+//    			(int)(pos.x - 0.5f)+" "+(int)(pos.y - 0.5f)+" "+(int)(pos.z - 0.5f));
+                if ((int)(pos.x - 0.5f) == worldPosition.getX() &&
+                		(int)(pos.y - 0.5f) <= worldPosition.getY() &&
+                		(int)(pos.z - 0.5f) == worldPosition.getZ()) {
+                        shouldCheck = true;
+                    }
+                return true;
+    		}
+    		return false;
+    	}
+    };
 
     public TileMiningWell(BlockPos pos, BlockState state) {
     	super(BCFactoryBlocks.ENTITYBLOCKMININGWELL.get(), pos, state);
@@ -103,41 +135,6 @@ public class TileMiningWell extends TileMiner implements GameEventListener {
     
     
 
-    //GameEventListener
-
-	@Override
-	public boolean handleEventsImmediately() {
-		return true;
-	}
-
-	@Override
-	public PositionSource getListenerSource() {
-		return this.blockPosSource;
-	}
-
-	@Override
-	public int getListenerRadius() {
-		int limt = BCCoreConfig.miningMaxDepth;
-		int high = worldPosition.getY()+64;
-		return high < limt ? high: limt;
-	}
-
-	@Override
-	public boolean handleGameEvent(ServerLevel p_223757_, Message msg) {
-		GameEvent e = msg.gameEvent();
-		if(e == GameEvent.BLOCK_PLACE || e == GameEvent.BLOCK_DESTROY) {
-			Vec3 pos = msg.source();
-//			BCLog.logger.debug("TileMingWell:"+msg.source()+"pos:"+
-//			(int)(pos.x - 0.5f)+" "+(int)(pos.y - 0.5f)+" "+(int)(pos.z - 0.5f));
-            if ((int)(pos.x - 0.5f) == this.worldPosition.getX() &&
-            		(int)(pos.y - 0.5f) <= this.worldPosition.getY() &&
-            		(int)(pos.z - 0.5f) == this.worldPosition.getZ()) {
-                    shouldCheck = true;
-                }
-            return true;
-		}
-		return false;
-	}
 
 	@Override
 	public void onRemove(boolean dropSelf) {

@@ -1,6 +1,6 @@
 {
-    "parent":"item/generated",
-    "textures":{
-        "layer0":"buildcraftenergy:items/fuel_gas_bucket"
-    }
+    "loader":"forge:fluid_container",
+    "parent": "forge:item/bucket_drip",
+    "fluid": "buildcraftenergy:blocks/fluids/gaseous_fuel/fuel_gaseous_cool_hot",
+    "flip_gas": false
 }

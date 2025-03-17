@@ -313,7 +313,7 @@ public final class BlockUtil {
     public static Fluid getFluidWithFluidState(Level world, BlockPos pos) {
         BlockState bs = world.getBlockState(pos);
         Fluid f = getBlockFluid(bs.getBlock());
-        return f == Fluids.EMPTY ? bs.getFluidState().getType() : f;
+        return f;
     }
 
     public static Fluid getBlockFluid(Block block) {

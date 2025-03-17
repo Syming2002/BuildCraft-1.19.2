@@ -31,7 +31,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 public final class NBTUtilBC {
-    @SuppressWarnings("WeakerAccess")
     public static final CompoundTag NBT_NULL = new CompoundTag();
 
     public static <N extends Tag> Optional<N> toOptional(N value) {
@@ -79,6 +78,7 @@ public final class NBTUtilBC {
         return stack.getOrCreateTag();
     }
 
+    @Deprecated/**use {@link BlockPos#asLong()} instead*/
     public static int[] writeBlockPos(BlockPos pos) {
         if (pos == null) {
             throw new NullPointerException("Cannot return a null NBTTag -- pos was null!");
@@ -86,7 +86,7 @@ public final class NBTUtilBC {
         return new int[] { pos.getX(), pos.getY(), pos.getZ() };
     }
 
-    @SuppressWarnings("unused")
+    @Deprecated/**use {@link BlockPos#asLong()} instead*/
     public static CompoundTag writeBlockPosAsCompound(BlockPos pos) {
         if (pos == null) {
             throw new NullPointerException("Cannot return a null NBTTag -- pos was null!");
@@ -101,6 +101,7 @@ public final class NBTUtilBC {
     /**
      * use {@link #readBlockPos(int[])} for performance
      */
+    @Deprecated
     @Nullable
     public static BlockPos readBlockPos(Tag base) {
         if (base == null) {
@@ -134,6 +135,7 @@ public final class NBTUtilBC {
         BCLog.logger.warn("Attempted to read a block position from an invalid tag! (" + base + ")", new Throwable());
         return null;
     }
+    @Deprecated/**use {@link BlockPos#of()} instead*/
     public static BlockPos readBlockPos(int[] array) {
         if (array.length == 3){
             return new BlockPos(array[0], array[1], array[2]);
@@ -269,11 +271,10 @@ public final class NBTUtilBC {
         	list.addTag(counter++, tag);
         return list;
     }*/
-    @SuppressWarnings("unchecked")
 	public static <T extends Tag> ListTag writeObjectList(Stream<T> stream) {
         ListTag list = new ListTag();
         int counter = 0;
-        for(T tag : (T[])stream.toArray()) 
+        for(T tag : stream.toList()) 
         	list.addTag(counter++, tag);
         return list;
     }

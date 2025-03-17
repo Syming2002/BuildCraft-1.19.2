@@ -31,6 +31,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidStack;
@@ -96,7 +97,7 @@ public class Tank implements IFluidHandlerAdv, IFluidHandler, IFluidTank {
 
     public Fluid getFluidType() {
         FluidStack fluidStack = getFluid();
-        return !fluidStack.isEmpty() ? fluidStack.getFluid() : null;
+        return !fluidStack.isEmpty() ? fluidStack.getFluid() : Fluids.EMPTY;
     }
 
     public CompoundTag serializeNBT() {

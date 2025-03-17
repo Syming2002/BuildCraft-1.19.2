@@ -20,6 +20,7 @@ import ct.buildcraft.api.tiles.IDebuggable;
 import ct.buildcraft.factory.BCFactoryBlocks;
 import ct.buildcraft.factory.block.BlockHeatExchange;
 import ct.buildcraft.factory.block.BlockHeatExchange.EnumExchangePart;
+import ct.buildcraft.factory.client.gui.MenuHeatExchange;
 import ct.buildcraft.lib.block.BlockBCBase_Neptune;
 import ct.buildcraft.lib.block.VanillaRotationHandlers;
 import ct.buildcraft.lib.cap.CapabilityHelper;
@@ -27,6 +28,7 @@ import ct.buildcraft.lib.fluid.FluidSmoother;
 import ct.buildcraft.lib.fluid.FluidSmoother.FluidStackInterp;
 import ct.buildcraft.lib.fluid.Tank;
 import ct.buildcraft.lib.fluid.TankManager;
+import ct.buildcraft.lib.gui.TankContainer;
 import ct.buildcraft.lib.misc.BoundingBoxUtil;
 import ct.buildcraft.lib.misc.CapUtil;
 import ct.buildcraft.lib.misc.FluidUtilBC;
@@ -46,11 +48,19 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -67,9 +77,11 @@ import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.network.NetworkHooks;
 
-public class TileHeatExchange extends TileBC_Neptune implements IDebuggable {
+public class TileHeatExchange extends TileBC_Neptune implements IDebuggable, MenuProvider{
 
 	public static final IdAllocator IDS = TileBC_Neptune.IDS.makeChild("HeatExchanger");
     public static final int NET_ID_CHANGE_SECTION = IDS.allocId("CHANGE_SECTION");
@@ -80,6 +92,17 @@ public class TileHeatExchange extends TileBC_Neptune implements IDebuggable {
     /** the maximum amount of fluid that can be transferred per tick for each number of middle sections. numbers need to
      * be divisors of 1000 */
     private static final int[] FLUID_MULT = { 5, 10, 20 };
+    
+    protected TankContainer tankData = null;
+    protected Tank[] tanks = new Tank[4];
+    protected DataSlot stateData = new DataSlot(){
+		@Override
+		public int get() {
+			return 0;
+		}
+		@Override
+		public void set(int index) {}
+    };
 
     public TileHeatExchange(BlockPos pos, BlockState state) {
 		super(BCFactoryBlocks.ENTITYBLOCKHEATEXCHANGE.get(), pos, state);
@@ -183,6 +206,15 @@ public class TileHeatExchange extends TileBC_Neptune implements IDebuggable {
                     sectionStart.middleCount = exchangers.size() - 2;
                     exchangers.getFirst().setSection(sectionStart);
                     exchangers.getLast().setSection(sectionEnd);
+                    
+                    tankData = new TankContainer(sectionStart.tankInput, sectionStart.tankOutput, sectionEnd.tankInput, sectionEnd.tankOutput);
+                    tanks[0] = sectionStart.tankInput;
+                    tanks[1] = sectionStart.tankOutput;
+                    tanks[2] = sectionEnd.tankInput;
+                    tanks[3] = sectionEnd.tankOutput;
+                    exchangers.getFirst().tankData = tankData;
+                    exchangers.getLast().tankData = tankData;
+                    
                     for (TileHeatExchange exchange : exchangers) {
                         exchange.sendNetworkUpdate(NET_ID_CHANGE_SECTION);
                         //update BlockState
@@ -210,6 +242,11 @@ public class TileHeatExchange extends TileBC_Neptune implements IDebuggable {
     }
 
     private void removeSection() {
+    	tankData = null;
+        tanks[0] = null;
+        tanks[1] = null;
+        tanks[2] = null;
+        tanks[3] = null;
         if (section == null) {
             return;
         }
@@ -345,10 +382,13 @@ public class TileHeatExchange extends TileBC_Neptune implements IDebuggable {
     
     @Override
 	public InteractionResult onActivated(Player player, InteractionHand hand, BlockHitResult hit) {
-        if (section != null) {
-            return section.tankManager.onActivated(player, hit.getBlockPos(), hand);
+        if (section != null&&FluidUtilBC.onTankActivated(player, worldPosition, hand, section.tankManager)) {
+            return InteractionResult.SUCCESS;
         }
-        return super.onActivated(player, hand, hit);
+        if (!level.isClientSide()&&tankData != null && level.getBlockEntity(worldPosition) instanceof TileHeatExchange tile) {
+            NetworkHooks.openScreen((ServerPlayer)player, tile);
+        }
+        return InteractionResult.SUCCESS;
 	}
 
 	@Override
@@ -366,7 +406,7 @@ public class TileHeatExchange extends TileBC_Neptune implements IDebuggable {
 	}
 
     @Override
-    public void onNeighbourBlockChanged(Block block, BlockPos nehighbour) {
+    public void onNeighbourBlockChanged(BlockState state, BlockPos nehighbour) {
         if (nehighbour.getY() != worldPosition.getY()) {
             // Heat exchange tiles can only be horizontally adjacent
             return;
@@ -811,7 +851,8 @@ public class TileHeatExchange extends TileBC_Neptune implements IDebuggable {
             double z = from.z;
 
             Vec3 motion = VecUtil.scale(vecDir, 0.4);
-            ParticleStatus particleType = Minecraft.getInstance().options.particles().get();
+            Minecraft mc = Minecraft.getInstance();
+            ParticleStatus particleType = mc.options.particles().get();
             Level w = getTile().getLevel();
             if (particleType == ParticleStatus.MINIMAL || w == null) {
                 return;
@@ -950,4 +991,18 @@ public class TileHeatExchange extends TileBC_Neptune implements IDebuggable {
         /** Progress is decreasing from max to 0. */
         STOPPING;
     }
+    
+    public Tank getSectionTank(int index) {
+    	return tanks[index%4];
+    }
+
+	@Override
+	public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
+		return new MenuHeatExchange(id, inventory, new ItemStackHandler(4), tankData, stateData, ContainerLevelAccess.create(level, worldPosition));
+	}
+
+	@Override
+	public Component getDisplayName() {
+		return Component.translatable(this.getBlockState().getBlock().getDescriptionId());
+	}
 }

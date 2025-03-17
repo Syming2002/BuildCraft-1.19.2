@@ -17,7 +17,6 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 import ct.buildcraft.api.IBuildCraftMod;
-import ct.buildcraft.api.core.BCDebugging;
 import ct.buildcraft.api.core.BCLog;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
@@ -25,7 +24,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.loading.FMLEnvironment;
@@ -36,7 +34,7 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 public class MessageManager {
-    public static final boolean DEBUG = BCDebugging.shouldDebugLog("lib.messages");
+    public static final boolean DEBUG = true;//BCDebugging.shouldDebugLog("lib.messages");
 
     private static final Map<IBuildCraftMod, PerModHandler> MOD_HANDLERS;
     private static final Map<Class<?>, PerMessageInfo<?>> MESSAGE_HANDLERS = new HashMap<>();
@@ -140,15 +138,13 @@ public class MessageManager {
      * 
      * @param side The side that the given handler will receive messages on. */
     public static <I> void setHandler(Class<I> messageClass,
-    	BiConsumer<I, Supplier<NetworkEvent.Context>> messageHandler,
-    	BiConsumer<I, FriendlyByteBuf> enCoder, 
-    	Function<FriendlyByteBuf, I> deCoder, Dist side) {
+    	BiConsumer<I, Supplier<NetworkEvent.Context>> messageHandler, Dist side) {
         PerMessageInfo<I> messageInfo = (PerMessageInfo<I>) MESSAGE_HANDLERS.get(messageClass);
         if (messageInfo == null) {
             throw new IllegalArgumentException("Cannot set handler for unregistered message: " + messageClass);
         }
         
-        registerMessageClass(messageInfo.modHandler.module, messageClass, messageHandler, enCoder, deCoder, side);
+        registerMessageClass(messageInfo.modHandler.module, messageClass, messageHandler, messageInfo.enCoder, messageInfo.deCoder, side);
     }
 
     /** Called by {@link BCLib} to finish registering this class. */
@@ -274,7 +270,7 @@ public class MessageManager {
     	getSimpleNetworkWrapper(message).send(PacketDistributor.TRACKING_CHUNK.with(() -> levelChunk), message);
     }
 
-	public static void sendToDimension(MessageMarker message, ResourceKey<Level> dimensionId) {
+	public static void sendToDimension(Object message, ResourceKey<Level> dimensionId) {
 		getSimpleNetworkWrapper(message).send(PacketDistributor.DIMENSION.with(() -> dimensionId), message);
 	}
 }

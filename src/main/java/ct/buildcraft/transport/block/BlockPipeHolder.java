@@ -92,14 +92,17 @@ import net.minecraftforge.client.extensions.common.IClientBlockExtensions;
 
 public class BlockPipeHolder extends BlockBCTile_Neptune implements ICustomPaintHandler, EntityBlock, IClientBlockExtensions {
 
-	private static final VoxelShape BOX_CENTER = Block.box(4.0D, 4.0D, 4.0D, 12.0D, 12.0D, 12.0D);
-	private static final VoxelShape BOX_DOWN = Shapes.box(0.25D, 0, 0.25D, 0.75D, 0.25D, 0.75D);
-	private static final VoxelShape BOX_UP = Shapes.box(0.25D, 0.75D, 0.25, 0.75D, 1D, 0.75D);
-	private static final VoxelShape BOX_NORTH = Shapes.box(0.25D, 0.25D, 0, 0.75D, 0.75D, 0.25D);
-	private static final VoxelShape BOX_SOUTH = Shapes.box(0.25D, 0.25D, 0.75D, 0.75D, 0.75D, 1D);
-	private static final VoxelShape BOX_WEST = Shapes.box(0, 0.25D, 0.25D, 0.25D, 0.75D, 0.75D);
-	private static final VoxelShape BOX_EAST = Shapes.box(0.75D, 0.25D, 0.25D, 1D, 0.75D, 0.75D);
-	private static final VoxelShape[] BOX_FACES = { BOX_DOWN, BOX_UP, BOX_NORTH, BOX_SOUTH, BOX_WEST, BOX_EAST };
+	public static final VoxelShape BOX_CENTER = Block.box(4.0D, 4.0D, 4.0D, 12.0D, 12.0D, 12.0D);
+	public static final VoxelShape BOX_DOWN = Shapes.box(0.25D, 0, 0.25D, 0.75D, 0.25D, 0.75D);
+	public static final VoxelShape BOX_UP = Shapes.box(0.25D, 0.75D, 0.25, 0.75D, 1D, 0.75D);
+	public static final VoxelShape BOX_NORTH = Shapes.box(0.25D, 0.25D, 0, 0.75D, 0.75D, 0.25D);
+	public static final VoxelShape BOX_SOUTH = Shapes.box(0.25D, 0.25D, 0.75D, 0.75D, 0.75D, 1D);
+	public static final VoxelShape BOX_WEST = Shapes.box(0, 0.25D, 0.25D, 0.25D, 0.75D, 0.75D);
+	public static final VoxelShape BOX_EAST = Shapes.box(0.75D, 0.25D, 0.25D, 1D, 0.75D, 0.75D);
+	public static final VoxelShape[] BOX_FACES = { BOX_DOWN, BOX_UP, BOX_NORTH, BOX_SOUTH, BOX_WEST, BOX_EAST };
+	
+    private static final VoxelShape[] PIPE_SHAPE_CACHE = new VoxelShape[64];
+
 	
 	private static final SingleSpriteSet spriteSet = new SingleSpriteSet(null);
 
@@ -381,10 +384,10 @@ public class BlockPipeHolder extends BlockBCTile_Neptune implements ICustomPaint
 //			VoxelShape bb = pluggable.getBoundingBox();
 			return hitFacing += 6;
 		}
-		for (EnumWirePart part : tile.getWireManager().parts.keySet()) {
+		if (!tile.getWireManager().parts.keySet().isEmpty()/*EnumWirePart part : tile.getWireManager().parts.keySet()*/) {
 			return hitFacing += 12;
 		}
-		for (EnumWireBetween between : tile.getWireManager().betweens.keySet()) {
+		if (!tile.getWireManager().betweens.keySet().isEmpty()) {
 			return hitFacing += 20;
 		}
 		return hitFacing;
@@ -436,22 +439,40 @@ public class BlockPipeHolder extends BlockBCTile_Neptune implements ICustomPaint
 		VoxelShape shape = BOX_CENTER;
 		boolean computed = false;
 		if (pipe != Pipe.EMPTY) {
+			
 			computed = true;
-			for (Direction face : Direction.values()) {
-				float conSize = pipe.getConnectedDist(face);
-				if (conSize > 0) {
-					VoxelShape aabb = BOX_FACES[face.get3DDataValue()];
-					if (conSize != 0.25f) {
-						Vec3 center = VecUtil.offset(new Vec3(0.5, 0.5, 0.5), face, 0.25 + (conSize / 2));
-						Vec3 radius = new Vec3(0.25, 0.25, 0.25);
-						radius = VecUtil.replaceValue(radius, face.getAxis(), conSize / 2);
-						Vec3 min = center.subtract(radius);
-						Vec3 max = center.add(radius);
-						aabb = Shapes.create(BoundingBoxUtil.makeFrom(min, max));
-					}
-					shape = Shapes.or(shape, aabb);
+			boolean canUseCache = true;
+			Direction[] direTogen = new Direction[6];
+			float[] conSizes = new float[6];
+			int len = 0;
+			
+			
+			for(int i=0;i<6;i++) {
+				Direction d = Direction.values()[i];
+				conSizes[len] = pipe.getConnectedDist(Direction.values()[i]);
+				if(conSizes[len]>0) {
+					canUseCache &= conSizes[len] == 0.25f;
+					direTogen[len++] = d;
 				}
 			}
+			if(canUseCache)
+				shape = getCachedPipeShape(direTogen, len);
+			else
+				for (int i = 0;i < len; i++) {
+					Direction face = direTogen[i];
+					if (conSizes[i] > 0) {
+						VoxelShape aabb = BOX_FACES[face.get3DDataValue()];
+						if (conSizes[i] != 0.25f) {
+							Vec3 center = VecUtil.offset(new Vec3(0.5, 0.5, 0.5), face, 0.25 + (conSizes[i] / 2));
+							Vec3 radius = new Vec3(0.25, 0.25, 0.25);
+							radius = VecUtil.replaceValue(radius, face.getAxis(), conSizes[i] / 2);
+							Vec3 min = center.subtract(radius);
+							Vec3 max = center.add(radius);
+							aabb = Shapes.create(BoundingBoxUtil.makeFrom(min, max));
+						}
+						shape = Shapes.or(shape, aabb);
+					}
+				}
 		}
 		for (Direction face : Direction.values()) {
 			PipePluggable pluggable = tile.getPluggable(face);
@@ -989,8 +1010,8 @@ public class BlockPipeHolder extends BlockBCTile_Neptune implements ICustomPaint
 	@OnlyIn(Dist.CLIENT)
 	@Override
 	public boolean addDestroyEffects(BlockState state, Level world, BlockPos pos, ParticleEngine manager) {
-		
-        HitResult hit = Minecraft.getInstance().hitResult;
+		Minecraft mc = Minecraft.getInstance();
+        HitResult hit = mc.hitResult;
 //        hit = null;
         if (hit == null || !(hit instanceof BlockHitResult hitResult)|| !pos.equals(hitResult.getBlockPos())) {
             return false;
@@ -1128,4 +1149,21 @@ public class BlockPipeHolder extends BlockBCTile_Neptune implements ICustomPaint
 		}
 
 	}
+	
+    public static final VoxelShape getCachedPipeShape(Direction[] ds, int len) {
+    	int index = 0;
+    	for(int i = 0;i<len;i++) {
+    		if(ds != null)
+    		index+= 1<<ds[i].ordinal();
+    	}
+    	VoxelShape shape =  PIPE_SHAPE_CACHE[index];
+    	if(shape == null) {
+    		shape = BOX_CENTER;
+    		for(int i = 0;i<len;i++)
+    			shape = Shapes.or(shape, BOX_FACES[ds[i].get3DDataValue()]);
+    		 PIPE_SHAPE_CACHE[index] = shape;
+    	}
+    	return shape;
+    	
+    }
 }

@@ -264,6 +264,6 @@ public class PipeBehaviourEmzuli extends PipeBehaviourWood implements MenuProvid
 
 	@Override
 	public Component getDisplayName() {
-		return Component.translatable(pipe.getDefinition().identifier.toLanguageKey());
+		return Component.translatable(pipe.getDefinition().identifier.toLanguageKey("pipe"));
 	}
 }

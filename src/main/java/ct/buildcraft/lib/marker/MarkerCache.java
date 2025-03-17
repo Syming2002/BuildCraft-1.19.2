@@ -13,10 +13,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import ct.buildcraft.api.core.BCDebugging;
 import ct.buildcraft.api.core.BCLog;
-
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.dimension.DimensionType;
 
 public abstract class MarkerCache<S extends MarkerSubCache<?>> {
     public static final boolean DEBUG = BCDebugging.shouldDebugLog("lib.markers");
@@ -24,8 +25,8 @@ public abstract class MarkerCache<S extends MarkerSubCache<?>> {
 
     public final String name;
 
-    private final Map<ResourceKey<Level>, S> cacheClient = new ConcurrentHashMap<>();
-    private final Map<ResourceKey<Level>, S> cacheServer = new ConcurrentHashMap<>();
+    private final Map<DimensionType, S> cacheClient = new ConcurrentHashMap<>();
+    private final Map<DimensionType, S> cacheServer = new ConcurrentHashMap<>();
 
     public MarkerCache(String name) {
         this.name = name;
@@ -58,28 +59,28 @@ public abstract class MarkerCache<S extends MarkerSubCache<?>> {
 
     public static void onPlayerJoinLevel(ServerPlayer player) {
         for (MarkerCache<?> cache : CACHES) {
-            Level Level = player.getLevel();
+        	ServerLevel Level = player.getLevel();
             cache.getSubCache(Level).onPlayerJoinLevel(player);
         }
     }
 
-    public static void onLevelUnload(Level level) {
+    public static void onLevelUnload(LevelAccessor levelAccessor) {
         for (MarkerCache<?> cache : CACHES) {
-            cache.onLevelUnloadImpl(level);
+            cache.onLevelUnloadImpl(levelAccessor);
         }
     }
 
-    private void onLevelUnloadImpl(Level level) {
-        Map<ResourceKey<Level>, S> cache = level.isClientSide ? cacheClient : cacheServer;
-        ResourceKey<Level> key = level.dimension();
+    private void onLevelUnloadImpl(LevelAccessor levelAccessor) {
+        Map<DimensionType, S> cache = levelAccessor.isClientSide() ? cacheClient : cacheServer;
+        DimensionType key = levelAccessor.dimensionType();
         cache.remove(key);
     }
 
     protected abstract S createSubCache(Level level);
 
     public S getSubCache(Level level) {
-        Map<ResourceKey<Level>, S> cache = level.isClientSide ? cacheClient : cacheServer;
-        ResourceKey<Level> key = level.dimension();
+        Map<DimensionType, S> cache = level.isClientSide ? cacheClient : cacheServer;
+        DimensionType key = level.dimensionType();
         return cache.computeIfAbsent(key, k -> createSubCache(level));
     }
 }

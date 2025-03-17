@@ -3,7 +3,6 @@ package ct.buildcraft.factory.client.gui;
 import ct.buildcraft.core.BCCoreBlocks;
 import ct.buildcraft.factory.BCFactoryGuis;
 import ct.buildcraft.lib.gui.RecordContainerSlot;
-import ct.buildcraft.lib.gui.RecordSlot;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;

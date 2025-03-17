@@ -334,8 +334,14 @@ public abstract class TileBC_Neptune extends BlockEntity implements IPayloadRece
 		return InteractionResult.PASS;
     }
 
-    public void onNeighbourBlockChanged(Block block, BlockPos nehighbour) {
+    //Only called when neighbor tile changed
+    public void onNeighbourBlockChanged(BlockState state, BlockPos neighbor) {
         tileCache.invalidate();
+    }
+    
+    //Called on every neighbor changed
+    public void neighbourBlockChanged(BlockState state, BlockPos neighbor, boolean harvest) {
+    	
     }
 
 /*    @Override
@@ -371,7 +377,7 @@ public abstract class TileBC_Neptune extends BlockEntity implements IPayloadRece
      * the current chunk is saved after the last tick. */
     public void markChunkDirty() {
         if (level != null) {
-            level.blockEntityChanged(worldPosition);
+//            level.blockEntityChanged(worldPosition);
         }
     }
 

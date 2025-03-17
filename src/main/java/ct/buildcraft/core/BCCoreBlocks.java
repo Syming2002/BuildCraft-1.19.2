@@ -3,9 +3,12 @@ package ct.buildcraft.core;
 import ct.buildcraft.api.enums.EnumEngineType;
 import ct.buildcraft.core.block.BlockEngine_BC8;
 import ct.buildcraft.core.block.BlockMarkerPath;
+import ct.buildcraft.core.block.BlockMarkerVolume;
 import ct.buildcraft.core.block.BlockSpring;
 import ct.buildcraft.core.blockEntity.TileEngineCreative;
 import ct.buildcraft.core.blockEntity.TileEngineRedstone_BC8;
+import ct.buildcraft.core.blockEntity.TileMarkerPath;
+import ct.buildcraft.core.blockEntity.TileMarkerVolume;
 import ct.buildcraft.energy.blockEntity.TileEngineIron_BC8;
 import ct.buildcraft.energy.blockEntity.TileEngineStone_BC8;
 
@@ -35,6 +38,8 @@ public class BCCoreBlocks {
     		.registerEngine(EnumEngineType.IRON, TileEngineIron_BC8::new));
 
     public static final RegistryObject<BlockSpring> SPRING = BLOCKS.register("spring", BlockSpring::new);
+    public static final RegistryObject<BlockMarkerPath> MARKER_PATH = BLOCKS.register("marker_path", BlockMarkerPath::new);
+    public static final RegistryObject<BlockMarkerVolume> MARKER_VOLUME = BLOCKS.register("marker_volume", BlockMarkerVolume::new);
 //    public static BlockMarkerPath markerPath;
     
     
@@ -48,6 +53,12 @@ public class BCCoreBlocks {
     
     public static final RegistryObject<BlockEntityType<TileEngineCreative>> ENGINE_CREATIVE_TILE_BC8 = BLOCK_ENTITYS.register("entity_engine_creative", 
     		() -> BlockEntityType.Builder.of(TileEngineCreative::new,ENGINE_BC8.get()).build(null));
+    
+    public static final RegistryObject<BlockEntityType<TileMarkerPath>> MARKER_PATH_TILE_BC8 = BLOCK_ENTITYS.register("entity_marker_path", 
+    		() -> BlockEntityType.Builder.of(TileMarkerPath::new,MARKER_PATH.get()).build(null));
+    
+    public static final RegistryObject<BlockEntityType<TileMarkerVolume>> MARKER_VOLUME_TILE_BC8 = BLOCK_ENTITYS.register("entity_marker_volume", 
+    		() -> BlockEntityType.Builder.of(TileMarkerVolume::new,MARKER_VOLUME.get()).build(null));
     
     static void registry(IEventBus m) {
         BLOCKS.register(m);

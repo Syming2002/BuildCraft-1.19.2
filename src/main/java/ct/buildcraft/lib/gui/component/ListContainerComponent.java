@@ -36,6 +36,17 @@ public class ListContainerComponent implements ContainerComponent {
 		}
 		return false;
 	}
+	
+	
+	@Override
+	public boolean mouseRelease(double x, double y, int mouse) {
+		for(int i = 0;i<size;i++) {
+			if(listenClick[i])
+				if(components[i].mouseRelease(x, y, mouse))
+					return true;
+		}
+		return false;
+	}
 
 	public ListContainerComponent add(ContainerComponent com, boolean shouldListenClick) {
 		if(index<0||index>=size) {
@@ -59,10 +70,15 @@ public class ListContainerComponent implements ContainerComponent {
 		}
 	}
 	
+	
 	public void onClose() {
 		for(int i = 0;i<size;i++) {
 			components[i].onClose();;
 		}
 	}
 
+	@Override
+	public int getNeedDataSize() {
+		return 0;
+	}
 }
