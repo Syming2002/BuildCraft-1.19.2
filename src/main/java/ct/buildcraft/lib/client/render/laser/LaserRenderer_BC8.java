@@ -87,7 +87,7 @@ public class LaserRenderer_BC8 {
 
     private static LaserCompiledBuffer makeDynamicLaser(LaserData_BC8 data) {
         LaserCompiledBuffer.Builder renderer = new LaserCompiledBuffer.Builder(data.enableDiffuse);
-        makeLaser(data, renderer, false);
+        makeLaser(data, renderer, data.isOrgin);//default False
         return renderer.build();
     }
 

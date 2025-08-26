@@ -110,6 +110,7 @@ public class BCTransportModels {
         putModel(event, "plug_blocker#inventory", blocker);//new ModelPluggableItem(BLOCKER.getCutoutQuads()));
         putModel(event, "plug_power_adaptor#inventory", adaptor);
     	
+        PipeFlowRendererItems.onModelBake();
 
     }
 

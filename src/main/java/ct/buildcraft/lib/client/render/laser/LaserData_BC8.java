@@ -30,17 +30,22 @@ public class LaserData_BC8 {
     public final double scale;
     public final boolean enableDiffuse, doubleFace;
     public final int minBlockLight;
+	public final boolean isOrgin;
     private final int hash;
 
     public LaserData_BC8(LaserType laserType, Vec3 start, Vec3 end, double scale) {
-        this(laserType, start, end, scale, true, false, 0);
-    }
-
-    public LaserData_BC8(LaserType laserType, Vec3 start, Vec3 end, double scale, boolean enableDiffuse, boolean doubleFace, int minBlockLight) {
-        this(laserType, start, end, scale, enableDiffuse, doubleFace, minBlockLight, Objects.hash(laserType, start, end, Double.doubleToLongBits(scale), enableDiffuse, doubleFace, minBlockLight));
+        this(laserType, start, end, scale, true, false, 0, false);
     }
     
-    protected LaserData_BC8(LaserType laserType, Vec3 start, Vec3 end, double scale, boolean enableDiffuse, boolean doubleFace, int minBlockLight, int hash) {
+    public LaserData_BC8(LaserType laserType, Vec3 start, Vec3 end, double scale, boolean isOrgin) {
+        this(laserType, start, end, scale, true, false, 0, isOrgin);
+    }
+
+    public LaserData_BC8(LaserType laserType, Vec3 start, Vec3 end, double scale, boolean enableDiffuse, boolean doubleFace, int minBlockLight, boolean isOrgin) {
+        this(laserType, start, end, scale, enableDiffuse, doubleFace, minBlockLight, isOrgin, Objects.hash(laserType, start, end, Double.doubleToLongBits(scale), enableDiffuse, doubleFace, minBlockLight, isOrgin));
+    }
+    
+    protected LaserData_BC8(LaserType laserType, Vec3 start, Vec3 end, double scale, boolean enableDiffuse, boolean doubleFace, int minBlockLight, boolean isOrgin, int hash) {
     	this.laserType = laserType;
         this.start = start;
         this.end = end;
@@ -48,14 +53,16 @@ public class LaserData_BC8 {
         this.enableDiffuse = enableDiffuse;
         this.doubleFace = doubleFace;
         this.minBlockLight = minBlockLight;
+        this.isOrgin = isOrgin;
         this.hash = hash;
+        
     }
     
     //Cache
     public static LaserData_BC8 of(LaserType laserType, Vec3 start, Vec3 end, double scale, boolean enableDiffuse, boolean doubleFace, int minBlockLight, int id) {
     	int hash = Objects.hash(laserType, start, end, Double.doubleToLongBits(scale), enableDiffuse, doubleFace, minBlockLight);
     	if(hash != hashCache[id]) {
-    		objCache[id] = new LaserData_BC8(laserType, start, end, scale, enableDiffuse, doubleFace, minBlockLight, id);
+    		objCache[id] = new LaserData_BC8(laserType, start, end, scale, enableDiffuse, doubleFace, minBlockLight, false, id);
     		hashCache[id] = hash;
     	}
     	return objCache[id];
@@ -70,6 +77,10 @@ public class LaserData_BC8 {
     		hashCache = Arrays.copyOf(hashCache, lenth);
     	}
     	return k;
+    }
+    
+    public void setRenderOrgin(boolean isOrgin) {
+    	this.isOrgin = isOrgin;
     }
 
     @Override

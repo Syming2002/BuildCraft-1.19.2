@@ -129,7 +129,7 @@ public class LaserBoxRenderer {
         Direction faceForMax = VecUtil.getFacing(axis, false);
         Vec3 one = min.add(Vec3.atLowerCornerOf(faceForMin.getNormal()).scale(1 / 16D));
         Vec3 two = max.add(Vec3.atLowerCornerOf(faceForMax.getNormal()).scale(1 / 16D));
-        return new LaserData_BC8(type, one, two, RENDER_SCALE);//TODO temporary
+        return new LaserData_BC8(type, one, two, RENDER_SCALE, true);//TODO temporary
     }
 
 }

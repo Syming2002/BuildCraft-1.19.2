@@ -45,7 +45,7 @@ public interface IPipeHolder extends IRedstoneStatementContainer {
     /** Gets the given capability going outwards from the pipe. This will test the
      * {@link PipePluggable#getInternalCapability(Capability)} first, and the look at the neighbouring tile. */
     @Nullable
-    <T> @Nonnull LazyOptional<T> getCapabilityFromPipe(Direction side, @Nonnull Capability<T> capability);
+    <T> /*@Nonnull*/ LazyOptional<T> getCapabilityFromPipe(Direction side, @Nonnull Capability<T> capability);
 
     IWireManager getWireManager();
 

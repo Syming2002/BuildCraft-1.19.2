@@ -151,7 +151,7 @@ Lets you craft dirt into diamonds. This is a traditional mod that has existed fo
 
  
     
-        #energy    
+ #energy    
 [[mods]]
     modId="buildcraftenergy"
     version="8.0.0.0"
@@ -236,6 +236,48 @@ Lets you craft dirt into diamonds. This is a traditional mod that has existed fo
     side="BOTH"
 
 [[dependencies.buildcraftbuilders]]
+    modId="buildcraftcore"
+    mandatory=true
+    versionRange="[8.0.0.0]"
+    ordering="NONE"
+    side="BOTH"
+
+#silicon    
+[[mods]]
+    modId="buildcraftsilicon"
+    version="8.0.0.0"
+    displayName="BuildCraft Silicon"
+    displayURL="buildcraft.com"
+    logoFile="buildcraft.png"
+    credits="I'd like to thank my mother and father."
+    authors="Author"
+    description='''
+Lets you craft dirt into diamonds. This is a traditional mod that has existed for eons. It is ancient. The holy Notch created it. Jeb rainbowfied it. Dinnerbone made it upside down. Etc.
+    '''
+    displayTest="MATCH_VERSION"
+
+[[dependencies.buildcraftsilicon]]
+    modId="forge"
+    mandatory=true
+    versionRange="[41,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.buildcraftsilicon]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.19,1.20)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.buildcraftsilicon]]
+    modId="buildcraftlib"
+    mandatory=true
+    versionRange="[8.0.0.0]"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.buildcraftsilicon]]
     modId="buildcraftcore"
     mandatory=true
     versionRange="[8.0.0.0]"
