@@ -78,10 +78,6 @@ public class LaserData_BC8 {
     	}
     	return k;
     }
-    
-    public void setRenderOrgin(boolean isOrgin) {
-    	this.isOrgin = isOrgin;
-    }
 
     @Override
     public int hashCode() {
