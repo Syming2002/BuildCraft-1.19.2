@@ -22,7 +22,6 @@ import com.google.common.primitives.Bytes;
 import ct.buildcraft.api.core.EnumPipePart;
 import ct.buildcraft.api.data.NbtSquishConstants;
 import ct.buildcraft.builders.BCBuildersBlocks;
-import ct.buildcraft.builders.BCBuildersItems;
 import ct.buildcraft.builders.item.ItemSnapshot;
 import ct.buildcraft.builders.snapshot.GlobalSavedDataSnapshots;
 import ct.buildcraft.builders.snapshot.Snapshot;
@@ -175,7 +174,7 @@ public class TileElectronicLibrary extends TileBC_Neptune {
                 }
             }
             if (id == NET_DOWN) {
-                Snapshot.Header header = BCBuildersItems.SNAPSHOT.get().getHeader(invDownIn.getStackInSlot(0));
+                Snapshot.Header header = ItemSnapshot.getHeader(invDownIn.getStackInSlot(0));
                 if (header != null) {
                     Snapshot snapshot = GlobalSavedDataSnapshots.get(level).getSnapshot(header.key);
                     if (snapshot != null) {
@@ -289,7 +288,7 @@ public class TileElectronicLibrary extends TileBC_Neptune {
                         snapshot.key = new Snapshot.Key(snapshot.key, (Snapshot.Header) null);
                         snapshot.computeKey();
                         GlobalSavedDataSnapshots.get(level).addSnapshot(snapshot);
-                        invUpOut.setStackInSlot(0, BCBuildersItems.SNAPSHOT.get().getUsed(snapshot.getType(), header));
+                        invUpOut.setStackInSlot(0, ItemSnapshot.getUsed(snapshot.getType(), header));
                         invUpIn.setStackInSlot(0, StackUtil.EMPTY);
                     } finally {
                         upSnapshotsParts.remove(pair);

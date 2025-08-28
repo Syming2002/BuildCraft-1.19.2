@@ -8,11 +8,11 @@ import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
-import ct.buildcraft.api.core.BCLog;
+import ct.buildcraft.builders.client.render.RenderArchitectTable;
 import ct.buildcraft.builders.client.render.RenderQuarry;
-import ct.buildcraft.core.BCCoreConfig;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.ModelEvent.RegisterAdditional;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -23,7 +23,6 @@ import net.minecraftforge.fml.config.ModConfig.Type;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLLoader;
 
 //@formatter:off
 @Mod(BCBuilders.MODID)
@@ -40,6 +39,7 @@ public class BCBuilders {
     	BCBuildersBlocks.registry(modEventBus);
     	BCBuildersItems.registry(modEventBus);
     	BCBuildersConfig.preInit();
+    	BCBuildersRegistries.preInit();
     	ModLoadingContext.get().registerConfig(Type.COMMON, BCBuildersConfig.config);
     	
         MinecraftForge.EVENT_BUS.register(this);
@@ -52,6 +52,7 @@ public class BCBuilders {
 
     public static void commonSetup(final FMLCommonSetupEvent event) {
     	BCBuildersConfig.reloadConfig(MODID);
+    	BCBuildersRegistries.init();
     }
 
 
@@ -63,8 +64,7 @@ public class BCBuilders {
     public static class ClientModEvents
     {
         @SubscribeEvent
-        public static void onClientSetup(FMLClientSetupEvent event)
-        {
+        public static void onClientSetup(FMLClientSetupEvent event){
         	BCBuildersSprites.init();
         }
         
@@ -72,8 +72,13 @@ public class BCBuilders {
         public static void registryRender(EntityRenderersEvent.RegisterRenderers e) {
 
         	e.registerBlockEntityRenderer(BCBuildersBlocks.QUARRY_TILE_BC8.get(), RenderQuarry::new);
+        	e.registerBlockEntityRenderer(BCBuildersBlocks.ARCHITECT_TILE_BC8.get(), RenderArchitectTable::new);
         }
         
+        @SubscribeEvent
+        public static void onModelBakePre(RegisterAdditional event) {
+        	BCBuildersItems.registerItemProperties();
+        }
         	
     }
 }

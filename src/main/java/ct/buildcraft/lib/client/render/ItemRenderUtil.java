@@ -21,6 +21,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalNotification;
 import com.mojang.blaze3d.platform.TextureUtil;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 
 import net.minecraft.CrashReport;
@@ -113,14 +114,14 @@ public class ItemRenderUtil {
     /** Used to render a lot of items in sequential order. Assumes that you don't change the glstate inbetween calls.
      * You must call {@link #endItemBatch()} after your have rendered all of the items. */
     public static void renderItemStack(double x, double y, double z, ItemStack stack, int lightc, Direction dir,
-        BufferBuilder bb) {
+    		VertexConsumer bb) {
         renderItemStack(x, y, z, stack, stack.getCount(), lightc, dir, bb);
     }
 
     /** Used to render a lot of items in sequential order. Assumes that you don't change the glstate inbetween calls.
      * You must call {@link #endItemBatch()} after your have rendered all of the items. */
     public static void renderItemStack(double x, double y, double z, ItemStack stack, int stackCount, int lightc,
-        Direction dir, BufferBuilder bb) {
+        Direction dir, VertexConsumer bb) {
         if (stack.isEmpty()) {
             return;
         }
@@ -139,9 +140,9 @@ public class ItemRenderUtil {
     }
 
     private static void renderItemStackInternal(
-        double x, double y, double z, ItemStack stack, int stackCount, int lightc, Direction dir, BufferBuilder bb
+        double x, double y, double z, ItemStack stack, int stackCount, int lightc, Direction dir, VertexConsumer bb
     ) {
-/*        if (dir == null) {
+        if (dir == null) {
             dir = Direction.EAST;
         }
         dir = BCLibConfig.rotateTravelingItems.changeFacing(dir);
@@ -150,7 +151,7 @@ public class ItemRenderUtil {
         model = model.getOverrides().resolve(model, stack, null, null, 0);
         boolean requireGl = stack.hasFoil() || model.isCustomRenderer();
 
-        if (bb != null && !requireGl) {
+ /*       if (bb != null && !requireGl) {
 
             final int itemModelCount = getStackModelCount(stackCount);
 

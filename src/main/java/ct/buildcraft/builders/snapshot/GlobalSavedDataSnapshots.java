@@ -49,7 +49,7 @@ public class GlobalSavedDataSnapshots {
 
     private GlobalSavedDataSnapshots(LogicalSide side) {
         snapshotsFile = new File(
-            FMLLoader.getGamePath().instance().getSavesDirectory().getParentFile(),//TODO
+        	FMLLoader.getGamePath().toAbsolutePath().toString(),
             "snapshots-" + side.name().toLowerCase(Locale.ROOT)
         );
         if (!snapshotsFile.exists()) {

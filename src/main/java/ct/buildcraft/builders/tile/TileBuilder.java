@@ -27,7 +27,6 @@ import ct.buildcraft.api.mj.MjBattery;
 import ct.buildcraft.api.mj.MjCapabilityHelper;
 import ct.buildcraft.api.tiles.IDebuggable;
 import ct.buildcraft.builders.BCBuildersBlocks;
-import ct.buildcraft.builders.BCBuildersItems;
 import ct.buildcraft.builders.item.ItemSnapshot;
 import ct.buildcraft.builders.snapshot.Blueprint;
 import ct.buildcraft.builders.snapshot.BlueprintBuilder;
@@ -136,7 +135,7 @@ public class TileBuilder extends TileBC_Neptune implements IDebuggable, ITileFor
                 currentBasePosIndex = 0;
                 snapshot = null;
                 if (after.getItem() instanceof ItemSnapshot) {
-                    Snapshot.Header header = BCBuildersItems.SNAPSHOT.get().getHeader(after);
+                    Snapshot.Header header = ItemSnapshot.getHeader(after);
                     if (header != null) {
                         Snapshot newSnapshot = GlobalSavedDataSnapshots.get(level).getSnapshot(header.key);
                         if (newSnapshot != null) {

@@ -1,14 +1,21 @@
 {
-    "forge_marker": 1,
-    "defaults": {
-        "model": "buildcraftbuilders:replacer"
+  "multipart": [
+    {
+      "when": {"facing": "north"},
+      "apply":{"model": "buildcraftbuilders:block/replacer"}
     },
-    "variants": {
-        "facing": {
-            "east": {"y": 90},
-            "south": {"y": 180},
-            "west": {"y": 270},
-            "north": {"y": 0}
-        }
+    {
+      "when": {"facing": "east"},
+      "apply":{"model": "buildcraftbuilders:block/replacer","y": 90}
+      
+    },
+    {
+      "when": {"facing": "south"},
+      "apply": {"model": "buildcraftbuilders:block/replacer","y": 180}
+    },
+    {
+      "when": {"facing": "west"},
+      "apply": {"model": "buildcraftbuilders:block/replacer","y": 270}
     }
+  ]
 }

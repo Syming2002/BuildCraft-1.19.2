@@ -35,7 +35,8 @@ public class ItemWrench extends Item implements IToolWrench{
         // if (world.isRemote) {
         // return EnumActionResult.PASS;
         // }
-
+//		var s = FMLLoader.getGamePath().toAbsolutePath();
+//		BCLog.logger.debug(s.toString());
 		Level world = coc.getLevel();
 		BlockPos pos = coc.getClickedPos();
 		Direction side = coc.getClickedFace();

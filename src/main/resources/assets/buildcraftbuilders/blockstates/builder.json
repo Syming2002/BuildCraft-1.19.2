@@ -1,20 +1,49 @@
 {
-    "forge_marker": 1,
-    "defaults": {
-        "model": "buildcraftbuilders:builder/main"
+  "variants": {
+    "facing=east,snapshot_type=none": {
+      "model": "buildcraftbuilders:block/builder/slot_empty",
+      "y": 90
     },
-    "variants": {
-        "facing": {
-            "east": {"y": 90},
-            "south": {"y": 180},
-            "west": {"y": 270},
-            "north": {"y": 0}
-        },
-        "snapshot_type": {
-            "none": {"submodel": "buildcraftbuilders:builder/slot_empty"},
-            "blueprint": {"submodel": "buildcraftbuilders:builder/slot_blueprint"},
-            "template": {"submodel": "buildcraftbuilders:builder/slot_template"}
-        },
-        "inventory": [{}]
-    }
+    "facing=east,snapshot_type=blueprint": {
+      "model": "buildcraftbuilders:block/builder/slot_blueprint",
+      "y": 90
+    },
+	"facing=east,snapshot_type=template": {
+	  "model": "buildcraftbuilders:block/builder/slot_template",
+	  "y": 90
+	},
+    "facing=north,snapshot_type=none": {
+      "model": "buildcraftbuilders:block/builder/slot_empty"
+    },
+    "facing=north,snapshot_type=blueprint": {
+      "model": "buildcraftbuilders:block/builder/slot_blueprint"
+    },
+	"facing=north,snapshot_type=template": {
+	  "model": "buildcraftbuilders:block/builder/slot_template"
+	},
+    "facing=south,snapshot_type=none": {
+      "model": "buildcraftbuilders:block/builder/slot_empty",
+      "y": 180
+    },
+    "facing=south,snapshot_type=blueprint": {
+      "model": "buildcraftbuilders:block/builder/slot_blueprint",
+      "y": 180
+    },
+	"facing=south,snapshot_type=template": {
+	  "model": "buildcraftbuilders:block/builder/slot_template",
+	  "y": 180
+	},
+    "facing=west,snapshot_type=none": {
+      "model": "buildcraftbuilders:block/builder/slot_empty",
+      "y": 270
+    },
+    "facing=west,snapshot_type=blueprint": {
+      "model": "buildcraftbuilders:block/builder/slot_blueprint",
+      "y": 270
+    },
+	"facing=west,snapshot_type=template": {
+	  "model": "buildcraftbuilders:block/builder/slot_template",
+	  "y": 270
+	}
+  }
 }

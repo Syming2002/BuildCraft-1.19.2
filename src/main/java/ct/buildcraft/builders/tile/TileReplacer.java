@@ -12,7 +12,6 @@ import ct.buildcraft.api.core.InvalidInputDataException;
 import ct.buildcraft.api.enums.EnumSnapshotType;
 import ct.buildcraft.api.schematics.ISchematicBlock;
 import ct.buildcraft.builders.BCBuildersBlocks;
-import ct.buildcraft.builders.BCBuildersItems;
 import ct.buildcraft.builders.item.ItemSchematicSingle;
 import ct.buildcraft.builders.item.ItemSnapshot;
 import ct.buildcraft.builders.snapshot.Blueprint;
@@ -67,7 +66,7 @@ public class TileReplacer extends TileBC_Neptune {
         if (!invSnapshot.getStackInSlot(0).isEmpty() &&
             !invSchematicFrom.getStackInSlot(0).isEmpty() &&
             !invSchematicTo.getStackInSlot(0).isEmpty()) {
-            Header header = BCBuildersItems.SNAPSHOT.get().getHeader(invSnapshot.getStackInSlot(0));
+            Header header = ItemSnapshot.getHeader(invSnapshot.getStackInSlot(0));
             if (header != null) {
                 Snapshot snapshot = GlobalSavedDataSnapshots.get(level).getSnapshot(header.key);
                 if (snapshot instanceof Blueprint) {
@@ -87,7 +86,7 @@ public class TileReplacer extends TileBC_Neptune {
                         GlobalSavedDataSnapshots.get(level).addSnapshot(newBlueprint);
                         invSnapshot.setStackInSlot(
                             0,
-                            BCBuildersItems.SNAPSHOT.get().getUsed(
+                            ItemSnapshot.getUsed(
                                 EnumSnapshotType.BLUEPRINT,
                                 new Header(
                                     blueprint.key,

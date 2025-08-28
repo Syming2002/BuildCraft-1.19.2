@@ -54,7 +54,7 @@ public abstract class TileMarker<C extends MarkerConnection<C>> extends TileBC_N
     @Override
 	public void setRemoved() {
 		super.setRemoved();
-        // getLocalCache().removeMarker(getPos());
+        getLocalCache().removeMarker(getBlockPos());
 	}
 
     @Override

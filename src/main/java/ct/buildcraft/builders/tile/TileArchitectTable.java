@@ -292,7 +292,7 @@ public class TileArchitectTable extends TileBC_Neptune implements IDebuggable {
         invSnapshotIn.setStackInSlot(0, stackIn);
         invSnapshotOut.setStackInSlot(
             0,
-            BCBuildersItems.SNAPSHOT.get().getUsed(
+            ItemSnapshot.getUsed(
                 snapshotType,
                 new Header(
                     snapshot.key,

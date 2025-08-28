@@ -9,6 +9,7 @@ package ct.buildcraft.builders.item;
 import java.util.List;
 import java.util.Locale;
 
+import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.api.enums.EnumSnapshotType;
 import ct.buildcraft.builders.snapshot.Snapshot;
 import ct.buildcraft.builders.snapshot.Snapshot.Header;
@@ -28,26 +29,42 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ItemSnapshot extends Item {
-    public ItemSnapshot(Item.Properties prop) {
+	
+	public final EnumSnapshotType snapshotType;
+	public static final ItemSnapshot[] snapshots = new ItemSnapshot[2];
+	
+    public ItemSnapshot(Item.Properties prop, EnumSnapshotType snapshotType) {
     	super(prop);
+    	this.snapshotType = snapshotType;
+    	snapshots[snapshotType.ordinal()] = this;
         //setHasSubtypes(true);
     }
 
-    public ItemStack getClean(EnumSnapshotType snapshotType) {
-    	CompoundTag nbt = new CompoundTag();
-    	nbt.putInt("type", EnumItemSnapshotType.get(snapshotType, false).ordinal());
-        return new ItemStack(this, 1, nbt);
+    public static ItemStack getClean(EnumSnapshotType snapshotType) {
+    	int id = snapshotType.ordinal();
+    	if(snapshots[id] == null) {
+    		BCLog.logger.warn("ItemSnapshot : getClean called to early");//TODO
+    		return ItemStack.EMPTY;
+    	}
+    	//CompoundTag nbt = new CompoundTag();
+    	//nbt.putInt("type", EnumItemSnapshotType.get(snapshotType, false).ordinal());
+        return new ItemStack(snapshots[id], 1);
     }
 
-    public ItemStack getUsed(EnumSnapshotType snapshotType, Header header) {
+    public static ItemStack getUsed(EnumSnapshotType snapshotType, Header header) {
+    	int id = snapshotType.ordinal();
+    	if(snapshots[id] == null) {
+    		BCLog.logger.warn("ItemSnapshot : getUsed called to early");
+    		return ItemStack.EMPTY;
+    	}
         CompoundTag nbt = new CompoundTag();
         nbt.put("header", header.serializeNBT());
-        nbt.putInt("type", EnumItemSnapshotType.get(snapshotType, true).ordinal());
-        ItemStack stack = new ItemStack(this, 1, nbt);
+        //nbt.putInt("type", EnumItemSnapshotType.get(snapshotType, true).ordinal());
+        ItemStack stack = new ItemStack(snapshots[id], 1, nbt);
         return stack;
     }
 
-    public Header getHeader(ItemStack stack) {
+    public static Header getHeader(ItemStack stack) {
         if (stack.getItem() instanceof ItemSnapshot) {
             if (EnumItemSnapshotType.getFromStack(stack).used) {
                 CompoundTag nbt = stack.getTag();
@@ -61,8 +78,6 @@ public class ItemSnapshot extends Item {
         return null;
     }
     
-    
-
     @Override
 	public int getMaxStackSize(ItemStack stack) {
     	return EnumItemSnapshotType.getFromStack(stack).used ? 1 : 16;
@@ -71,8 +86,7 @@ public class ItemSnapshot extends Item {
     
 	@Override
     public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> subItems) {
-        subItems.add(getClean(EnumSnapshotType.BLUEPRINT));
-        subItems.add(getClean(EnumSnapshotType.TEMPLATE));
+        subItems.add(getClean(snapshotType));
     }
 
  /*   @Override
@@ -146,11 +160,19 @@ public class ItemSnapshot extends Item {
         }
 
         public static EnumItemSnapshotType getFromStack(ItemStack stack) {
-        	int meta = 0;
-        	CompoundTag tag = stack.getTag();
-        	if(tag != null&&tag.contains("type"))
+  /*      	int meta = 0;
+        	CompoundTag tag = stack.getTagElement("type");
+ //       	BCLog.logger.debug(Boolean.toString(tag == null));
+        	if(tag != null&&tag.contains("type")) {
         		meta = tag.getInt("type");
-            return values()[Math.abs(meta) % values().length];
+        	}
+            return values()[Math.abs(meta) % values().length];*/
+        	Item item = stack.getItem();
+        	if(item instanceof ItemSnapshot snapshot) {
+        		return get(snapshot.snapshotType, stack.getTagElement("head") != null);
+        	}
+        	BCLog.logger.warn("ItemSnapshot.EnumItemSnapshotType : No a snapshot ItemStack!");
+        	return BLUEPRINT_CLEAN;
         }
     }
 }

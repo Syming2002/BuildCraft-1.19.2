@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 
-import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.builders.tile.TileQuarry;
 import ct.buildcraft.core.client.BuildCraftLaserManager;
 import ct.buildcraft.lib.client.render.laser.LaserBoxRenderer;
