@@ -49,6 +49,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -69,7 +70,7 @@ public class TileTank extends TileBC_Neptune implements IDebuggable, IFluidHandl
     private int lastComparatorLevel;
 
     public TileTank(BlockPos pos, BlockState state) {
-        this(16 * 1000, pos, state);
+        this(16 * FluidType.BUCKET_VOLUME, pos, state);
     }
 
     protected TileTank(int capacity, BlockPos pos, BlockState state) {

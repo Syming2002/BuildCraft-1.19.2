@@ -78,7 +78,6 @@ public final class NBTUtilBC {
         return stack.getOrCreateTag();
     }
 
-    @Deprecated/**use {@link BlockPos#asLong()} instead*/
     public static int[] writeBlockPos(BlockPos pos) {
         if (pos == null) {
             throw new NullPointerException("Cannot return a null NBTTag -- pos was null!");
@@ -86,7 +85,6 @@ public final class NBTUtilBC {
         return new int[] { pos.getX(), pos.getY(), pos.getZ() };
     }
 
-    @Deprecated/**use {@link BlockPos#asLong()} instead*/
     public static CompoundTag writeBlockPosAsCompound(BlockPos pos) {
         if (pos == null) {
             throw new NullPointerException("Cannot return a null NBTTag -- pos was null!");
@@ -98,10 +96,6 @@ public final class NBTUtilBC {
         return nbt;
     }
     
-    /**
-     * use {@link #readBlockPos(int[])} for performance
-     */
-    @Deprecated
     @Nullable
     public static BlockPos readBlockPos(Tag base) {
         if (base == null) {
@@ -135,7 +129,7 @@ public final class NBTUtilBC {
         BCLog.logger.warn("Attempted to read a block position from an invalid tag! (" + base + ")", new Throwable());
         return null;
     }
-    @Deprecated/**use {@link BlockPos#of()} instead*/
+    
     public static BlockPos readBlockPos(int[] array) {
         if (array.length == 3){
             return new BlockPos(array[0], array[1], array[2]);
@@ -264,13 +258,12 @@ public final class NBTUtilBC {
         return set;
     }
 
- /*   public static ListTag writeCompoundList(Stream<CompoundTag> stream) {
+    public static ListTag writeCompoundList(Stream<CompoundTag> stream) {
         ListTag list = new ListTag();
-        int counter = 0;
-        for(CompoundTag tag : (CompoundTag[])stream.toArray()) 
-        	list.addTag(counter++, tag);
+        stream.forEach(list::add);
         return list;
-    }*/
+    }
+    
 	public static <T extends Tag> ListTag writeObjectList(Stream<T> stream) {
         ListTag list = new ListTag();
         int counter = 0;

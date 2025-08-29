@@ -873,7 +873,7 @@ public class TileHeatExchange extends TileBC_Neptune implements IDebuggable, Men
 
         private void output() {
             IFluidHandler thisOut = getFluidAutoOutputTarget();
-            FluidUtilBC.move(tankOutput, thisOut, 1000);
+            FluidUtilBC.move(tankOutput, thisOut, FluidType.BUCKET_VOLUME);
 
             if (endSection != null) {
                 IFluidHandler endOut = endSection.getFluidAutoOutputTarget();

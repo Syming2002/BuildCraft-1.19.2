@@ -11,25 +11,19 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 
 import ct.buildcraft.api.transport.pipe.PipeDefinition;
-import ct.buildcraft.core.client.model.ModelEngine;
-import ct.buildcraft.core.client.render.RenderEngine_BC8;
 import ct.buildcraft.lib.client.sprite.SpriteHolderRegistry;
 import ct.buildcraft.lib.client.sprite.SpriteHolderRegistry.SpriteHolder;
 import ct.buildcraft.lib.misc.ColourUtil;
 import ct.buildcraft.transport.client.model.PipeBaseModelGenStandard;
-import ct.buildcraft.transport.client.render.PipeFlowRendererItems;
 import ct.buildcraft.transport.pipe.behaviour.PipeBehaviourEmzuli.SlotIndex;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.DyeColor;
 import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.client.event.ModelEvent.BakingCompleted;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class BCTransportSprites {
 

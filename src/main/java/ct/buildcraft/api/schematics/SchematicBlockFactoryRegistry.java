@@ -17,8 +17,6 @@ import net.minecraft.world.level.block.Block;
 public class SchematicBlockFactoryRegistry {
     private static final Set<SchematicBlockFactory<?>> FACTORIES = new TreeSet<>();
 
-    @Deprecated
-    /**Check ! */
     public static <S extends ISchematicBlock> void registerFactory(String name,
                                                                    int priority,
                                                                    Predicate<SchematicBlockContext> predicate,
@@ -31,8 +29,6 @@ public class SchematicBlockFactoryRegistry {
         ));
     }
 
-    @Deprecated
-    /**Check ! */
     public static <S extends ISchematicBlock> void registerFactory(String name,
                                                                    int priority,
                                                                    List<Block> blocks,

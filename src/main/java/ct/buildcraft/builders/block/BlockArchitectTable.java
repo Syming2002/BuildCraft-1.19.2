@@ -9,6 +9,7 @@ import ct.buildcraft.builders.tile.TileArchitectTable;
 import ct.buildcraft.lib.block.BlockBCTile_Neptune;
 import ct.buildcraft.lib.block.IBlockWithFacing;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -20,6 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.network.NetworkHooks;
 
 public class BlockArchitectTable extends BlockBCTile_Neptune implements IBlockWithFacing {
     public static final BooleanProperty PROP_VALID = BuildCraftProperties.VALID;
@@ -46,8 +48,8 @@ public class BlockArchitectTable extends BlockBCTile_Neptune implements IBlockWi
     @Override
 	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand,
 			BlockHitResult hit) {
-        if (!world.isClientSide) {
- //           BCBuildersGuis.ARCHITECT.openGUI(player, pos);//TODO
+        if (!world.isClientSide&&world.getBlockEntity(pos) instanceof TileArchitectTable arch) {
+        	NetworkHooks.openScreen((ServerPlayer)player, arch, pos);
         }
         return InteractionResult.SUCCESS;
 	}

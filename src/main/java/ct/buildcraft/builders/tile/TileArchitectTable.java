@@ -24,9 +24,9 @@ import ct.buildcraft.api.schematics.SchematicBlockContext;
 import ct.buildcraft.api.schematics.SchematicEntityContext;
 import ct.buildcraft.api.tiles.IDebuggable;
 import ct.buildcraft.builders.BCBuildersBlocks;
-import ct.buildcraft.builders.BCBuildersItems;
 import ct.buildcraft.builders.block.BlockArchitectTable;
 import ct.buildcraft.builders.client.ClientArchitectTables;
+import ct.buildcraft.builders.gui.MenuArchitectTable;
 import ct.buildcraft.builders.item.ItemSnapshot;
 import ct.buildcraft.builders.snapshot.Blueprint;
 import ct.buildcraft.builders.snapshot.GlobalSavedDataSnapshots;
@@ -55,9 +55,15 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -67,7 +73,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 
-public class TileArchitectTable extends TileBC_Neptune implements IDebuggable {
+public class TileArchitectTable extends TileBC_Neptune implements IDebuggable, MenuProvider{
 
 	public static final IdAllocator IDS = TileBC_Neptune.IDS.makeChild("architect");
     public static final int NET_BOX = IDS.allocId("BOX");
@@ -105,7 +111,7 @@ public class TileArchitectTable extends TileBC_Neptune implements IDebuggable {
     );
     
     public TileArchitectTable(BlockPos pos, BlockState state) {
-		super(null, pos, state);
+		super(BCBuildersBlocks.ARCHITECT_TILE_BC8.get(), pos, state);
 	}
 
     @Override
@@ -394,4 +400,14 @@ public class TileArchitectTable extends TileBC_Neptune implements IDebuggable {
     public double getMaxRenderDistanceSquared() {
         return Double.MAX_VALUE;
     }*/
+
+	@Override
+	public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
+		return new MenuArchitectTable(id, inventory, invSnapshotIn, invSnapshotOut, ContainerLevelAccess.create(getLevel(), worldPosition));
+	}
+
+	@Override
+	public Component getDisplayName() {
+		return getBlockState().getBlock().getName();
+	}
 }

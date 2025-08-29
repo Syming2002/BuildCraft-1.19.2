@@ -86,7 +86,8 @@ public class ItemSnapshot extends Item {
     
 	@Override
     public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> subItems) {
-        subItems.add(getClean(snapshotType));
+		if(this.allowedIn(tab))
+			subItems.add(getClean(snapshotType));
     }
 
  /*   @Override

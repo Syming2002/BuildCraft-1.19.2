@@ -1,7 +1,7 @@
 package ct.buildcraft.transport.client.gui;
 
-import ct.buildcraft.core.BCCoreBlocks;
 import ct.buildcraft.lib.gui.RecordSlot;
+import ct.buildcraft.transport.BCTransportBlocks;
 import ct.buildcraft.transport.BCTransportGuis;
 
 import net.minecraft.world.entity.player.Inventory;
@@ -53,7 +53,7 @@ public class MenuPipeDiawood extends AbstractContainerMenu {
 
 	@Override
 	public boolean stillValid(Player player) {
-		return super.stillValid(this.access, player, BCCoreBlocks.ENGINE_BC8.get());
+		return super.stillValid(this.access, player, BCTransportBlocks.pipeHolder.get());
 	}
 
 	@Override

@@ -7,9 +7,11 @@
 package ct.buildcraft.transport;
 
 import ct.buildcraft.api.BCModules;
+import ct.buildcraft.api.schematics.SchematicBlockFactoryRegistry;
 import ct.buildcraft.core.BCCore;
 import ct.buildcraft.lib.net.MessageManager;
 import ct.buildcraft.transport.net.MessageMultiPipeItem;
+import ct.buildcraft.transport.pipe.SchematicBlockPipe;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -56,6 +58,9 @@ public class BCTransport {
     	
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(BCTransportEventDist.class);
+        
+        SchematicBlockFactoryRegistry.registerFactory("pipe", 300, SchematicBlockPipe::predicate,
+                SchematicBlockPipe::new);
 /*        NetworkRegistry.INSTANCE.registerGuiHandler(INSTANCE, BCTransportProxy.getProxy());
 
         SchematicBlockFactoryRegistry.registerFactory("pipe", 300, SchematicBlockPipe::predicate,

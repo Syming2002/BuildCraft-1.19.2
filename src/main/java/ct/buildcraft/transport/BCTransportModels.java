@@ -6,9 +6,6 @@
 
 package ct.buildcraft.transport;
 
-import java.util.Set;
-
-import ct.buildcraft.api.core.BCLog;
 import ct.buildcraft.api.transport.pipe.PipeApiClient;
 import ct.buildcraft.api.transport.pluggable.IPluggableStaticBaker;
 import ct.buildcraft.lib.client.model.plug.PlugBakerSimple;

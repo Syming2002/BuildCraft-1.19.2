@@ -14,8 +14,14 @@ import ct.buildcraft.builders.snapshot.pattern.parameter.PatternParameterCenter;
 import ct.buildcraft.lib.client.sprite.SpriteHolderRegistry;
 import ct.buildcraft.lib.client.sprite.SpriteHolderRegistry.SpriteHolder;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraftforge.client.event.TextureStitchEvent;
 
 public class BCBuildersSprites {
+	
+	public static final ResourceLocation ARCHITECT_GUI = new ResourceLocation("buildcraftbuilders:textures/gui/architect.png");
+	
     public static final SpriteHolder FILLER_PLANNER;
     public static final SpriteHolder ROBOT;
 
@@ -125,5 +131,18 @@ public class BCBuildersSprites {
 
     public static void init() {
         // Nothing, just to register the sprites
+    }
+    
+    public static void onTextureStitchPre(TextureStitchEvent.Pre event) {
+    	if(InventoryMenu.BLOCK_ATLAS == (event.getAtlas().location())) {
+//    		PIPE_TEX.values().forEach(event::addSprite);
+/*    		event.addSprite(DIAWOOD_GUI);
+    		event.addSprite(DIAWOOD_BUTTON_GUI);
+    		event.addSprite(DIAMOND_GUI);
+//    		event.addSprite(DIAMOND_CB_GUI);
+    		event.addSprite(FILTERED_BUFFER_GUI);*/
+    		event.addSprite(ARCHITECT_GUI);
+    	}
+
     }
 }

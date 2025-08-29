@@ -52,6 +52,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
@@ -91,7 +92,7 @@ public class TilePump extends TileMiner {
     private static final ResourceLocation ADVANCEMENT_DRAIN_OIL
         = new ResourceLocation("buildcraftfactory:oil_platform");
 
-    private final Tank tank = new Tank("tank", 16 * /*Fluids.BUCKET_VOLUME*/1000, this);
+    private final Tank tank = new Tank("tank", 16 * FluidType.BUCKET_VOLUME, this);
     private boolean queueBuilt = false;
     private final Map<BlockPos, FluidPath> paths = new HashMap<>();
     private BlockPos fluidConnection;

@@ -10,7 +10,6 @@ import java.util.List;
 
 import ct.buildcraft.api.core.EnumPipePart;
 import ct.buildcraft.api.tiles.IDebuggable;
-import ct.buildcraft.factory.client.gui.MenuAutoWorkbenchItems;
 import ct.buildcraft.lib.fluid.Tank;
 import ct.buildcraft.lib.fluid.TankManager;
 import ct.buildcraft.lib.misc.CapUtil;
@@ -21,7 +20,6 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fluids.FluidType;
 
